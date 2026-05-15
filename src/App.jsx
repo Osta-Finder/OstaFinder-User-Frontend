@@ -1,6 +1,5 @@
 import { BrowserRouter } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
-import LandingPage from "./features/public/pages/LandingPage";
 import AppRoutes from "./routes/AppRoutes";
 
 export default function App() {

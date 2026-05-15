@@ -11,6 +11,8 @@ import WorkerDashboard from "../features/worker/pages/WorkerDashboard";
 import ClientProfile from "../features/client/pages/ClientProfile";
 import Settings from "../features/client/pages/Settings";
 import AboutUs from "../features/public/pages/AboutUs";
+import Service from "../features/worker/pages/Service";
+import ServicesManagement from "../features/worker/pages/ServicesManagement";
 
 export default function AppRoutes() {
   return (
@@ -27,8 +29,9 @@ export default function AppRoutes() {
         <Route path="/client-requests" element={<ClientRequests />} />
         <Route path="/client-profile" element={<ClientProfile />} />
         // Worker Routes
-              <Route path="/worker-dashboard" element={<WorkerDashboard />} />
-              
+        <Route path="/worker-dashboard" element={<WorkerDashboard />} />
+        <Route path="/services" element={<Service />} />
+        <Route path="/services-management" element={<ServicesManagement />} />
         // Auth Routes
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
