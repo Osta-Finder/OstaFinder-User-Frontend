@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useRef, useState } from "react";
 import Card from "./MarqueeCard";
 
 export default function MarqueeSimple({
@@ -6,17 +6,17 @@ export default function MarqueeSimple({
   direction = "right",
   speed = 25,
 }) {
-  const [items, setItems] = React.useState(() => [...data, ...data]);
-  const posRef = React.useRef(0);
-  const rafRef = React.useRef(null);
-  const containerRef = React.useRef(null);
-  const cardWidthRef = React.useRef(0);
+  const [items, setItems] = useState(() => [...data, ...data]);
+  const posRef = useRef(0);
+  const rafRef = useRef(null);
+  const containerRef = useRef(null);
+  const cardWidthRef = useRef(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setItems([...data, ...data]);
   }, [data]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const el = containerRef.current?.querySelector(".flex-none");
     if (el) {
       const style = getComputedStyle(el);
