@@ -1,14 +1,12 @@
-import { BrowserRouter } from "react-router-dom";
-import Navbar from "./components/layout/Navbar";
-import AppRoutes from "./routes/AppRoutes";
+import { Provider } from 'react-redux'
+import { RouterProvider } from 'react-router-dom'
+import { store } from './store'
+import router from './routes'
 
 export default function App() {
   return (
-    <>
-      <BrowserRouter>
-        <Navbar />
-        <AppRoutes />
-      </BrowserRouter>
-    </>
-  );
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+  )
 }
