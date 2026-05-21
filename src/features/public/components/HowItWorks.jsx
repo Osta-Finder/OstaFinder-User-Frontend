@@ -1,88 +1,127 @@
-import { ReactFragment } from "react";
+import { Search, Layers, Zap } from "lucide-react";
 
-function Step({ num, icon, title, desc }) {
+function StepCard({ icon, title, description, benefits }) {
   return (
-    <div className="relative flex flex-col items-center text-center px-4">
-      <div className="flex items-center justify-center w-16 h-16 rounded-full" style={{ background: 'var(--primary-light)' }}>
-        <div className="text-2xl font-extrabold" style={{ color: 'var(--primary-color)' }}>{num}</div>
+    <div
+      className="relative flex flex-col rounded-2xl border border-gray-200 bg-white p-6 text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:border-[#eb6a2d]/50 hover:bg-[#fff1e6]"
+    >
+      <div
+        className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg"
+        style={{ background: "var(--primary-light)" }}
+      >
+        <div style={{ color: "var(--primary-color)" }}>{icon}</div>
       </div>
 
-      <div className="mt-4" style={{ color: 'var(--primary-color)' }}>
-        <div className="w-12 h-12 mx-auto flex items-center justify-center">{icon}</div>
-      </div>
+      <h3 className="mb-2 text-xl font-semibold text-gray-900">{title}</h3>
+      <p
+        className="mb-6 text-sm"
+        style={{ color: "var(--text-secondary)" }}
+      >
+        {description}
+      </p>
 
-      <h3 className="mt-4 text-lg font-semibold text-gray-900">{title}</h3>
-      <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
+      <ul className="space-y-3 text-right">
+        {benefits.map((benefit, index) => (
+          <li
+            key={index}
+            className="flex items-center gap-3 text-sm"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            <div
+              className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full"
+              style={{ background: "color-mix(in srgb, var(--primary-color) 20%, transparent)" }}
+            >
+              <div
+                className="h-2 w-2 rounded-full"
+                style={{ background: "var(--primary-color)" }}
+              />
+            </div>
+            <span>{benefit}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 export default function HowItWorks() {
-  const steps = [
+  const stepsData = [
     {
-      num: 1,
-      icon: (
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M11 4a7 7 0 100 14 7 7 0 000-14z" stroke="var(--primary-color)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M21 21l-4.35-4.35" stroke="var(--primary-color)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
+      icon: <Search className="h-6 w-6" />,
       title: "ابحث أو صف مشكلتك",
-      desc: "اكتب مشكلتك بالعربي أو اختار من الأقسام",
+      description: "اكتب مشكلتك بالعربي أو اختار من الأقسام",
+      benefits: [
+        "بحث ذكي يفهم حتى الاستفسارات غير الدقيقة",
+        "اكتشاف تلقائي لموقعك",
+        "حفظ البحث للرجوع إليه سريعًا",
+      ],
     },
     {
-      num: 2,
-      icon: (
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 7h18" stroke="var(--primary-color)" strokeWidth="1.5" strokeLinecap="round"/>
-          <path d="M7 21V11" stroke="var(--primary-color)" strokeWidth="1.5" strokeLinecap="round"/>
-          <path d="M17 21V11" stroke="var(--primary-color)" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      ),
+      icon: <Layers className="h-6 w-6" />,
       title: "قارن واختار",
-      desc: "شوف تقييمات الصنايعية، أعمالهم السابقة، والأسعار",
+      description: "شوف تقييمات الصنايعية، أعمالهم السابقة، والأسعار",
+      benefits: [
+        "ترتيب حسب السعر والمسافة والتقييم",
+        "فلترة حسب التخصص والتوفر",
+        "معلومات مفصلة عن كل صنايعي",
+      ],
     },
     {
-      num: 3,
-      icon: (
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 6L9 17l-5-5" stroke="var(--primary-color)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
+      icon: <Zap className="h-6 w-6" />,
       title: "اطلب بثقة",
-      desc: "اطلب الخدمة وتتبع الطلب لحد ما يكتمل",
+      description: "اطلب الخدمة وتتبع الطلب لحد ما يكتمل",
+      benefits: [
+        "تواصل مباشر بدون وسطاء",
+        "إمكانية حجز الخدمة",
+        "تتبع الطلب لحين الاكتمال",
+      ],
     },
   ];
 
   return (
-    <section className="w-full" style={{ background: '#F8FAFC' }}>
-      <div className="max-w-7xl mx-auto py-24 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-center text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">كيف يعمل الأسطى فين؟</h1>
-        <p className="mt-3 text-center text-base" style={{ color: 'var(--text-secondary)' }}>3 خطوات بسيطة وتوصل للصنايعي المناسب</p>
+    <section className="w-full" style={{ background: "#F8FAFC" }}>
+      <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto mb-16 max-w-4xl text-center">
+          <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+            إزاي Osta Finder هيحللك مشكلتك؟
+          </h2>
+          <p
+            className="mt-4 text-lg"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            3 خطوات بسيطة وتوصل للصنايعي المناسب
+          </p>
+        </div>
 
-        <div className="relative mt-12">
-          {/* Timeline line */}
-          <div className="hidden md:block absolute inset-x-0 top-1/2 transform -translate-y-1/2" aria-hidden>
-            <div className="mx-auto max-w-4xl h-1" style={{ background: 'var(--primary-color)', opacity: 0.12 }} />
-            <div className="mx-auto max-w-4xl h-1" style={{ background: 'var(--primary-color)', position: 'absolute', top: 0, left: 0, right: 0 }} />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {steps.map((s) => (
-              <div key={s.num} className="relative flex flex-col items-center md:items-center">
-                {/* circle positioned above the timeline */}
-                <div className="z-20">
-                  <div className="flex items-center justify-center w-16 h-16 rounded-full" style={{ background: 'var(--primary-light)' }}>
-                    <div className="text-2xl font-extrabold" style={{ color: 'var(--primary-color)' }}>{s.num}</div>
-                  </div>
-                </div>
-
-                <div className="mt-4">{s.icon}</div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">{s.title}</h3>
-                <p className="mt-2 text-sm text-center" style={{ color: 'var(--text-secondary)' }}>{s.desc}</p>
+        <div className="relative mx-auto mb-8 w-full max-w-4xl">
+          <div
+            aria-hidden
+            className="absolute left-[16.6667%] top-1/2 h-0.5 w-[66.6667%] -translate-y-1/2"
+            style={{ background: "var(--primary-color)", opacity: 0.2 }}
+          />
+          <div className="relative grid grid-cols-3">
+            {stepsData.map((_, index) => (
+              <div
+                key={index}
+                className="flex h-8 w-8 items-center justify-center justify-self-center rounded-full text-sm font-semibold text-gray-900 ring-4 ring-[#F8FAFC]"
+                style={{ background: "var(--primary-light)" }}
+              >
+                {index + 1}
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-3">
+          {stepsData.map((step, index) => (
+            <StepCard
+              key={index}
+              icon={step.icon}
+              title={step.title}
+              description={step.description}
+              benefits={step.benefits}
+            />
+          ))}
         </div>
       </div>
     </section>

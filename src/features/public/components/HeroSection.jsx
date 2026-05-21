@@ -20,9 +20,22 @@ export default function HeroSection({ handleClick }) {
             className="max-w-3xl w-full rounded-[2rem] bg-black/40 p-6 sm:p-10 shadow-2xl shadow-black/40 backdrop-blur-sm text-right text-white"
           >
             <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-gradient-to-r from-black/25 to-transparent px-4 py-2 text-sm text-white/90 mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 17l-6.5 3 2-7L2 9h7l3-7z"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 text-amber-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 2l3 7h7l-5.5 4 2 7L12 17l-6.5 3 2-7L2 9h7l3-7z" />
+              </svg>
               <span className="font-medium">خدمات محلية موثوقة</span>
-              <span className="text-xs text-white/70">(تقييمات حقيقية — ضمان جودة)</span>
+              <span className="text-xs text-white/70">
+                (تقييمات حقيقية — ضمان جودة)
+              </span>
             </div>
 
             <motion.h1
@@ -31,7 +44,9 @@ export default function HeroSection({ handleClick }) {
               transition={{ delay: 0.05, duration: 0.6 }}
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight"
             >
-              ارضِ حاجتك بسرعة مع أفضل الحرفيين المحليين
+              متشيلش هم المشكله
+              <br />
+              الاسطا جاهز عندنا!
             </motion.h1>
 
             <motion.p
@@ -40,7 +55,8 @@ export default function HeroSection({ handleClick }) {
               transition={{ delay: 0.12, duration: 0.6 }}
               className="mt-4 text-sm sm:text-base text-[#F2E7E4] leading-relaxed max-w-2xl"
             >
-              وصل بينك وبين حرفيين موثوقين في منطقتك — احجز موعد، تواصل، واستلم الخدمة بثقة.
+              وصل بينك وبين حرفيين موثوقين في منطقتك — احجز موعد، تواصل، واستلم
+              الخدمة بثقة.
             </motion.p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -63,12 +79,27 @@ export default function HeroSection({ handleClick }) {
                 </Input>
               </div>
 
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Button
                   onClick={handleClick}
                   className="rounded-full px-6 py-3 text-sm text-white btn-custom shadow-lg flex items-center gap-2"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
                   ابحث عن صنايعي
                 </Button>
               </motion.div>
@@ -77,8 +108,6 @@ export default function HeroSection({ handleClick }) {
             <div className="mt-8">
               <MiniTestimonialDemo />
             </div>
-
-            
           </motion.div>
         </div>
         {/* floating decorative shapes */}
@@ -98,7 +127,6 @@ export default function HeroSection({ handleClick }) {
           <div className="h-28 w-28 rounded-full bg-emerald-400/70 blur-2xl opacity-60" />
         </motion.div>
       </div>
-
     </div>
   );
 }

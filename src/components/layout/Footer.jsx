@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <img src={logo} alt="logo" className="w-10 h-10 object-contain" />
-              <span className="text-lg font-semibold">الأسطى فين</span>
+              <span className="text-lg font-semibold">Osta Finder</span>
             </div>
             <p className="text-sm text-gray-300">
               منصة تربط بينك وبين أمهر الصنايعية بسهولة وأمان.
@@ -143,7 +143,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 border-t border-white/10 pt-6 text-center text-sm text-gray-400">
-          © 2026 الأسطى فين. كل الحقوق محفوظة.
+          © 2026 Osta Finder. كل الحقوق محفوظة.
         </div>
       </div>
     </footer>
