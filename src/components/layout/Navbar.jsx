@@ -1,8 +1,22 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useLogoutMutation } from "../../services/authApi";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  const [logout, { isLoading }] = useLogoutMutation();
+  const handlLogout = async () => {
+    try {
+      const res = await logout().unwrap();
+      console.log(res);
+
+      navigate("/");
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <div className="flex gap-4 p-4 bg-gray-200">
+      <button onClick={handlLogout}>logout</button>
       // Public
       <NavLink to="/">Home</NavLink>
       <NavLink to="/about-us">About Us</NavLink>
