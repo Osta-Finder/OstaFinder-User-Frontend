@@ -114,24 +114,25 @@ export default function OrderDetailModal({ order, onClose }) {
                 {STEPS.map((step) => {
                   const isCurrent = order.currentStep === step.key;
                   const isPast = order.currentStep > step.key;
+                  const isRejected = order.status === "rejected" && step.key === 1;
                   return (
                     <div key={step.key} className="flex flex-col items-center">
                       <div
                         className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all"
                         style={{
-                          background: isPast ? "#22c55e" : isCurrent ? "var(--primary-color)" : "#e5e7eb",
-                          color: isPast || isCurrent ? "#fff" : "#9ca3af",
+                          background: isRejected ? "#ef4444" : isPast ? "#22c55e" : isCurrent ? "var(--primary-color)" : "#e5e7eb",
+                          color: isPast || isCurrent || isRejected ? "#fff" : "#9ca3af",
                         }}
                       >
-                        {isPast ? <Check className="h-4 w-4" /> : step.key}
+                        {isRejected ? <X className="h-4 w-4" /> : isPast ? <Check className="h-4 w-4" /> : step.key}
                       </div>
                       <p
                         className="mt-2 text-xs font-medium"
                         style={{
-                          color: isCurrent ? "var(--primary-color)" : isPast ? "#22c55e" : "#9ca3af",
+                          color: isRejected ? "#ef4444" : isCurrent ? "var(--primary-color)" : isPast ? "#22c55e" : "#9ca3af",
                         }}
                       >
-                        {step.label}
+                        {isRejected ? "تم الرفض" : step.label}
                       </p>
                     </div>
                   );
