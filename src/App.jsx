@@ -9,6 +9,7 @@
 
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
+import MainLayout from "./layouts/MainLayout";
 import { useSelector } from "react-redux";
 import { useGetMeQuery } from "./services/authApi";
 
@@ -17,8 +18,12 @@ export default function App() {
   console.log( "meData", meData);
   
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <MainLayout>
+          <AppRoutes />
+        </MainLayout>
+      </BrowserRouter>
+    </>
   );
 }
