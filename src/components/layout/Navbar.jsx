@@ -30,7 +30,7 @@ export default function Navbar() {
       <NavLink to="/" className="flex items-center gap-2">
         <span className="hidden sm:inline-block text-lg font-semibold">Osta Finder</span>
         <img
-          src="/src/assets/images/logo.png"
+          src="../../assets/images/logo.png"
           alt="logo"
           className="w-10 h-10 object-contain"
         />
