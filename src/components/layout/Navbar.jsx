@@ -36,4 +36,6 @@ export default function Navbar() {
       <NavLink to="/register">Register</NavLink>
     </div>
   );
-}
+};
+
+export default Navbar;

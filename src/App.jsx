@@ -1,5 +1,13 @@
+/**
+ * ============================================
+ * APP ROOT
+ * ============================================
+ * Navbar is NOT rendered here globally.
+ * Each layout (WorkerLayout, MainLayout, etc.) manages its own Navbar.
+ * This prevents double-navbar issues when layouts include their own header.
+ */
+
 import { BrowserRouter } from "react-router-dom";
-import Navbar from "./components/layout/Navbar";
 import AppRoutes from "./routes/AppRoutes";
 import { useSelector } from "react-redux";
 import { useGetMeQuery } from "./services/authApi";
@@ -9,11 +17,8 @@ export default function App() {
   console.log( "meData", meData);
   
   return (
-    <>
-      <BrowserRouter>
-        <Navbar />
-        <AppRoutes />
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
