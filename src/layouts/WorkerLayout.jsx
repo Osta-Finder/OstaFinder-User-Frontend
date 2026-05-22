@@ -1,14 +1,26 @@
-import Footer from "../components/layout/Footer";
+/**
+ * ============================================
+ * WORKER LAYOUT
+ * ============================================
+ * Contains sidebar + main content area
+ * All worker pages are nested here via <Outlet />
+ * Do NOT add min-h-screen here - pages manage their own height
+ */
+
+import { Outlet } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import Sidebar from "../components/layout/Sidebar";
+import WorkerSidebar from "../features/worker/components/WorkerSidebar";
 
 export default function WorkerLayout() {
   return (
-    <>
+    <div dir="rtl" className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
-      <Sidebar />
-      {/* Children */}
-      <Footer />
-    </>
+      <div className="flex flex-1 overflow-hidden relative">
+        <WorkerSidebar />
+        <main className="flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
+    </div>
   );
 }

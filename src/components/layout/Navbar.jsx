@@ -1,25 +1,68 @@
-import { NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-export default function Navbar() {
+const Navbar = () => {
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
+
+  const linkStyle = (active) =>
+    `px-4 py-2 rounded-lg text-sm font-medium transition ${
+      active ? "bg-[#5A2D0C] text-white" : "text-gray-600 hover:bg-gray-100"
+    }`;
+
   return (
-    <div className="flex gap-4 p-4 bg-gray-200">
-      // Public
-      <NavLink to="/">Home</NavLink>
-      <NavLink to="/about-us">About Us</NavLink>
-      <NavLink to="/contact-us">Contact Us</NavLink>
-      // Client
-      <NavLink to="/client-home">Client Home</NavLink>
-      <NavLink to="/categories">Categories</NavLink>
-      <NavLink to="/client-requests">Client Requests</NavLink>
-      <NavLink to="/client-profile">Client Profile</NavLink>
-      <NavLink to="/settings">Settings</NavLink>
-      // Worker
-      <NavLink to="/worker-dashboard">Worker Dashboard</NavLink>
-      <NavLink to="/services">Services</NavLink>
-      <NavLink to="/services-management">Services Management</NavLink>
-      // Auth
-      <NavLink to="/login">Login</NavLink>
-      <NavLink to="/register">Register</NavLink>
-    </div>
+    <nav className="w-full bg-white shadow-sm border-b sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Logo */}
+        <div className="text-[#5A2D0C] font-bold text-lg">OstaFinder</div>
+
+        {/* Links */}
+        <ul className="flex items-center gap-2">
+          <li>
+            <Link className={linkStyle(isActive("/"))} to="/">
+              الرئيسية
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              className={linkStyle(isActive("/worker/dashboard"))}
+              to="/worker/dashboard"
+            >
+              لوحة التحكم
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              className={linkStyle(isActive("/worker/requests"))}
+              to="/worker/requests"
+            >
+              الطلبات
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              className={linkStyle(isActive("/worker/services"))}
+              to="/worker/services"
+            >
+              الخدمات
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              className={linkStyle(isActive("/worker/services/add"))}
+              to="/worker/services/add"
+            >
+              إضافة خدمة
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </nav>
   );
-}
+};
+
+export default Navbar;
