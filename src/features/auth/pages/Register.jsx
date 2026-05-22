@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import { useRegisterMutation } from "../../../services/authApi";
 import { validateRegisterForm } from "../schemas/auth.schema";
+import RoleToggle from "../../../components/ui/RoleToggle";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -44,6 +45,8 @@ export default function Register() {
 
   // Handle role switch
   const handleRoleChange = (role) => {
+    console.log(role);
+    
     setFormData((prev) => ({
       ...prev,
       role,
@@ -67,7 +70,7 @@ export default function Register() {
     // Map role to backend enum (worker -> woreker)
     const payload = {
       ...formData,
-      role: formData.role === "worker" ? "woreker" : formData.role,
+      role: formData.role === "worker" ? "worker" : formData.role,
     };
     
     try {      
@@ -98,39 +101,7 @@ export default function Register() {
         </div>
 
         {/* Custom Role Selector Toggle (عميل / فني) */}
-        <div className="mb-6 relative">
-          <div className="bg-[#E5E3E4] rounded-full p-1 flex items-center h-12 relative select-none">
-            {/* Sliding white background indicator */}
-            <div
-              className={`absolute top-1 bottom-1 w-[48%] bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-all duration-300 ease-out ${
-                formData.role === "client" ? "right-1" : "right-[51%]"
-              }`}
-            />
-            
-            {/* Client (عميل) Option */}
-            <button
-              type="button"
-              onClick={() => handleRoleChange("client")}
-              className={`flex-1 text-center font-bold text-sm relative z-10 transition-colors duration-300 cursor-pointer ${
-                formData.role === "client" ? "text-brand-orange" : "text-[#71717A]"
-              }`}
-            >
-              عميل
-            </button>
-
-            {/* Technician (فني) Option */}
-            <button
-              type="button"
-              onClick={() => handleRoleChange("worker")}
-              className={`flex-1 text-center font-bold text-sm relative z-10 transition-colors duration-300 cursor-pointer ${
-                formData.role === "worker" ? "text-brand-orange" : "text-[#71717A]"
-              }`}
-            >
-              فني
-            </button>
-          </div>
-        </div>
-
+        <RoleToggle formData={formData} handleRoleChange={handleRoleChange} />
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="space-y-4">
           

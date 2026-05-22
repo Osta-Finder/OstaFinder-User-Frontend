@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import { validateLoginForm } from "../schemas/auth.schema";
 import { useLoginMutation } from "../../../services/authApi";
+import RoleToggle from "../../../components/ui/RoleToggle";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function Login() {
   const [formData, setFormData] = useState({
     emailorPhone: "", // Can be Email or Phone
     password: "",
+    role : "client"
   });
 
   // Validation errors
@@ -36,6 +38,15 @@ export default function Login() {
       }));
     }
   };
+
+  const handleRoleChange = (role)=>{
+    console.log(role);
+    
+        setFormData((prev) => ({
+      ...prev,
+      role,
+    }));
+  }
 
   // Handle form submission
   const [login, { isLoading: isLoggingIn, error: loginError }] = useLoginMutation();
@@ -82,7 +93,7 @@ export default function Login() {
             مرحباً بك مجدداً! قم بتسجيل الدخول للبدء.
           </p>
         </div>
-
+        <RoleToggle formData={formData} handleRoleChange={handleRoleChange} />
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="space-y-5">
           
