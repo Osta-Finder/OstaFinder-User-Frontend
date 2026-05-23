@@ -1,25 +1,86 @@
-import { NavLink } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isOnboardingPage = location.pathname.includes('onboarding');
+
+  if (isOnboardingPage) {
+    return null;
+  }
+
   return (
-    <div className="flex gap-4 p-4 bg-gray-200">
-      // Public
-      <NavLink to="/">Home</NavLink>
-      <NavLink to="/about-us">About Us</NavLink>
-      <NavLink to="/contact-us">Contact Us</NavLink>
-      // Client
-      <NavLink to="/client-home">Client Home</NavLink>
-      <NavLink to="/categories">Categories</NavLink>
-      <NavLink to="/client-requests">Client Requests</NavLink>
-      <NavLink to="/client-profile">Client Profile</NavLink>
-      <NavLink to="/settings">Settings</NavLink>
-      // Worker
-      <NavLink to="/worker-dashboard">Worker Dashboard</NavLink>
-      <NavLink to="/services">Services</NavLink>
-      <NavLink to="/services-management">Services Management</NavLink>
-      // Auth
-      <NavLink to="/login">Login</NavLink>
-      <NavLink to="/register">Register</NavLink>
-    </div>
+    <nav style={{
+      backgroundColor: '#ffffff',
+      borderBottom: '1px solid #e1e3e4',
+      padding: '1rem 2rem',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    }}>
+      <div
+        onClick={() => navigate('/')}
+        style={{
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          color: '#a83900',
+          cursor: 'pointer',
+        }}
+      >
+        OSTA أسطى
+      </div>
+      <div style={{ display: 'flex', gap: '2rem' }}>
+        <button
+          onClick={() => navigate('/')}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#191c1d',
+            fontSize: '1rem',
+          }}
+        >
+          الرئيسية
+        </button>
+        <button
+          onClick={() => navigate('/about-us')}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#191c1d',
+            fontSize: '1rem',
+          }}
+        >
+          عن الخدمة
+        </button>
+        <button
+          onClick={() => navigate('/contact-us')}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#191c1d',
+            fontSize: '1rem',
+          }}
+        >
+          تواصل معنا
+        </button>
+        <button
+          onClick={() => navigate('/login')}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#a83900',
+            fontSize: '1rem',
+            fontWeight: 'bold',
+          }}
+        >
+          دخول
+        </button>
+      </div>
+    </nav>
   );
 }

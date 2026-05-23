@@ -13,31 +13,31 @@ import Settings from "../features/client/pages/Settings";
 import AboutUs from "../features/public/pages/AboutUs";
 import Service from "../features/worker/pages/Service";
 import ServicesManagement from "../features/worker/pages/ServicesManagement";
+import WorkerOnboarding from "../features/worker/pages/WorkerOnboarding";
+import OnboardingSuccess from "../features/worker/pages/OnboardingSuccess";
+import OnboardingDemo from "../features/worker/pages/OnboardingDemo";
 
 export default function AppRoutes() {
   return (
     <div>
       <Routes>
-        // Public Routes
         <Route path="/" element={<LandingPage />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/about-us" element={<AboutUs />} />
-        // Client Routes
         <Route path="/client-home" element={<ClientHome />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/client-requests" element={<ClientRequests />} />
         <Route path="/client-profile" element={<ClientProfile />} />
-        // Worker Routes
         <Route path="/worker-dashboard" element={<WorkerDashboard />} />
         <Route path="/services" element={<Service />} />
         <Route path="/services-management" element={<ServicesManagement />} />
-        // Auth Routes
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        // shared routes
         <Route path="/worker-profile" element={<WorkerProfile />} />
-        // 404
+        <Route path="/worker-onboarding" element={<WorkerOnboarding />} />
+        <Route path="/onboarding-success" element={<OnboardingSuccess />} />
+        <Route path="/onboarding-demo" element={<OnboardingDemo />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </div>
