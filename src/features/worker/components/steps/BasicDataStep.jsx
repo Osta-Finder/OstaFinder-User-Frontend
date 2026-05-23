@@ -6,31 +6,67 @@ export default function BasicDataStep({ onValidationChange }) {
   const dispatch = useDispatch();
   const basicData = useSelector((state) => state.onboarding.basicData);
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'firstName':
+        return !value.trim() ? 'الاسم الأول مطلوب' : '';
+      case 'lastName':
+        return !value.trim() ? 'الاسم الأخير مطلوب' : '';
+      case 'email':
+        if (!value.trim()) return 'البريد الإلكتروني مطلوب';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'البريد الإلكتروني غير صحيح';
+        return '';
+      case 'phone':
+        return !value.trim() ? 'رقم الهاتف مطلوب' : '';
+      case 'city':
+        return !value.trim() ? 'المدينة مطلوبة' : '';
+      case 'address':
+        return !value.trim() ? 'العنوان مطلوب' : '';
+      default:
+        return '';
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!basicData.firstName.trim()) newErrors.firstName = 'الاسم الأول مطلوب';
-    if (!basicData.lastName.trim()) newErrors.lastName = 'الاسم الأخير مطلوب';
-    if (!basicData.email.trim()) newErrors.email = 'البريد الإلكتروني مطلوب';
-    if (basicData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(basicData.email)) {
-      newErrors.email = 'البريد الإلكتروني غير صحيح';
-    }
-    if (!basicData.phone.trim()) newErrors.phone = 'رقم الهاتف مطلوب';
-    if (!basicData.city.trim()) newErrors.city = 'المدينة مطلوبة';
-    if (!basicData.address.trim()) newErrors.address = 'العنوان مطلوب';
-
-    setErrors(newErrors);
+    Object.keys(basicData).forEach((key) => {
+      const error = validateField(key, basicData[key]);
+      if (error) newErrors[key] = error;
+    });
     return Object.keys(newErrors).length === 0;
   };
 
   useEffect(() => {
     const isValid = validateForm();
     onValidationChange(isValid);
-  }, [basicData]);
+  }, [basicData, touched]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     dispatch(updateBasicData({ [name]: value }));
+    
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setErrors((prev) => ({
+        ...prev,
+        [name]: error,
+      }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+    const error = validateField(name, value);
+    setErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
   };
 
   const inputStyle = (hasError) => ({
@@ -90,10 +126,11 @@ export default function BasicDataStep({ onValidationChange }) {
             name="firstName"
             value={basicData.firstName}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="أدخل اسمك الأول"
             style={inputStyle(!!errors.firstName)}
             onFocus={(e) => e.target.style.borderColor = '#a83900'}
-            onBlur={(e) => e.target.style.borderColor = errors.firstName ? '#ba1a1a' : '#e1e3e4'}
+            onBlurCapture={(e) => e.target.style.borderColor = errors.firstName ? '#ba1a1a' : '#e1e3e4'}
           />
           {errors.firstName && (
             <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>
@@ -117,10 +154,11 @@ export default function BasicDataStep({ onValidationChange }) {
             name="lastName"
             value={basicData.lastName}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="أدخل اسمك الأخير"
             style={inputStyle(!!errors.lastName)}
             onFocus={(e) => e.target.style.borderColor = '#a83900'}
-            onBlur={(e) => e.target.style.borderColor = errors.lastName ? '#ba1a1a' : '#e1e3e4'}
+            onBlurCapture={(e) => e.target.style.borderColor = errors.lastName ? '#ba1a1a' : '#e1e3e4'}
           />
           {errors.lastName && (
             <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>
@@ -144,10 +182,11 @@ export default function BasicDataStep({ onValidationChange }) {
             name="email"
             value={basicData.email}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="example@email.com"
             style={inputStyle(!!errors.email)}
             onFocus={(e) => e.target.style.borderColor = '#a83900'}
-            onBlur={(e) => e.target.style.borderColor = errors.email ? '#ba1a1a' : '#e1e3e4'}
+            onBlurCapture={(e) => e.target.style.borderColor = errors.email ? '#ba1a1a' : '#e1e3e4'}
           />
           {errors.email && (
             <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>
@@ -171,10 +210,11 @@ export default function BasicDataStep({ onValidationChange }) {
             name="phone"
             value={basicData.phone}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="+966 50 0000000"
             style={inputStyle(!!errors.phone)}
             onFocus={(e) => e.target.style.borderColor = '#a83900'}
-            onBlur={(e) => e.target.style.borderColor = errors.phone ? '#ba1a1a' : '#e1e3e4'}
+            onBlurCapture={(e) => e.target.style.borderColor = errors.phone ? '#ba1a1a' : '#e1e3e4'}
           />
           {errors.phone && (
             <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>
@@ -198,10 +238,11 @@ export default function BasicDataStep({ onValidationChange }) {
             name="city"
             value={basicData.city}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="أدخل مدينتك"
             style={inputStyle(!!errors.city)}
             onFocus={(e) => e.target.style.borderColor = '#a83900'}
-            onBlur={(e) => e.target.style.borderColor = errors.city ? '#ba1a1a' : '#e1e3e4'}
+            onBlurCapture={(e) => e.target.style.borderColor = errors.city ? '#ba1a1a' : '#e1e3e4'}
           />
           {errors.city && (
             <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>
@@ -225,10 +266,11 @@ export default function BasicDataStep({ onValidationChange }) {
             name="address"
             value={basicData.address}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="أدخل عنوانك"
             style={inputStyle(!!errors.address)}
             onFocus={(e) => e.target.style.borderColor = '#a83900'}
-            onBlur={(e) => e.target.style.borderColor = errors.address ? '#ba1a1a' : '#e1e3e4'}
+            onBlurCapture={(e) => e.target.style.borderColor = errors.address ? '#ba1a1a' : '#e1e3e4'}
           />
           {errors.address && (
             <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>
