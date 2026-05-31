@@ -24,6 +24,7 @@ import IncomingRequests from "../features/worker/pages/IncomingRequests";
 import AddService from "../features/worker/pages/AddService";
 import PreviousWorks from "../features/worker/pages/PreviousWorks";
 import WorkDetails from "../features/worker/pages/WorkDetails";
+import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import WorkerLayout from "../layouts/WorkerLayout";
 import { WorkerRoutes } from "../features/worker/constants/routes.config";
 
@@ -69,6 +70,7 @@ export default function AppRoutes() {
 
         {/* Shared Routes */}
         <Route path="/worker-profile" element={<WorkerProfile />} />
+        <Route path={WorkerRoutes.PROFILE} element={<TechnicianProfile />} />
 
         {/* 404 */}
         <Route
