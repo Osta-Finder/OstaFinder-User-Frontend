@@ -2,8 +2,10 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getCookie } from '../utils/cookies';
 
+const productionURL = process.env.VITE_API_URL
+
 export const customBaseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3000',
+  baseUrl: productionURL,
     credentials: 'include',
 });
 export const baseQueryWithReauth = async (
