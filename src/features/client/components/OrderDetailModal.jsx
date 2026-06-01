@@ -1,7 +1,10 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { motion } from "motion/react";
 import { X, MapPin, Calendar, Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import OrderStatusBadge from "./OrderStatusBadge";
+import Rating from "../../../components/ui/Rating";
+import CuButton from "../../../components/ui/Button";
 import { STEPS } from "../constants/orderConstants";
 
 export default function OrderDetailModal({ order, onClose }) {
@@ -104,6 +107,33 @@ export default function OrderDetailModal({ order, onClose }) {
             </div>
           </div>
 
+          {order.status === "completed" && (
+            <>
+              <hr className="border-gray-100" />
+              <div>
+                <h4 className="mb-3 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>التقييم</h4>
+                {order.rating ? (
+                  <div className="space-y-2 rounded-lg bg-gray-50 p-4">
+                    <Rating rating={order.rating.stars} size="md" />
+                    {order.rating.comment && (
+                      <p className="text-sm text-gray-700">{order.rating.comment}</p>
+                    )}
+                    <Link to="/client-ratings" className="block text-xs text-blue-600 hover:underline mt-2">
+                      تعديل أو حذف التقييم ←
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-sm text-gray-500 mb-3">لم تقيم هذه الخدمة بعد</p>
+                    <Link to="/client-ratings">
+                      <CuButton className="!py-2 !px-4 !text-xs">قيم الخدمة الآن!</CuButton>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
           <hr className="border-gray-100" />
 
           <div>
@@ -112,27 +142,30 @@ export default function OrderDetailModal({ order, onClose }) {
               <div className="absolute left-0 right-0 top-4 h-0.5 bg-gray-200" />
               <div className="relative flex justify-between">
                 {STEPS.map((step) => {
-                  const isCurrent = order.currentStep === step.key;
-                  const isPast = order.currentStep > step.key;
+                  const isLast = step.key === STEPS[STEPS.length - 1].key;
+                  const isPast = order.currentStep > step.key || (isLast && order.currentStep === step.key);
+                  const isCurrent = order.currentStep === step.key && !isPast;
                   const isRejected = order.status === "rejected" && step.key === 1;
+                  const isCancelled = order.status === "cancelled" && step.key === 1;
+                  const isFailed = isRejected || isCancelled;
                   return (
                     <div key={step.key} className="flex flex-col items-center">
                       <div
                         className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all"
                         style={{
-                          background: isRejected ? "#ef4444" : isPast ? "#22c55e" : isCurrent ? "var(--primary-color)" : "#e5e7eb",
-                          color: isPast || isCurrent || isRejected ? "#fff" : "#9ca3af",
+                          background: isRejected ? "#ef4444" : isCancelled ? "#6b7280" : isPast ? "#22c55e" : isCurrent ? "var(--primary-color)" : "#e5e7eb",
+                          color: isPast || isCurrent || isFailed ? "#fff" : "#9ca3af",
                         }}
                       >
-                        {isRejected ? <X className="h-4 w-4" /> : isPast ? <Check className="h-4 w-4" /> : step.key}
+                        {isFailed ? <X className="h-4 w-4" /> : isPast ? <Check className="h-4 w-4" /> : step.key}
                       </div>
                       <p
                         className="mt-2 text-xs font-medium"
                         style={{
-                          color: isRejected ? "#ef4444" : isCurrent ? "var(--primary-color)" : isPast ? "#22c55e" : "#9ca3af",
+                          color: isRejected ? "#ef4444" : isCancelled ? "#6b7280" : isCurrent ? "var(--primary-color)" : isPast ? "#22c55e" : "#9ca3af",
                         }}
                       >
-                        {isRejected ? "تم الرفض" : step.label}
+                        {isRejected ? "تم الرفض" : isCancelled ? "تم الإلغاء" : step.label}
                       </p>
                     </div>
                   );

@@ -13,6 +13,7 @@ import ContactUs from "../features/public/pages/ContactUs";
 import Categories from "../features/client/pages/Categories";
 import ClientHome from "../features/client/pages/ClientHome";
 import ClientRequests from "../features/client/pages/ClientRequests";
+import ClientRating from "../features/client/pages/ClientRating";
 import WorkerProfile from "../features/shared/WorkerProfile";
 import WorkerDashboard from "../features/worker/pages/WorkerDashboard";
 import ClientProfile from "../features/client/pages/ClientProfile";
@@ -41,6 +42,7 @@ export default function AppRoutes() {
         <Route path="/categories" element={<Categories />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/client-requests" element={<ClientRequests />} />
+        <Route path="/client-ratings" element={<ClientRating />} />
         <Route path="/client-profile" element={<ClientProfile />} />
 
         {/* Worker Routes - All wrapped in WorkerLayout */}
