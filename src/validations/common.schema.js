@@ -76,3 +76,10 @@ export const validateLoginemail = (email) => {
   }
   return "";
 };
+
+export const validateLoginPassword = (password) => {
+  if (!password) {
+    return "كلمة المرور مطلوبة";
+  }
+  return "";
+};

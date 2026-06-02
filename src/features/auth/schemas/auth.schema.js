@@ -4,7 +4,8 @@ import {
   validatePhone,
   validatePassword,
   validateLoginemail,
-  validateConfirmPassword
+  validateConfirmPassword,
+  validateLoginPassword
 } from "../../../validations/common.schema";
 
 /**
@@ -43,6 +44,8 @@ export const validateLoginForm = (values) => {
 
   const emailorPhoneError = validateLoginemail(values.emailorPhone);
   if (emailorPhoneError) errors.emailorPhone = emailorPhoneError;
+  const passwordError = validateLoginPassword(values.password);
+  if (passwordError) errors.password = passwordError;
 
   return errors;
 };
