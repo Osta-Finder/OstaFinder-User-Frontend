@@ -107,11 +107,11 @@ export default function Register() {
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center py-12 px-4 bg-gradient-to-tr from-[#edf2f9] via-[#f7f3f5] to-[#fcf5f2] dir-rtl"
+      className="min-h-screen w-full flex items-center justify-center py-12 px-4 bg-linear-to-tr from-[#edf2f9] via-[#f7f3f5] to-[#fcf5f2] dir-rtl"
       style={{ direction: "rtl" }}
     >
       <ToastContainer autoClose={3000} limit={3} />
-      <div className="max-w-[460px] w-full bg-white rounded-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-8 border border-white/40 backdrop-blur-md relative overflow-hidden transition-all duration-300">
+      <div className="max-w-115 w-full bg-white rounded-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-8 border border-white/40 backdrop-blur-md relative overflow-hidden transition-all duration-300">
         {/* Header Logo & Title */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-extrabold text-brand-brown tracking-wide mb-1 select-none flex items-center justify-center gap-1 font-sans">

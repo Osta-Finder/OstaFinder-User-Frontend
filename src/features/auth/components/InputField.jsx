@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const getIcon = (iconName, error) => {
   const iconColorClass = error ? "text-red-400" : "text-gray-400";
-  
+
   switch (iconName) {
     case "user":
       return (
@@ -93,7 +93,11 @@ export default function InputField({
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordType = type === "password";
-  const inputType = isPasswordType ? (showPassword ? "text" : "password") : type;
+  const inputType = isPasswordType
+    ? showPassword
+      ? "text"
+      : "password"
+    : type;
 
   const resolvedIcon = icon || (isPasswordType ? "lock" : null);
 
@@ -130,7 +134,7 @@ export default function InputField({
           </label>
         )
       )}
-      
+
       <div className="relative">
         <input
           id={id}
@@ -142,7 +146,7 @@ export default function InputField({
           className={`w-full bg-white border ${
             error
               ? "border-red-500 focus:ring-red-100"
-              : "border-[#E5E3E4] focus:ring-[#f26e1e]/10 focus:border-brand-orange"
+              : "border-[#E5E3E4] focus:ring-brand-orange/10 focus:border-brand-orange"
           } rounded-full py-3.5 pr-12 ${paddingLeftClass} text-right text-sm font-medium placeholder-gray-300 text-gray-800 transition-all duration-200 outline-none focus:ring-4`}
           {...props}
         />
