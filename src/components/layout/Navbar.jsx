@@ -1,25 +1,127 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import CuButton from "../ui/Button";
+import { useState, useEffect } from "react";
+import clsx from "clsx";
+import { useLogoutMutation } from "../../services/authApi";
 
 export default function Navbar() {
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
+  const [scrolled, setScrolled] = useState(false);
+  const logout = useLogoutMutation()[0];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Error occurred while logging out:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!isHome) return;
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHome]);
+
   return (
-    <div className="flex gap-4 p-4 bg-gray-200">
-      // Public
-      <NavLink to="/">Home</NavLink>
-      <NavLink to="/about-us">About Us</NavLink>
-      <NavLink to="/contact-us">Contact Us</NavLink>
-      // Client
-      <NavLink to="/client-home">Client Home</NavLink>
-      <NavLink to="/categories">Categories</NavLink>
-      <NavLink to="/client-requests">Client Requests</NavLink>
-      <NavLink to="/client-profile">Client Profile</NavLink>
-      <NavLink to="/settings">Settings</NavLink>
-      // Worker
-      <NavLink to="/worker-dashboard">Worker Dashboard</NavLink>
-      <NavLink to="/services">Services</NavLink>
-      <NavLink to="/services-management">Services Management</NavLink>
-      // Auth
-      <NavLink to="/login">Login</NavLink>
-      <NavLink to="/register">Register</NavLink>
+    <div
+      className={clsx(
+        "fixed inset-x-0 top-0 z-50 flex items-center justify-between px-4 py-4 transition-colors duration-300",
+        isHome
+          ? scrolled
+            ? "bg-white/75 text-black backdrop-blur-md shadow-md"
+            : "bg-transparent text-white"
+          : "bg-white/75 text-black backdrop-blur-md shadow-md",
+      )}
+    >
+      <NavLink to="/" className="flex items-center gap-2">
+        <span className="hidden sm:inline-block text-lg font-semibold">
+          Osta Finder
+        </span>
+        <img
+          src="../../assets/images/logo.png"
+          alt="logo"
+          className="w-10 h-10 object-contain"
+        />
+      </NavLink>
+      <div />
+
+      {/* center links - absolutely centered to ensure visual center alignment */}
+      <div className="absolute left-1/2 transform -translate-x-1/2 inset-y-0 flex items-center gap-6">
+        <NavLink
+          to="/categories"
+          className={({ isActive }) =>
+            clsx(
+              "transition-colors",
+              isActive && "font-semibold underline underline-offset-4",
+              isActive ? "text-[var(--primary-color)]" : "",
+            )
+          }
+        >
+          الفئات
+        </NavLink>
+        <NavLink
+          to="/client-requests"
+          className={({ isActive }) =>
+            clsx(
+              "transition-colors",
+              isActive && "font-semibold underline underline-offset-4",
+              isActive ? "text-[var(--primary-color)]" : "",
+            )
+          }
+        >
+          طلبات العميل
+        </NavLink>
+        <NavLink
+          to="/contact-us"
+          className={({ isActive }) =>
+            clsx(
+              "transition-colors",
+              isActive && "font-semibold underline underline-offset-4",
+              isActive ? "text-[var(--primary-color)]" : "",
+            )
+          }
+        >
+          تواصل معنا
+        </NavLink>
+        <NavLink
+          to="/about-us"
+          className={({ isActive }) =>
+            clsx(
+              "transition-colors",
+              isActive && "font-semibold underline underline-offset-4",
+              isActive ? "text-[var(--primary-color)]" : "",
+            )
+          }
+        >
+          احنا مين؟
+        </NavLink>
+      </div>
+
+      {/* right: auth links and logo */}
+      <div className="flex items-center gap-4">
+        <NavLink
+          to="/login"
+          className={({ isActive }) =>
+            clsx("cursor-pointer", isActive && "underline underline-offset-4")
+          }
+        >
+          <CuButton>تسجيل الدخول</CuButton>
+        </NavLink>
+        <CuButton onClick={handleLogout}>تسجيل الخروج</CuButton>
+
+        <NavLink
+          to="/register"
+          className={({ isActive }) =>
+            clsx("cursor-pointer", isActive && "underline underline-offset-4")
+          }
+        >
+          <CuButton>إنشاء حساب</CuButton>
+        </NavLink>
+      </div>
     </div>
   );
 }

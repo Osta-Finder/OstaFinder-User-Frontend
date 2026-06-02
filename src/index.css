@@ -1,1 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
+
+:root {
+  --primary-color: #eb6a2d;
+  --bg-color: #f2e7e4;
+  --radiant-gradient: linear-gradient(135deg, #fb7039, #d72a2d);
+  --text-color: #150905;
+  --blacker: #1b1b1b;
+  --greyer: #9e9998;
+  /* Additional theme tokens */
+  --primary-light: #fff1e6; /* soft/light variant of primary */
+  --text-secondary: #6b7280; /* gray-500-ish for secondary text */
+  --secondary-color: #94a3b8; /* neutral secondary button color */
+}
+
+html,
+body {
+  font-family: "Cairo", sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Button using CSS variables */
+.btn-custom {
+  background-color: var(--primary-color, #eb6a2d);
+}
+.btn-custom:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--primary-color, #eb6a2d) 85%,
+    black 15%
+  );
+}
+.btn-custom:active {
+  background-color: color-mix(
+    in srgb,
+    var(--primary-color, #eb6a2d) 70%,
+    black 30%
+  );
+}
+@theme {
+  --font-sans: "Cairo", sans-serif;
+  --color-brand-brown: #9c3d06;
+  --color-brand-orange: #f26e1e;
+}
+
+body {
+  font-family: "Cairo", sans-serif;
+  background-color: #fbfbfc;
+}
