@@ -63,7 +63,7 @@ export default function Login() {
     try {
       const result = await login(formData).unwrap();
       console.log("result ", result);
-
+      localStorage.setItem("loggedIN", "true");
       toast.success("تم تسجيل الدخول بنجاح! جاري التوجيه...", {
         position: "top-left",
         rtl: true,

@@ -13,6 +13,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await logout();
+      localStorage.removeItem("loggedIN");
     } catch (error) {
       console.error("Error occurred while logging out:", error);
     }
