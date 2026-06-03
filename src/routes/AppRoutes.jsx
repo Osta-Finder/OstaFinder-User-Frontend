@@ -26,6 +26,7 @@ import PreviousWorks from "../features/worker/pages/PreviousWorks";
 import WorkDetails from "../features/worker/pages/WorkDetails";
 import WorkerLayout from "../layouts/WorkerLayout";
 import { WorkerRoutes } from "../features/worker/constants/routes.config";
+import CreateOrderPage from "../features/client/pages/createOrderPage";
 
 export default function AppRoutes() {
   return (
@@ -42,6 +43,7 @@ export default function AppRoutes() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/client-requests" element={<ClientRequests />} />
         <Route path="/client-profile" element={<ClientProfile />} />
+        <Route path="/create-order/:workerId" element={<CreateOrderPage />} />
 
         {/* Worker Routes - All wrapped in WorkerLayout */}
         <Route element={<WorkerLayout />}>
