@@ -1,23 +1,22 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import CuButton from "../ui/Button";
-import { useState, useEffect } from "react";
-import clsx from "clsx";
+import { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import { useLogoutMutation } from "../../services/authApi";
+import clsx from "clsx";
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
-  const logout = useLogoutMutation()[0];
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      localStorage.removeItem("loggedIN");
-    } catch (error) {
-      console.error("Error occurred while logging out:", error);
-    }
-  };
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const [logout] = useLogoutMutation();
+
+  const avatarLetter = user?.name?.charAt(0) || "U";
 
   useEffect(() => {
     if (!isHome) return;
@@ -26,6 +25,22 @@ export default function Navbar() {
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHome]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    setDropdownOpen(false);
+    await logout();
+    navigate("/");
+  };
 
   return (
     <div
@@ -102,26 +117,74 @@ export default function Navbar() {
         </NavLink>
       </div>
 
-      {/* right: auth links and logo */}
+      {/* right: auth section */}
       <div className="flex items-center gap-4">
-        <NavLink
-          to="/login"
-          className={({ isActive }) =>
-            clsx("cursor-pointer", isActive && "underline underline-offset-4")
-          }
-        >
-          <CuButton>تسجيل الدخول</CuButton>
-        </NavLink>
-        <CuButton onClick={handleLogout}>تسجيل الخروج</CuButton>
+        {isAuthenticated && user ? (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <div className="w-9 h-9 rounded-full bg-brand-orange text-white flex items-center justify-center text-sm font-bold">
+                {avatarLetter}
+              </div>
+              <span className="text-sm font-medium max-w-[100px] truncate">
+                {user.name}
+              </span>
+            </button>
 
-        <NavLink
-          to="/register"
-          className={({ isActive }) =>
-            clsx("cursor-pointer", isActive && "underline underline-offset-4")
-          }
-        >
-          <CuButton>إنشاء حساب</CuButton>
-        </NavLink>
+            {dropdownOpen && (
+              <div className="absolute left-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
+                <NavLink
+                  to="/client-profile"
+                  onClick={() => setDropdownOpen(false)}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  الملف الشخصي
+                </NavLink>
+                <NavLink
+                  to="/settings"
+                  onClick={() => setDropdownOpen(false)}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  الإعدادات
+                </NavLink>
+                <hr className="my-1 border-gray-100" />
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                >
+                  تسجيل الخروج
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <NavLink
+              to="/login"
+              className={({ isActive }) =>
+                clsx(
+                  "cursor-pointer",
+                  isActive && "underline underline-offset-4",
+                )
+              }
+            >
+              <CuButton>تسجيل الدخول</CuButton>
+            </NavLink>
+            <NavLink
+              to="/register"
+              className={({ isActive }) =>
+                clsx(
+                  "cursor-pointer",
+                  isActive && "underline underline-offset-4",
+                )
+              }
+            >
+              <CuButton>إنشاء حساب</CuButton>
+            </NavLink>
+          </>
+        )}
       </div>
     </div>
   );
