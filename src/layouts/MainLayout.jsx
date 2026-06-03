@@ -1,11 +1,11 @@
 import Footer from "../components/layout/Footer";
-import Navbar from "../components/layout/Navbar";
+// import Navbar from "../components/layout/Navbar";
 
-export default function MainLayout() {
+export default function MainLayout({ children }) {
   return (
     <>
-      <Navbar />
-      {/* Children */}
+      {/* <Navbar /> */}
+      {children}
       <Footer />
     </>
   );
