@@ -2,7 +2,7 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { getCookie } from "../utils/cookies";
 
-const productionURL = import.meta.env.VITE_API_URL;
+const productionURL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export const customBaseQuery = fetchBaseQuery({
   baseUrl: productionURL,
