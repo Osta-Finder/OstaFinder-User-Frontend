@@ -14,11 +14,33 @@ import {
   SERVICE_CATEGORY_LABELS,
   REQUEST_STATUS_CONFIG,
 } from "../constants/worker.constants";
+import { 
+  useGetWorkerWorkByIdQuery, 
+  useDeleteWorkerWorkMutation 
+} from "../../../services/workerApi";
 
 export default function WorkDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const work = mockWorks.find((w) => w.id === id);
+  const { data, isLoading } = useGetWorkerWorkByIdQuery(id);
+  const [deleteWork, { isLoading: isDeleting }] = useDeleteWorkerWorkMutation();
+  const work = data?.data;
+
+  const handleDelete = async () => {
+    if (window.confirm("هل أنت متأكد من حذف هذا العمل؟ لا يمكن التراجع عن هذا الإجراء.")) {
+      try {
+        await deleteWork(id).unwrap();
+        navigate(WorkerRoutes.WORKS);
+      } catch (err) {
+        console.error("Failed to delete work:", err);
+        alert("حدث خطأ أثناء الحذف. يرجى المحاولة مرة أخرى.");
+      }
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-8 text-center">جاري التحميل...</div>;
+  }
 
   if (!work) {
     return (
@@ -176,10 +198,33 @@ export default function WorkDetails() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 border-t border-gray-100 pt-8">
+          <div className="flex flex-col sm:flex-row gap-3 border-t border-gray-100 pt-8 mt-8">
+            <Link
+              to={WorkerRoutes.WORK_EDIT(id)}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 px-8 py-3 rounded-xl font-medium transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              تعديل العمل
+            </Link>
+            
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 px-8 py-3 rounded-xl font-medium transition-colors disabled:opacity-50"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              {isDeleting ? "جاري الحذف..." : "حذف العمل"}
+            </button>
+            
+            <div className="flex-1"></div> {/* Spacer */}
+
             <Link
               to={WorkerRoutes.WORKS}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900 px-6 py-3 rounded-xl font-medium transition-colors"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900 px-8 py-3 rounded-xl font-medium transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +240,7 @@ export default function WorkDetails() {
                   d="M15 19l-7-7 7-7"
                 />
               </svg>
-              العودة إلى المعرض
+              العودة للمعرض
             </Link>
           </div>
         </div>

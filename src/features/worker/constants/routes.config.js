@@ -21,6 +21,8 @@ export const WorkerRoutes = {
 
   // Works (portfolio)
   WORKS: "/worker/works",
+  WORK_ADD: "/worker/works/add",
+  WORK_EDIT: (id) => `/worker/works/${id}/edit`,
   WORK_DETAIL: (id) => `/worker/works/${id}`,
 
   // Other

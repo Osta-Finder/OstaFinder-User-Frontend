@@ -2,19 +2,20 @@ import { useParams, Link } from "react-router-dom";
 import { WorkerRoutes } from "../constants/routes.config";
 import StatusBadge from "../components/StatusBadge";
 import { formatPrice } from "../data/mockData";
+import { useGetWorkerServiceByIdQuery } from "../../../services/workerApi";
 
 export default function Service() {
   const { id } = useParams();
+  const { data, isLoading } = useGetWorkerServiceByIdQuery(id);
+  const service = data?.data;
 
-  // Mock fetching service details
-  const service = {
-    id,
-    title: "تفاصيل الخدمة رقم #" + id,
-    location: "المعادي، القاهرة",
-    date: "اليوم، 10:00 صباحاً",
-    price: 350,
-    status: "pending", // Example status
-  };
+  if (isLoading) {
+    return <div className="p-8 text-center">جاري التحميل...</div>;
+  }
+
+  if (!service) {
+    return <div className="p-8 text-center text-red-500">الخدمة غير موجودة</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans" dir="rtl">
@@ -62,8 +63,8 @@ export default function Service() {
             </div>
 
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-              <p className="text-sm text-gray-500 mb-1">تاريخ ووقت التنفيذ</p>
-              <p className="font-medium text-gray-800">{service.date}</p>
+              <p className="text-sm text-gray-500 mb-1">تاريخ الإنشاء</p>
+              <p className="font-medium text-gray-800">{new Date(service.createdAt).toLocaleDateString("ar-EG")}</p>
             </div>
 
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -82,9 +83,7 @@ export default function Service() {
           <div className="mt-8 pt-8 border-t border-gray-100">
             <h3 className="text-lg font-bold text-gray-900 mb-4">الوصف</h3>
             <p className="text-gray-600 leading-relaxed">
-              هذا نص تجريبي يوضح وصف الخدمة المطلوبة. العميل يواجه مشكلة في لوحة
-              الكهرباء الرئيسية وتحتاج إلى فحص وصيانة سريعة. يجب إحضار كافة
-              الأدوات اللازمة للفحص.
+              {service.description}
             </p>
           </div>
 

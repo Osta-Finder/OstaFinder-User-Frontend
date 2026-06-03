@@ -1,16 +1,8 @@
-/**
- * ============================================
- * ADD SERVICE PAGE
- * ============================================
- * Controlled form with proper state management
- * Ready for API integration
- */
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { WorkerRoutes } from "../constants/routes.config";
 import { ServiceCategory } from "../constants/worker.constants";
-import { useAddWorkerServiceMutation } from "../../../services/workerApi";
+import { useAddWorkerWorkMutation } from "../../../services/workerApi";
 
 const initialFormState = {
   title: "",
@@ -18,18 +10,25 @@ const initialFormState = {
   location: "",
   description: "",
   price: "",
+  clientName: "",
+  date: "",
+  source: "outside",
 };
 
-export default function AddService() {
+export default function AddWork() {
   const navigate = useNavigate();
-  const [addService, { isLoading }] = useAddWorkerServiceMutation();
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get("status") || "completed"; // Default to completed
+
+  const [addWork, { isLoading }] = useAddWorkerWorkMutation();
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
+
+  const isCompleted = status === "completed";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -37,12 +36,12 @@ export default function AddService() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.title.trim()) newErrors.title = "عنوان الخدمة مطلوب";
+    if (!formData.title.trim()) newErrors.title = "عنوان العمل مطلوب";
     if (!formData.category) newErrors.category = "يرجى اختيار التصنيف";
-    if (!formData.location.trim())
-      newErrors.location = "المدينة/المنطقة مطلوبة";
-    if (!formData.description.trim())
-      newErrors.description = "تفاصيل الخدمة مطلوبة";
+    if (!formData.location.trim()) newErrors.location = "المدينة/المنطقة مطلوبة";
+    if (!formData.description.trim()) newErrors.description = "تفاصيل العمل مطلوبة";
+    if (!formData.clientName.trim()) newErrors.clientName = "اسم العميل مطلوب";
+    if (!formData.date) newErrors.date = "تاريخ العمل مطلوب";
     if (!formData.price || Number(formData.price) <= 0) {
       newErrors.price = "يرجى إدخال سعر صحيح";
     }
@@ -55,22 +54,25 @@ export default function AddService() {
 
     if (!validateForm()) return;
 
-    // Prepare data for API (price as number, category as enum)
     const payload = {
       title: formData.title.trim(),
       category: formData.category,
       location: formData.location.trim(),
       description: formData.description.trim(),
+      clientName: formData.clientName.trim(),
+      date: formData.date,
+      source: formData.source,
+      status: status, // From URL query param
       price: Number(formData.price),
     };
 
-    console.log("Saving service...", payload);
+    console.log("Saving work...", payload);
 
     try {
-      await addService(payload).unwrap();
-      navigate(WorkerRoutes.SERVICES);
+      await addWork(payload).unwrap();
+      navigate(WorkerRoutes.WORKS);
     } catch (err) {
-      console.error("Failed to save service:", err);
+      console.error("Failed to save work:", err);
     }
   };
 
@@ -79,23 +81,20 @@ export default function AddService() {
       <div className="max-w-3xl mx-auto">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            إضافة خدمة جديدة
+            {isCompleted ? "إضافة عمل سابق" : "إضافة عمل حالي"}
           </h1>
           <p className="text-gray-500 text-sm">
-            قم بتعبئة تفاصيل الخدمة التي تود إضافتها لمعرض أعمالك.
+            قم بتعبئة تفاصيل العمل لإضافته إلى معرض أعمالك.
           </p>
         </div>
 
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-8">
             <div className="space-y-6">
-              {/* Service Title */}
+              {/* Title */}
               <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-bold text-gray-800 mb-2"
-                >
-                  عنوان الخدمة
+                <label htmlFor="title" className="block text-sm font-bold text-gray-800 mb-2">
+                  عنوان العمل
                 </label>
                 <input
                   id="title"
@@ -104,20 +103,15 @@ export default function AddService() {
                   value={formData.title}
                   onChange={handleChange}
                   className={`w-full px-4 py-3 rounded-2xl border transition-all placeholder:text-gray-400 ${errors.title ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
-                  placeholder="مثال: تأسيس شبكة كهرباء شقة بالكامل"
+                  placeholder="مثال: تأسيس سباكة لفيلا سكنية"
                 />
-                {errors.title && (
-                  <p className="text-red-500 text-xs mt-1">{errors.title}</p>
-                )}
+                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Category */}
                 <div>
-                  <label
-                    htmlFor="category"
-                    className="block text-sm font-bold text-gray-800 mb-2"
-                  >
+                  <label htmlFor="category" className="block text-sm font-bold text-gray-800 mb-2">
                     التصنيف
                   </label>
                   <select
@@ -127,25 +121,18 @@ export default function AddService() {
                     onChange={handleChange}
                     className={`w-full px-4 py-3 rounded-2xl border transition-all text-gray-700 bg-white ${errors.category ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
                   >
-                    <option value="">اختر تصنيف الخدمة</option>
+                    <option value="">اختر تصنيف العمل</option>
                     <option value={ServiceCategory.ELECTRICITY}>كهرباء</option>
                     <option value={ServiceCategory.PLUMBING}>سباكة</option>
                     <option value={ServiceCategory.AC}>تكييف</option>
                     <option value={ServiceCategory.CLEANING}>تنظيف</option>
                   </select>
-                  {errors.category && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.category}
-                    </p>
-                  )}
+                  {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
                 </div>
 
                 {/* Location */}
                 <div>
-                  <label
-                    htmlFor="location"
-                    className="block text-sm font-bold text-gray-800 mb-2"
-                  >
+                  <label htmlFor="location" className="block text-sm font-bold text-gray-800 mb-2">
                     المدينة / المنطقة
                   </label>
                   <input
@@ -157,21 +144,88 @@ export default function AddService() {
                     className={`w-full px-4 py-3 rounded-2xl border transition-all placeholder:text-gray-400 ${errors.location ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
                     placeholder="مثال: الرياض, جدة"
                   />
-                  {errors.location && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.location}
-                    </p>
-                  )}
+                  {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location}</p>}
+                </div>
+
+                {/* Client Name */}
+                <div>
+                  <label htmlFor="clientName" className="block text-sm font-bold text-gray-800 mb-2">
+                    اسم العميل
+                  </label>
+                  <input
+                    id="clientName"
+                    name="clientName"
+                    type="text"
+                    value={formData.clientName}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-2xl border transition-all placeholder:text-gray-400 ${errors.clientName ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
+                    placeholder="اسم العميل أو الجهة"
+                  />
+                  {errors.clientName && <p className="text-red-500 text-xs mt-1">{errors.clientName}</p>}
+                </div>
+
+                {/* Date */}
+                <div>
+                  <label htmlFor="date" className="block text-sm font-bold text-gray-800 mb-2">
+                    التاريخ
+                  </label>
+                  <input
+                    id="date"
+                    name="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-2xl border transition-all text-gray-700 bg-white ${errors.date ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
+                  />
+                  {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+                </div>
+
+                {/* Price */}
+                <div>
+                  <label htmlFor="price" className="block text-sm font-bold text-gray-800 mb-2">
+                    التكلفة / السعر
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="price"
+                      name="price"
+                      type="number"
+                      value={formData.price}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 pl-12 rounded-2xl border transition-all placeholder:text-gray-400 text-left ${errors.price ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
+                      placeholder="0"
+                      dir="ltr"
+                      min="0"
+                    />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">
+                      ج.م
+                    </span>
+                  </div>
+                  {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
+                </div>
+
+                {/* Source */}
+                <div>
+                  <label htmlFor="source" className="block text-sm font-bold text-gray-800 mb-2">
+                    مصدر العمل
+                  </label>
+                  <select
+                    id="source"
+                    name="source"
+                    value={formData.source}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 transition-all text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    <option value="outside">عمل خارجي</option>
+                    <option value="platform">عبر منصة أوسطى فايندر</option>
+                  </select>
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-bold text-gray-800 mb-2"
-                >
-                  التفاصيل
+                <label htmlFor="description" className="block text-sm font-bold text-gray-800 mb-2">
+                  تفاصيل العمل
                 </label>
                 <textarea
                   id="description"
@@ -180,48 +234,15 @@ export default function AddService() {
                   value={formData.description}
                   onChange={handleChange}
                   className={`w-full px-4 py-3 rounded-2xl border transition-all placeholder:text-gray-400 resize-none ${errors.description ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
-                  placeholder="اكتب وصفاً مفصلاً للخدمة، المواد المستخدمة، ومراحل العمل..."
+                  placeholder="اكتب وصفاً مفصلاً لما قمت بإنجازه، المواد المستخدمة، ومراحل العمل..."
                 />
-                {errors.description && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.description}
-                  </p>
-                )}
-              </div>
-
-              {/* Price */}
-              <div>
-                <label
-                  htmlFor="price"
-                  className="block text-sm font-bold text-gray-800 mb-2"
-                >
-                  السعر التقريبي
-                </label>
-                <div className="relative">
-                  <input
-                    id="price"
-                    name="price"
-                    type="number"
-                    value={formData.price}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 pl-12 rounded-2xl border transition-all placeholder:text-gray-400 text-left ${errors.price ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
-                    placeholder="0"
-                    dir="ltr"
-                    min="0"
-                  />
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">
-                    ج.م
-                  </span>
-                </div>
-                {errors.price && (
-                  <p className="text-red-500 text-xs mt-1">{errors.price}</p>
-                )}
+                {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
               </div>
 
               {/* Media Upload - placeholder for now */}
               <div>
                 <label className="block text-sm font-bold text-gray-800 mb-2">
-                  معرض الوسائط (صور / فيديوهات)
+                  صور / فيديوهات العمل
                 </label>
                 <div className="border-2 border-dashed border-gray-200 rounded-3xl p-8 flex flex-col items-center justify-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer group">
                   <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -247,8 +268,7 @@ export default function AddService() {
                     أو اضغط لاختيار الصور والفيديوهات من جهازك
                   </p>
                   <p className="text-xs text-gray-400">
-                    الحد الأقصى 5 ميجابايت للملف الواحد. الصيغ المدعومة: JPG,
-                    PNG, MP4
+                    الحد الأقصى 5 ميجابايت للملف الواحد. الصيغ المدعومة: JPG, PNG, MP4
                   </p>
                 </div>
               </div>
@@ -274,7 +294,7 @@ export default function AddService() {
                     d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
                   />
                 </svg>
-                {isLoading ? "جاري الحفظ..." : "حفظ الخدمة"}
+                {isLoading ? "جاري الحفظ..." : "حفظ العمل"}
               </button>
             </div>
           </form>

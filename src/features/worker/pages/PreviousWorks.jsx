@@ -6,8 +6,8 @@
  * Includes both platform jobs and external jobs
  */
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { mockWorks } from "../data/mockData";
 import { WorkerRoutes } from "../constants/routes.config";
 import {
   JOB_SOURCE_LABELS,
@@ -15,11 +15,23 @@ import {
 } from "../constants/worker.constants";
 import PageContainer from "../components/PageContainer";
 import EmptyState from "../components/EmptyState";
+import { useGetWorkerWorksQuery } from "../../../services/workerApi";
 
 export default function PreviousWorks() {
+  const [activeTab, setActiveTab] = useState("completed");
+  const { data, isLoading } = useGetWorkerWorksQuery();
+  
+  const allWorks = data?.data || [];
+  
+  const works = allWorks.filter((w) => {
+    if (activeTab === "completed") {
+      return !w.status || w.status === "completed";
+    }
+    return w.status === "in_progress";
+  });
   const AddButton = (
     <Link
-      to={`${WorkerRoutes.WORKS}/add`}
+      to={`${WorkerRoutes.WORKS}/add?status=${activeTab}`}
       className="flex items-center justify-center gap-2 bg-[#d97706] hover:bg-[#b45309] text-white px-6 py-3 rounded-xl font-medium transition-colors shadow-sm w-full sm:w-auto"
     >
       <svg
@@ -34,31 +46,73 @@ export default function PreviousWorks() {
           clipRule="evenodd"
         />
       </svg>
-      إضافة عمل جديد
+      {activeTab === "completed" ? "إضافة عمل سابق" : "إضافة عمل حالي"}
     </Link>
   );
 
   return (
     <PageContainer
-      title="معرض أعمالي السابقة"
-      description="عرض جميع الأعمال التي قمت بها سواء من المنصة أو خارجها."
+      title="معرض أعمالي"
+      description="إدارة وعرض جميع أعمالك، سواء التي تم إنجازها أو التي قيد التنفيذ."
       actions={AddButton}
     >
-      {mockWorks.length === 0 ? (
+      {/* Tabs */}
+      <div className="flex gap-4 border-b border-gray-200 mb-6">
+        <button
+          onClick={() => setActiveTab("completed")}
+          className={`py-3 px-4 font-medium text-sm transition-colors border-b-2 ${
+            activeTab === "completed"
+              ? "border-[#d97706] text-[#b45309]"
+              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+          }`}
+        >
+          الأعمال السابقة
+        </button>
+        <button
+          onClick={() => setActiveTab("in_progress")}
+          className={`py-3 px-4 font-medium text-sm transition-colors border-b-2 flex items-center gap-2 ${
+            activeTab === "in_progress"
+              ? "border-[#d97706] text-[#b45309]"
+              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+          }`}
+        >
+          الأعمال الحالية
+          {activeTab === "in_progress" && (
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+            </span>
+          )}
+        </button>
+      </div>
+
+      {isLoading ? (
+        <div className="p-8 text-center">جاري التحميل...</div>
+      ) : works.length === 0 ? (
         <EmptyState
-          message="لم تقم بأي أعمال حتى الآن. ابدأ بإضافة أعمالك السابقة!"
-          icon="🏗️"
+          message={
+            activeTab === "completed"
+              ? "لم تقم بأي أعمال حتى الآن. ابدأ بإضافة أعمالك السابقة!"
+              : "لا توجد أعمال قيد التنفيذ حالياً."
+          }
+          icon={activeTab === "completed" ? "🏗️" : "⏳"}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockWorks.map((work) => (
+          {works.map((work) => (
             <Link
-              key={work.id}
-              to={WorkerRoutes.WORK_DETAIL(work.id)}
+              key={work._id}
+              to={WorkerRoutes.WORK_DETAIL(work._id)}
               className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300"
             >
               {/* Image Placeholder */}
               <div className="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden relative">
+                {activeTab === "in_progress" && (
+                  <div className="absolute top-3 left-3 z-10 bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                    قيد التنفيذ
+                  </div>
+                )}
                 {work.images && work.images.length > 0 ? (
                   <img
                     src={work.images[0]}
@@ -66,7 +120,9 @@ export default function PreviousWorks() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                 ) : (
-                  <div className="text-4xl opacity-40">📸</div>
+                  <div className="text-4xl opacity-40">
+                    {activeTab === "completed" ? "📸" : "🚧"}
+                  </div>
                 )}
               </div>
 

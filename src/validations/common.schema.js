@@ -27,12 +27,12 @@ export const validatePhone = (phone) => {
   if (!phone || phone.trim().length === 0) {
     return "رقم الهاتف مطلوب";
   }
-  // Standard phone format check - egypt phone standard matches mockup: +20 1X XXX XXXX
+  // Standard phone format check - Saudi Arabia phone standard matches mockup: +966 5X XXX XXXX
   // We can be flexible but ensure it's a valid phone (digits, optional +, space, length between 9 and 15)
   const cleanPhone = phone.replace(/[\s\-\(\)]/g, "");
-  const phoneRegex = /^01[0125][0-9]{8}$/;
+  const phoneRegex = /^\+?[0-9]{9,15}$/;
   if (!phoneRegex.test(cleanPhone)) {
-    return "رقم الهاتف غير صالح (مثال: +20 1XXXXXXXX)";
+    return "رقم الهاتف غير صالح (مثال: +966 5XXXXXXXX)";
   }
   return "";
 };
@@ -43,19 +43,6 @@ export const validatePassword = (password) => {
   }
   if (password.length < 8) {
     return "كلمة المرور يجب أن لا تقل عن 8 رموز";
-  }
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/;
-  if (!passwordRegex.test(password)) {
-    return "كلمة المرور يجب أن تحتوي على حرف كبير، حرف صغير، رقم ورمز خاص";
-  }
-  return "";
-};
-export const validateConfirmPassword = (password, confirmPassword) => {
-  if (!confirmPassword) {
-    return "تأكيد كلمة المرور مطلوب";
-  }
-  if (password !== confirmPassword) {
-    return "كلمة المرور وتأكيد كلمة المرور لا تتطابق";
   }
   return "";
 };
@@ -73,13 +60,6 @@ export const validateLoginemail = (email) => {
     if (!/^\+?[0-9]{7,15}$/.test(cleanPhone)) {
       return "يرجى إدخال بريد إلكتروني صالح أو رقم هاتف صحيح";
     }
-  }
-  return "";
-};
-
-export const validateLoginPassword = (password) => {
-  if (!password) {
-    return "كلمة المرور مطلوبة";
   }
   return "";
 };
