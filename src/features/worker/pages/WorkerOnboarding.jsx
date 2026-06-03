@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setCurrentStep } from '../../../store/slices/onboardingSlice';
+import { submitOnboardingData } from '../../../services/onboardingApi';
 import OnboardingHeader from '../components/OnboardingHeader';
 import OnboardingFooter from '../components/OnboardingFooter';
 import ProgressStepper from '../components/ProgressStepper';
@@ -16,6 +17,7 @@ export default function WorkerOnboarding() {
   const onboardingData = useSelector((state) => state.onboarding);
   const [canProceed, setCanProceed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleNextStep = () => {
     if (currentStep < 3) {
@@ -33,21 +35,15 @@ export default function WorkerOnboarding() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setError(null);
     try {
-      console.log('Submitting onboarding data:', {
-        basicData: onboardingData.basicData,
-        professional: onboardingData.professional,
-        documentation: {
-          nationalId: onboardingData.documentation.nationalId?.name,
-          certificates: onboardingData.documentation.certificates.map(c => c.name),
-        },
-      });
-
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await submitOnboardingData(onboardingData);
+      console.log('Onboarding submitted successfully:', response);
       navigate('/onboarding-success');
-    } catch (error) {
-      console.error('Error submitting:', error);
-      alert('حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.');
+    } catch (err) {
+      console.error('Error submitting:', err);
+      setError(err.message || 'حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.');
+      alert(err.message || 'حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
@@ -101,6 +97,19 @@ export default function WorkerOnboarding() {
           </div>
 
           <ProgressStepper currentStep={currentStep} />
+
+          {error && (
+            <div style={{
+              backgroundColor: '#ffebee',
+              border: '1px solid #ef5350',
+              borderRadius: '0.75rem',
+              padding: '1rem',
+              marginBottom: '1rem',
+              color: '#c62828',
+            }}>
+              {error}
+            </div>
+          )}
 
           <div style={{
             backgroundColor: '#ffffff',

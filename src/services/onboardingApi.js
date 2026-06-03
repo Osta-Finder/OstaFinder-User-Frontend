@@ -1,5 +1,8 @@
 export const submitOnboardingData = async (onboardingData) => {
   try {
+    console.log('🚀 Submitting onboarding data...');
+    console.log('Data:', onboardingData);
+
     const formData = new FormData();
 
     formData.append('firstName', onboardingData.basicData.firstName);
@@ -21,33 +24,24 @@ export const submitOnboardingData = async (onboardingData) => {
       formData.append(`certificate_${index}`, cert);
     });
 
-    const response = await fetch('/api/worker/onboarding', {
+    console.log('📤 Sending request to backend...');
+    const response = await fetch('http://localhost:3000/api/worker/onboarding', {
       method: 'POST',
       body: formData,
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to submit onboarding data');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error submitting onboarding:', error);
-    throw error;
-  }
-};
-
-export const getOnboardingStatus = async () => {
-  try {
-    const response = await fetch('/api/worker/onboarding/status');
+    console.log('📥 Response status:', response.status);
 
     if (!response.ok) {
-      throw new Error('Failed to fetch onboarding status');
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to submit onboarding data');
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log('✅ Success:', result);
+    return result;
   } catch (error) {
-    console.error('Error fetching onboarding status:', error);
+    console.error('❌ Error submitting onboarding:', error);
     throw error;
   }
 };

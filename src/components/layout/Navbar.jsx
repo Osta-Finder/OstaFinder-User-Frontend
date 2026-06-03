@@ -67,19 +67,6 @@ export default function Navbar() {
         >
           تواصل معنا
         </button>
-        <button
-          onClick={() => navigate('/login')}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: '#a83900',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-          }}
-        >
-          دخول
-        </button>
       </div>
     </nav>
   );
