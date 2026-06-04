@@ -13,11 +13,11 @@ import WorkerSidebar from "../features/worker/components/WorkerSidebar";
 
 export default function WorkerLayout() {
   return (
-    <div dir="rtl" className="flex flex-col h-screen bg-gray-50 overflow-hidden">
+    <div dir="rtl" className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
-      <div className="flex flex-1 relative pt-[76px] h-full">
+      <div className="flex flex-1 overflow-hidden relative">
         <WorkerSidebar />
-        <main className="flex-1 overflow-y-auto h-full">
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>

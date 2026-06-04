@@ -31,12 +31,6 @@ const SidebarIcons = {
       <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
     </svg>
   ),
-  Clock: () => (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  ),
   Wallet: () => (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
@@ -88,17 +82,17 @@ export default function WorkerSidebar() {
     <aside className="w-full lg:w-64 bg-white border-e border-gray-100 flex flex-col justify-between p-4 shrink-0">
       {/* Profile Section */}
       <div>
-        <div className="flex flex-col items-center text-center pb-6 border-b border-gray-100 mb-6 mt-4">
-          <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border border-gray-100 shadow-sm">
+        <Link to={WorkerRoutes.PROFILE} className="group flex flex-col items-center text-center pb-6 border-b border-gray-100 mb-6 mt-4 block hover:no-underline">
+          <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border border-gray-100 shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
             <img
               src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=200"
               alt="الأسطى محمد"
               className="w-full h-full object-cover"
             />
           </div>
-          <h2 className="text-base font-bold text-slate-900">الأسطى محمد</h2>
+          <h2 className="text-base font-bold text-slate-900 group-hover:text-[#F26B1D] transition-colors">الأسطى محمد</h2>
           <p className="text-xs text-gray-400 mt-0.5">فني كهرباء معتمد</p>
-        </div>
+        </Link>
 
         {/* Navigation */}
         <nav className="space-y-1">

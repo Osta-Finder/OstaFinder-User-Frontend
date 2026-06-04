@@ -1,35 +1,23 @@
+import { useState } from "react";
+import { mockIncomingRequests } from "../data/mockData";
 import PageContainer from "../components/PageContainer";
 import EmptyState from "../components/EmptyState";
 import { formatPrice } from "../data/mockData"; // Import formatPrice for price formatting
-import { useGetIncomingRequestsQuery, useUpdateRequestStatusMutation } from "../../../services/workerApi";
 
 export default function IncomingRequests() {
-  const { data, isLoading } = useGetIncomingRequestsQuery();
-  const [updateStatus] = useUpdateRequestStatusMutation();
+  const [requests, setRequests] = useState(mockIncomingRequests);
 
-  const requests = data?.data || [];
-
-  const handleAccept = async (id) => {
-    try {
-      await updateStatus({ id, status: "in_progress" }).unwrap();
-      console.log("Accepted request:", id);
-    } catch (error) {
-      console.error("Failed to accept:", error);
-    }
+  const handleAccept = (id) => {
+    // Basic optimistic update for mock purposes
+    setRequests(requests.filter((req) => req.id !== id));
+    console.log("Accepted request:", id);
   };
 
-  const handleReject = async (id) => {
-    try {
-      await updateStatus({ id, status: "rejected" }).unwrap();
-      console.log("Rejected request:", id);
-    } catch (error) {
-      console.error("Failed to reject:", error);
-    }
+  const handleReject = (id) => {
+    // Basic optimistic update for mock purposes
+    setRequests(requests.filter((req) => req.id !== id));
+    console.log("Rejected request:", id);
   };
-
-  if (isLoading) {
-    return <div className="p-8 text-center">جاري التحميل...</div>;
-  }
 
   return (
     <PageContainer
@@ -51,7 +39,7 @@ export default function IncomingRequests() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {requests.map((req) => (
             <div
-              key={req._id}
+              key={req.id}
               className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow"
             >
               {/* Side Accent Line */}
@@ -177,7 +165,7 @@ export default function IncomingRequests() {
               {/* Actions */}
               <div className="flex gap-3 pr-3 mt-auto">
                 <button
-                  onClick={() => handleReject(req._id)}
+                  onClick={() => handleReject(req.id)}
                   className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors flex justify-center items-center gap-2 focus:ring-2 focus:ring-gray-200 focus:outline-none"
                 >
                   <svg
@@ -197,7 +185,7 @@ export default function IncomingRequests() {
                   رفض
                 </button>
                 <button
-                  onClick={() => handleAccept(req._id)}
+                  onClick={() => handleAccept(req.id)}
                   className="flex-1 py-3 rounded-xl bg-[#b45309] text-white font-medium hover:bg-[#92400e] transition-colors flex justify-center items-center gap-2 shadow-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 >
                   <svg

@@ -3,7 +3,9 @@ import {
   validateEmail,
   validatePhone,
   validatePassword,
-  validateLoginemail
+  validateLoginemail,
+  validateConfirmPassword,
+  validateLoginPassword
 } from "../../../validations/common.schema";
 
 /**
@@ -25,7 +27,10 @@ export const validateRegisterForm = (values) => {
 
   const passwordError = validatePassword(values.password);
   if (passwordError) errors.password = passwordError;
-  if (values.confirmPassword && values.confirmPassword !== values.password) errors.confirmPassword = "كلمة المرور غير متطابقة";
+
+  const confirmPasswordError = validateConfirmPassword(values.password, values.confirmPassword);
+  if (confirmPasswordError) errors.confirmPassword = confirmPasswordError;
+
   return errors;
 };
 
@@ -39,8 +44,7 @@ export const validateLoginForm = (values) => {
 
   const emailorPhoneError = validateLoginemail(values.emailorPhone);
   if (emailorPhoneError) errors.emailorPhone = emailorPhoneError;
-
-  const passwordError = validatePassword(values.password);
+  const passwordError = validateLoginPassword(values.password);
   if (passwordError) errors.password = passwordError;
 
   return errors;

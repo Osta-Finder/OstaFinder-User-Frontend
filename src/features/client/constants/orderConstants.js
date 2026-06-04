@@ -4,15 +4,17 @@ export const STATUS_CONFIG = {
   in_progress: { label: "قيد التنفيذ", color: "#8b5cf6", bg: "#f5f3ff" },
   completed: { label: "مكتملة", color: "#22c55e", bg: "#f0fdf4" },
   rejected: { label: "مرفوضة", color: "#ef4444", bg: "#fef2f2" },
+  cancelled: { label: "ملغية", color: "#6b7280", bg: "#f3f4f6" },
 };
 
 export const STATUS_TABS = [
   { key: "all", label: "الكل", color: "gray" },
   { key: "pending", label: "معلقة", color: "orange" },
-  { key: "accepted", label: "قابوله", color: "blue" },
+  { key: "accepted", label: "مقبولة", color: "blue" },
   { key: "in_progress", label: "قيد التنفيذ", color: "purple" },
   { key: "completed", label: "مكتملة", color: "green" },
-  { key: "rejected", label: "مرفوضه", color: "red" },
+  { key: "rejected", label: "مرفوضة", color: "red" },
+  { key: "cancelled", label: "ملغية", color: "gray" },
 ];
 
 export const STEPS = [

@@ -9,13 +9,14 @@
 
 import { Link } from "react-router-dom";
 import {
+  mockDashboardStats,
+  mockDashboardRequests,
   formatPrice,
 } from "../data/mockData";
 import { WorkerRoutes } from "../constants/routes.config";
 import { ServiceCategory } from "../constants/worker.constants";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
-import { useGetDashboardStatsQuery, useGetDashboardRequestsQuery } from "../../../services/workerApi";
 
 // Category icon components
 const Icons = {
@@ -78,20 +79,7 @@ const Icons = {
 const getCategoryIcon = (category) => Icons[category] || Icons.DEFAULT;
 
 export default function WorkerDashboard() {
-  const { data: statsData, isLoading: isStatsLoading } = useGetDashboardStatsQuery();
-  const { data: requestsData, isLoading: isRequestsLoading } = useGetDashboardRequestsQuery();
-
-  const stats = statsData?.data || {
-    totalOrders: { value: 0, change: "+0%", period: "" },
-    employmentRate: { value: "0%", change: "+0%", period: "" },
-    totalEarnings: { value: 0, currency: "ج.م", change: "+0%", period: "" },
-  };
-
-  const requests = requestsData?.data || [];
-
-  if (isStatsLoading || isRequestsLoading) {
-    return <div className="p-8 text-center">جاري التحميل...</div>;
-  }
+  const stats = mockDashboardStats;
 
   return (
     <div className="p-8 space-y-6 flex-1 max-w-7xl w-full mx-auto">
@@ -164,7 +152,7 @@ export default function WorkerDashboard() {
         </div>
 
         <div className="divide-y divide-gray-100">
-          {requests.map((request) => (
+          {mockDashboardRequests.map((request) => (
             <div
               key={request.id}
               className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors"

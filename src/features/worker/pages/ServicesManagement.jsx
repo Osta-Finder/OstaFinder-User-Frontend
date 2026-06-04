@@ -6,15 +6,13 @@
 
 import { Link } from "react-router-dom";
 import ServiceCard from "../components/ServiceCard";
+import { mockWorkerServices } from "../data/mockData";
 import PageContainer from "../components/PageContainer";
 import SectionHeader from "../components/SectionHeader";
 import EmptyState from "../components/EmptyState";
 import { WorkerRoutes } from "../constants/routes.config";
-import { useGetWorkerServicesQuery } from "../../../services/workerApi";
 
 export default function ServicesManagement() {
-  const { data, isLoading } = useGetWorkerServicesQuery();
-  const services = data?.data || [];
   const AddButton = (
     <Link
       to={WorkerRoutes.SERVICE_ADD}
@@ -38,11 +36,9 @@ export default function ServicesManagement() {
         <SectionHeader title="خدماتي المعروضة" />
 
         <div className="p-6 flex flex-col gap-4">
-          {isLoading ? (
-            <div className="p-8 text-center">جاري التحميل...</div>
-          ) : services.length > 0 ? (
-            services.map((service) => (
-              <ServiceCard key={service._id} service={{ ...service, id: service._id }} />
+          {mockWorkerServices.length > 0 ? (
+            mockWorkerServices.map((service) => (
+              <ServiceCard key={service.id} service={service} />
             ))
           ) : (
             <EmptyState message="لا توجد خدمات حتى الآن." icon="💼" />
