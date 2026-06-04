@@ -51,6 +51,7 @@ export const authApi = apiSlice.injectEndpoints({
         try {
           await queryFulfilled;
           // deleteCookie('accessToken');
+          localStorage.removeItem("loggedIN");
           dispatch(logout());
         } catch (err) {}
       },
