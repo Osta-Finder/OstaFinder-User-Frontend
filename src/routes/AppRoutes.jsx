@@ -15,26 +15,23 @@ import ClientRating from "../features/client/pages/ClientRating";
 import WorkerProfile from "../features/shared/WorkerProfile";
 import WorkerDashboard from "../features/worker/pages/WorkerDashboard";
 import ClientProfile from "../features/client/pages/ClientProfile";
-import ClientRequests from "../features/client/pages/ClientRequests";
 import Settings from "../features/client/pages/Settings";
 import AboutUs from "../features/public/pages/AboutUs";
 import ContactUs from "../features/public/pages/ContactUs";
 import LandingPage from "../features/public/pages/LandingPage";
-import WorkerProfile from "../features/shared/WorkerProfile";
 import { WorkerRoutes } from "../features/worker/constants/routes.config";
 import AddService from "../features/worker/pages/AddService";
 import IncomingRequests from "../features/worker/pages/IncomingRequests";
 import PreviousWorks from "../features/worker/pages/PreviousWorks";
 import Service from "../features/worker/pages/Service";
 import ServicesManagement from "../features/worker/pages/ServicesManagement";
-import IncomingRequests from "../features/worker/pages/IncomingRequests";
-import AddService from "../features/worker/pages/AddService";
-import PreviousWorks from "../features/worker/pages/PreviousWorks";
 import WorkDetails from "../features/worker/pages/WorkDetails";
 import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import WorkerLayout from "../layouts/WorkerLayout";
-import { WorkerRoutes } from "../features/worker/constants/routes.config";
 import CreateOrderPage from "../features/client/pages/createOrderPage";
+import RequestDetailsPage from "../features/worker/pages/RequestDetailsPage";
+import OnboardingDemo from "../features/worker/pages/OnboardingDemo";
+import WorkerOnboarding from "../features/worker/pages/WorkerOnboarding";
 
 export default function AppRoutes() {
   return (
@@ -53,8 +50,11 @@ export default function AppRoutes() {
         <Route path="/client-ratings" element={<ClientRating />} />
         <Route path="/client-profile" element={<ClientProfile />} />
         <Route path="/create-order/:workerId" element={<CreateOrderPage />} />
+        <Route path="/request-details/" element={<RequestDetailsPage />} />
 
         {/* Worker Routes - All wrapped in WorkerLayout */}
+        <Route path="/onboarding-demo" element={<OnboardingDemo />} />
+        <Route path="/onboarding" element={<WorkerOnboarding />} />
         <Route element={<WorkerLayout />}>
           <Route path={WorkerRoutes.DASHBOARD} element={<WorkerDashboard />} />
           <Route path={WorkerRoutes.REQUESTS} element={<IncomingRequests />} />
