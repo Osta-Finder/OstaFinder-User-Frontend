@@ -1,5 +1,4 @@
 import { Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 export default function WorkerCard({worker}) {
   return (
@@ -27,19 +26,16 @@ export default function WorkerCard({worker}) {
         <h3 className="font-bold text-lg text-gray-900 mb-1">{worker.name}</h3>
         
         <span className="bg-orange-50 text-orange-600 text-xs font-bold px-3 py-1 rounded-full">
-          {worker.category?.name}
+          {worker.specialty}
         </span>
         
       </div>
 
       <div className="w-full border-t border-gray-100 pt-4 mt-2 flex items-center justify-between">
 
-        <Link 
-          to={`/create-order/${worker._id}`} 
-          className="bg-orange-500 hover:bg-orange-600 text-white text-xs md:text-sm font-bold px-5 py-2.5 rounded-xl transition duration-150 inline-block text-center"
-        >
-          طلب خدمة 
-        </Link>
+        <button className="bg-orange-500 hover:bg-orange-600 text-white text-xs md:text-sm font-bold px-5 py-2.5 rounded-xl transition duration-150">
+          عرض الملف
+        </button>
         
         <div className="text-left">
           <p className="text-[10px] md:text-xs text-gray-400 font-light">تبدأ الخدمة من</p>

@@ -12,22 +12,18 @@ import AppRoutes from "./routes/AppRoutes";
 import MainLayout from "./layouts/MainLayout";
 import { useSelector } from "react-redux";
 import { useGetMeQuery } from "./services/authApi";
-import { ToastContainer } from "react-toastify";
 
 export default function App() {
   const { data: meData, isLoading: meLoading } = useGetMeQuery();
-  console.log("meData", meData);
-
+  console.log( "meData", meData);
+  
   return (
     <>
-    <div style={{ backgroundColor: "#f8f9fa", color: "#191c1d", minHeight: "100vh" }}>
       <BrowserRouter>
         <MainLayout>
           <AppRoutes />
         </MainLayout>
       </BrowserRouter>
-      <ToastContainer position="top-left" rtl />
-    </div>
     </>
   );
 }

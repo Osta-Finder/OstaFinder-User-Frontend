@@ -1,0 +1,1 @@
+here all the apis each in a seperate file with name and Api at the end like auth + Api = authApi.js

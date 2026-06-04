@@ -26,10 +26,8 @@ import PreviousWorks from "../features/worker/pages/PreviousWorks";
 import AddWork from "../features/worker/pages/AddWork";
 import EditWork from "../features/worker/pages/EditWork";
 import WorkDetails from "../features/worker/pages/WorkDetails";
-import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import WorkerLayout from "../layouts/WorkerLayout";
 import { WorkerRoutes } from "../features/worker/constants/routes.config";
-import CreateOrderPage from "../features/client/pages/createOrderPage";
 
 export default function AppRoutes() {
   return (
@@ -46,7 +44,6 @@ export default function AppRoutes() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/client-requests" element={<ClientRequests />} />
         <Route path="/client-profile" element={<ClientProfile />} />
-        <Route path="/create-order/:workerId" element={<CreateOrderPage />} />
 
         {/* Worker Routes - All wrapped in WorkerLayout */}
         <Route element={<WorkerLayout />}>
@@ -76,7 +73,6 @@ export default function AppRoutes() {
 
         {/* Shared Routes */}
         <Route path="/worker-profile" element={<WorkerProfile />} />
-        <Route path={WorkerRoutes.PROFILE} element={<TechnicianProfile />} />
 
         {/* 404 */}
         <Route
