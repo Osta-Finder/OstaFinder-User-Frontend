@@ -1,9 +1,9 @@
 import { Search } from 'lucide-react';
 
-export default function SearchBar({ searchInput, setSearchInput, onSubmit }) {
+export default function SearchBar({ searchInput, setSearchInput }) {
   return (
-    <form onSubmit={onSubmit} className="mb-6 relative w-full flex gap-2">
-      <div className="relative flex-1">
+    <div className="mb-6 relative w-full ">
+      <div className="relative w-full">
         <input
           type="text"
           placeholder="ابحث عن اسم الفني، الخدمة، أو المهارة..."
@@ -13,12 +13,7 @@ export default function SearchBar({ searchInput, setSearchInput, onSubmit }) {
         />
         <Search className="absolute right-3 top-3.5 text-gray-400" size={18} />
       </div>
-      <button 
-        type="submit" 
-        className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 rounded-xl transition shadow-sm text-sm"
-      >
-        بحث
-      </button>
-    </form>
+     
+    </div>
   );
 }
