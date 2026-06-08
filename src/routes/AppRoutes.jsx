@@ -32,10 +32,11 @@ import CreateOrderPage from "../features/client/pages/createOrderPage";
 import RequestDetailsPage from "../features/worker/pages/RequestDetailsPage";
 import OnboardingDemo from "../features/worker/pages/OnboardingDemo";
 import WorkerOnboarding from "../features/worker/pages/WorkerOnboarding";
+import UploadTest from "../features/test/UploadTest";
 
 export default function AppRoutes() {
   return (
-    <div>
+    <>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
@@ -82,6 +83,9 @@ export default function AppRoutes() {
         <Route path="/worker-profile" element={<WorkerProfile />} />
         <Route path={WorkerRoutes.PROFILE} element={<TechnicianProfile />} />
 
+        {/* Test */}
+        <Route path="/upload-test" element={<UploadTest />} />
+
         {/* 404 */}
         <Route
           path="*"
@@ -90,6 +94,6 @@ export default function AppRoutes() {
           }
         />
       </Routes>
-    </div>
+    </>
   );
 }
