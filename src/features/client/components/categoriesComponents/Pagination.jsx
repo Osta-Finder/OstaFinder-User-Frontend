@@ -54,7 +54,7 @@ export default function Pagination({ pagination, currentPage, onPageChange }) {
           </span>
         ) : (
           <button
-            key={page}
+            key={index}
             onClick={() => onPageChange(page)}
             className={`w-10 h-10 border font-bold rounded-xl text-sm transition ${
               currentPage === page
