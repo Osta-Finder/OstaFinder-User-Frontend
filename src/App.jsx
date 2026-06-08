@@ -10,17 +10,28 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import MainLayout from "./layouts/MainLayout";
+import { useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
+import { useGetMeQuery } from "./services/authApi";
 
 export default function App() {
+  const { data } = useGetMeQuery(); // Fetch user data on app load to check authentication status
   return (
     <>
-      <BrowserRouter>
-        <MainLayout>
-          <AppRoutes />
-        </MainLayout>
-      </BrowserRouter>
-      <ToastContainer />
+      <div
+        style={{
+          backgroundColor: "#f8f9fa",
+          color: "#191c1d",
+          minHeight: "100vh",
+        }}
+      >
+        <BrowserRouter>
+          <MainLayout>
+            <AppRoutes />
+          </MainLayout>
+        </BrowserRouter>
+        <ToastContainer autoClose={3000} limit={3} />
+      </div>
     </>
   );
 }

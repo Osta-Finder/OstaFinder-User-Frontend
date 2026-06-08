@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Button from "../../../components/ui/Button";
-import { validateLoginForm } from "../schemas/auth.schema";
-import { useLoginMutation } from "../../../services/authApi";
-import RoleToggle from "../../../components/ui/RoleToggle";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Button from "../../../components/ui/Button";
+import RoleToggle from "../../../components/ui/RoleToggle";
+import { useLoginMutation } from "../../../services/authApi";
 import InputField from "../components/InputField";
+import { validateLoginForm } from "../schemas/auth.schema";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -62,7 +62,6 @@ export default function Login() {
     }
     try {
       const result = await login(formData).unwrap();
-      console.log("result ", result);
       localStorage.setItem("loggedIN", "true");
       toast.success("تم تسجيل الدخول بنجاح! جاري التوجيه...", {
         position: "top-left",
@@ -97,7 +96,7 @@ export default function Login() {
       className="min-h-screen w-full flex items-center justify-center py-12 px-4 bg-linear-to-tr from-[#edf2f9] via-[#f7f3f5] to-[#fcf5f2] dir-rtl"
       style={{ direction: "rtl" }}
     >
-      <ToastContainer autoClose={3000} limit={3} />
+      {/* <ToastContainer autoClose={3000} limit={3} /> */}
       <div className="max-w-115 w-full bg-white rounded-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-8 border border-white/40 backdrop-blur-md relative overflow-hidden transition-all duration-300">
         {/* Header Logo & Title */}
         <div className="text-center mb-8">

@@ -1,7 +1,10 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import CuButton from "../ui/Button";
 import { useState, useEffect, useRef } from "react";
-import { useLogoutMutation, useGetMeQuery } from "../../services/authApi";
+import { useSelector } from "react-redux";
+import { useLogoutMutation } from "../../services/authApi";
+import { useGetMeQuery } from "./../../services/authApi";
+
 import clsx from "clsx";
 import logo from "../../assets/images/logo.png";
 
@@ -16,6 +19,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [logout] = useLogoutMutation();
 
   const user = meData;
