@@ -29,6 +29,8 @@ import WorkDetails from "../features/worker/pages/WorkDetails";
 import WorkerDashboard from "../features/worker/pages/WorkerDashboard";
 import WorkerLayout from "../layouts/WorkerLayout";
 import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
+// import TechnicianProfile from "../features/worker/pages/TechincalProfile";
+import UploadTest from "../features/test/UploadTest";
 
 export default function AppRoutes() {
   return (
@@ -50,8 +52,8 @@ export default function AppRoutes() {
         <Route path="/request-details/" element={<RequestDetailsPage />} />
 
         {/* Worker Routes - All wrapped in WorkerLayout */}
-        <Route path="/onboarding-demo" element={<OnboardingDemo />} />
-        <Route path="/onboarding" element={<WorkerOnboarding />} />
+        {/* <Route path="/onboarding-demo" element={<OnboardingDemo />} />
+        <Route path="/onboarding" element={<WorkerOnboarding />} /> */}
         <Route element={<WorkerLayout />}>
           <Route path={WorkerRoutes.DASHBOARD} element={<WorkerDashboard />} />
           <Route path={WorkerRoutes.REQUESTS} element={<IncomingRequests />} />
@@ -76,7 +78,7 @@ export default function AppRoutes() {
         <Route path="/register" element={<Register />} />
 
         {/* Shared Routes */}
-        <Route path="/worker-profile" element={<WorkerProfile />} />
+        {/* <Route path="/worker-profile" element={<WorkerProfile />} /> */}
         <Route path={WorkerRoutes.PROFILE} element={<TechnicianProfile />} />
 
         {/* Test */}
