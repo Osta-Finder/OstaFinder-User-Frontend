@@ -22,8 +22,8 @@ export default function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [logout] = useLogoutMutation();
 
-  const user = meData;
-  const isAuthenticated = isLoggedIn;
+  // const user = meData;
+  // const isAuthenticated = isLoggedIn;
   const avatarLetter = user?.name?.charAt(0) || "U";
 
   useEffect(() => {
