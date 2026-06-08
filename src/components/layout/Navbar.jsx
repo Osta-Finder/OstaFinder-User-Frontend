@@ -3,6 +3,8 @@ import CuButton from "../ui/Button";
 import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useLogoutMutation } from "../../services/authApi";
+import { useGetMeQuery } from "./../../services/authApi";
+
 import clsx from "clsx";
 
 export default function Navbar() {
@@ -12,7 +14,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [logout] = useLogoutMutation();
 
