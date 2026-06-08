@@ -36,6 +36,7 @@ export default function WorkerCard({worker}) {
 
         <Link 
           to={`/create-order/${worker._id}`} 
+          state={{ worker }}
           className="bg-orange-500 hover:bg-orange-600 text-white text-xs md:text-sm font-bold px-5 py-2.5 rounded-xl transition duration-150 inline-block text-center"
         >
           طلب خدمة 

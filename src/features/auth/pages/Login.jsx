@@ -72,12 +72,12 @@ export default function Login() {
 
       // Assuming result contains user role
       const role =
-        result.user?.role === "woreker" ? "worker" : result.user?.role;
+        result.user?.role === "worker" ? "worker" : result.user?.role;
       setTimeout(() => {
         if (role === "client") {
-          navigate("/client-home");
+          navigate("/");
         } else {
-          navigate("/worker-dashboard");
+          navigate("/worker/dashboard");
         }
       }, 1000);
     } catch (err) {
