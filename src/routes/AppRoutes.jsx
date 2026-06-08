@@ -18,7 +18,6 @@ import Settings from "../features/client/pages/Settings";
 import AboutUs from "../features/public/pages/AboutUs";
 import ContactUs from "../features/public/pages/ContactUs";
 import LandingPage from "../features/public/pages/LandingPage";
-import WorkerProfile from "../features/shared/WorkerProfile";
 import { WorkerRoutes } from "../features/worker/constants/routes.config";
 import AddService from "../features/worker/pages/AddService";
 import IncomingRequests from "../features/worker/pages/IncomingRequests";
@@ -33,7 +32,7 @@ import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
 
 export default function AppRoutes() {
   return (
-    <div>
+    <>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
@@ -48,8 +47,11 @@ export default function AppRoutes() {
         <Route path="/client-ratings" element={<ClientRating />} />
         <Route path="/client-profile" element={<ClientProfile />} />
         <Route path="/create-order/:workerId" element={<CreateOrderPage />} />
+        <Route path="/request-details/" element={<RequestDetailsPage />} />
 
         {/* Worker Routes - All wrapped in WorkerLayout */}
+        <Route path="/onboarding-demo" element={<OnboardingDemo />} />
+        <Route path="/onboarding" element={<WorkerOnboarding />} />
         <Route element={<WorkerLayout />}>
           <Route path={WorkerRoutes.DASHBOARD} element={<WorkerDashboard />} />
           <Route path={WorkerRoutes.REQUESTS} element={<IncomingRequests />} />
@@ -77,6 +79,9 @@ export default function AppRoutes() {
         <Route path="/worker-profile" element={<WorkerProfile />} />
         <Route path={WorkerRoutes.PROFILE} element={<TechnicianProfile />} />
 
+        {/* Test */}
+        <Route path="/upload-test" element={<UploadTest />} />
+
         {/* 404 */}
         <Route
           path="*"
@@ -85,6 +90,6 @@ export default function AppRoutes() {
           }
         />
       </Routes>
-    </div>
+    </>
   );
 }
