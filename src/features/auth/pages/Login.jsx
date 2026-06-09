@@ -81,8 +81,8 @@ export default function Login() {
       }, 1000);
     } catch (err) {
       console.log(err);
-
-      toast.error("فشل تسجيل الدخول", {
+      const errMsg = err?.data?.message || "فشل تسجيل الدخول";
+      toast.error(errMsg, {
         position: "top-left",
         rtl: true,
         theme: "light",

@@ -27,9 +27,11 @@ import ServicesManagement from "../features/worker/pages/ServicesManagement";
 import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import WorkDetails from "../features/worker/pages/WorkDetails";
 import WorkerDashboard from "../features/worker/pages/WorkerDashboard";
+import WorkerOnboarding from "../features/worker/pages/WorkerOnboarding";
+import OnboardingDemo from "../features/worker/pages/OnboardingDemo";
+import OnboardingSuccess from "../features/worker/pages/OnboardingSuccess";
 import WorkerLayout from "../layouts/WorkerLayout";
 import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
-// import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import UploadTest from "../features/test/UploadTest";
 
 export default function AppRoutes() {
@@ -52,8 +54,9 @@ export default function AppRoutes() {
         <Route path="/request-details/" element={<RequestDetailsPage />} />
 
         {/* Worker Routes - All wrapped in WorkerLayout */}
-        {/* <Route path="/onboarding-demo" element={<OnboardingDemo />} />
-        <Route path="/onboarding" element={<WorkerOnboarding />} /> */}
+        <Route path="/onboarding-demo" element={<OnboardingDemo />} />
+        <Route path="/onboarding" element={<WorkerOnboarding />} />
+        <Route path="/onboarding-success" element={<OnboardingSuccess />} />
         <Route element={<WorkerLayout />}>
           <Route path={WorkerRoutes.DASHBOARD} element={<WorkerDashboard />} />
           <Route path={WorkerRoutes.REQUESTS} element={<IncomingRequests />} />

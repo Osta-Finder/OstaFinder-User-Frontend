@@ -7,17 +7,26 @@ export default function ProfessionalStep({ onValidationChange }) {
   const professional = useSelector((state) => state.onboarding.professional);
   const [errors, setErrors] = useState({});
   const [charCount, setCharCount] = useState(professional.bio.length);
+  const [specializations, setSpecializations] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const specializations = [
-    'سباكة',
-    'كهرباء',
-    'نجارة',
-    'تكييف وتبريد',
-    'صيانة عامة',
-    'دهان',
-    'تركيب أبواب وشبابيك',
-    'تمديدات غاز',
-  ];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/categories');
+        const data = await response.json();
+        if (data.success) {
+          setSpecializations(data.data.map(cat => ({ id: cat._id, name: cat.name })));
+        }
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -47,7 +56,9 @@ export default function ProfessionalStep({ onValidationChange }) {
   };
 
   const generateBio = () => {
-    const bioTemplate = `أنا متخصص في ${professional.specialization} بخبرة تزيد عن ${professional.yearsOfExperience} سنوات. أقدم خدمات احترافية وعالية الجودة مع الالتزام بالمواعيد والأسعار المنافسة.`;
+    const currentSpec = specializations.find(s => s.id === professional.specialization || s.name === professional.specialization);
+    const specName = currentSpec?.name || professional.specialization;
+    const bioTemplate = `أنا متخصص في ${specName} بخبرة تزيد عن ${professional.yearsOfExperience} سنوات. أقدم خدمات احترافية وعالية الجودة مع الالتزام بالمواعيد والأسعار المنافسة.`;
     dispatch(updateProfessional({ bio: bioTemplate }));
     setCharCount(bioTemplate.length);
   };
@@ -111,11 +122,12 @@ export default function ProfessionalStep({ onValidationChange }) {
             style={inputStyle(!!errors.specialization)}
             onFocus={(e) => e.target.style.borderColor = '#a83900'}
             onBlur={(e) => e.target.style.borderColor = errors.specialization ? '#ba1a1a' : '#e1e3e4'}
+            disabled={loading}
           >
-            <option value="">اختر تخصصك الأساسي</option>
+            <option value="">{loading ? 'جاري التحميل...' : 'اختر تخصصك الأساسي'}</option>
             {specializations.map((spec) => (
-              <option key={spec} value={spec}>
-                {spec}
+              <option key={spec.id} value={spec.id}>
+                {spec.name}
               </option>
             ))}
           </select>

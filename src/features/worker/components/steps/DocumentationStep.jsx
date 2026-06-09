@@ -29,8 +29,10 @@ export default function DocumentationStep({ onValidationChange }) {
   const handleNationalIdChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('National ID file selected:', file.name);
       const reader = new FileReader();
       reader.onload = (event) => {
+        console.log('National ID preview loaded, size:', event.target.result.length);
         dispatch(
           setNationalId({
             file: file,
@@ -45,9 +47,12 @@ export default function DocumentationStep({ onValidationChange }) {
   const handleCertificateChange = (e) => {
     const files = e.target.files;
     if (files) {
-      Array.from(files).forEach((file) => {
+      console.log('Adding certificates:', files.length);
+      Array.from(files).forEach((file, index) => {
+        console.log(`Processing certificate ${index}:`, file.name);
         const reader = new FileReader();
         reader.onload = (event) => {
+          console.log(`Certificate ${index} loaded, preview size:`, event.target.result.length);
           dispatch(
             addCertificate({
               file: file,
@@ -69,6 +74,11 @@ export default function DocumentationStep({ onValidationChange }) {
     if (ext === 'pdf') return 'picture_as_pdf';
     if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'image';
     return 'description';
+  };
+
+  const isImageFile = (fileName) => {
+    const ext = fileName.split('.').pop().toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif'].includes(ext);
   };
 
   return (
@@ -170,55 +180,79 @@ export default function DocumentationStep({ onValidationChange }) {
             <div style={{
               backgroundColor: '#e7e8e9',
               borderRadius: '0.5rem',
-              padding: '0.75rem 1rem',
+              padding: '1rem',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              flexDirection: 'column',
+              gap: '1rem',
               border: '1px solid #e1e3e4',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span className="material-symbols-outlined" style={{
-                  color: '#a83900',
-                  fontSize: '1.5rem',
-                }}>
-                  {getFileIcon(documentation.nationalId.name)}
-                </span>
-                <span style={{
-                  fontSize: '1rem',
-                  color: '#191c1d',
-                  maxWidth: '300px',
+              {/* معاينة الصورة إذا كانت صورة */}
+              {documentation.nationalId.preview && isImageFile(documentation.nationalId.name) && (
+                <div style={{
+                  width: '100%',
+                  maxHeight: '200px',
+                  borderRadius: '0.5rem',
                   overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
+                  border: '1px solid #d1d3d4',
                 }}>
-                  {documentation.nationalId.name}
-                </span>
+                  <img
+                    src={documentation.nationalId.preview}
+                    alt="معاينة الهوية"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                </div>
+              )}
+              
+              {/* اسم الملف والأزرار */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span className="material-symbols-outlined" style={{
+                    color: '#a83900',
+                    fontSize: '1.5rem',
+                  }}>
+                    {getFileIcon(documentation.nationalId.name)}
+                  </span>
+                  <span style={{
+                    fontSize: '1rem',
+                    color: '#191c1d',
+                    maxWidth: '300px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {documentation.nationalId.name}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => dispatch(setNationalId({ file: null, preview: null }))}
+                  style={{
+                    color: '#594139',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0.25rem',
+                    borderRadius: '50%',
+                    transition: 'all 0.3s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = '#ba1a1a';
+                    e.target.style.backgroundColor = '#e1e3e4';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = '#594139';
+                    e.target.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+                    close
+                  </span>
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => dispatch(setNationalId({ file: null, preview: null }))}
-                style={{
-                  color: '#594139',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '0.25rem',
-                  borderRadius: '50%',
-                  transition: 'all 0.3s',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.color = '#ba1a1a';
-                  e.target.style.backgroundColor = '#e1e3e4';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = '#594139';
-                  e.target.style.backgroundColor = 'transparent';
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
-                  close
-                </span>
-              </button>
             </div>
           )}
         </div>
@@ -292,56 +326,80 @@ export default function DocumentationStep({ onValidationChange }) {
                   style={{
                     backgroundColor: '#e7e8e9',
                     borderRadius: '0.5rem',
-                    padding: '0.75rem 1rem',
+                    padding: '1rem',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
+                    flexDirection: 'column',
+                    gap: '1rem',
                     border: '1px solid #e1e3e4',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span className="material-symbols-outlined" style={{
-                      color: '#a83900',
-                      fontSize: '1.5rem',
-                    }}>
-                      {getFileIcon(cert.name)}
-                    </span>
-                    <span style={{
-                      fontSize: '1rem',
-                      color: '#191c1d',
-                      maxWidth: '300px',
+                  {/* معاينة الصورة إذا كانت صورة */}
+                  {cert.preview && isImageFile(cert.name) && (
+                    <div style={{
+                      width: '100%',
+                      maxHeight: '200px',
+                      borderRadius: '0.5rem',
                       overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
+                      border: '1px solid #d1d3d4',
                     }}>
-                      {cert.name}
-                    </span>
+                      <img
+                        src={cert.preview}
+                        alt={`معاينة شهادة ${index + 1}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* اسم الملف والأزرار */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <span className="material-symbols-outlined" style={{
+                        color: '#a83900',
+                        fontSize: '1.5rem',
+                      }}>
+                        {getFileIcon(cert.name)}
+                      </span>
+                      <span style={{
+                        fontSize: '1rem',
+                        color: '#191c1d',
+                        maxWidth: '300px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {cert.name}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveCertificate(index)}
+                      style={{
+                        color: '#594139',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '0.25rem',
+                        borderRadius: '50%',
+                        transition: 'all 0.3s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.color = '#ba1a1a';
+                        e.target.style.backgroundColor = '#e1e3e4';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.color = '#594139';
+                        e.target.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+                        close
+                      </span>
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveCertificate(index)}
-                    style={{
-                      color: '#594139',
-                      backgroundColor: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      padding: '0.25rem',
-                      borderRadius: '50%',
-                      transition: 'all 0.3s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.color = '#ba1a1a';
-                      e.target.style.backgroundColor = '#e1e3e4';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.color = '#594139';
-                      e.target.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
-                      close
-                    </span>
-                  </button>
                 </div>
               ))}
             </div>

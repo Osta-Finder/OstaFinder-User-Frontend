@@ -1,7 +1,7 @@
 export const submitOnboardingData = async (onboardingData) => {
   try {
-    console.log('🚀 Submitting onboarding data...');
-    console.log('Data:', onboardingData);
+    console.log('Submitting onboarding data...');
+    console.log('Full onboarding data:', JSON.stringify(onboardingData, null, 2));
 
     const formData = new FormData();
 
@@ -16,21 +16,37 @@ export const submitOnboardingData = async (onboardingData) => {
     formData.append('yearsOfExperience', onboardingData.professional.yearsOfExperience);
     formData.append('bio', onboardingData.professional.bio);
 
-    if (onboardingData.documentation.nationalId) {
-      formData.append('nationalId', onboardingData.documentation.nationalId);
+    // National ID
+    if (onboardingData.documentation.nationalId && onboardingData.documentation.nationalId.file) {
+      console.log('Appending national ID file:', onboardingData.documentation.nationalId.file.name);
+      formData.append('nationalId', onboardingData.documentation.nationalId.file);
+    } else {
+      console.warn('National ID file not found or invalid');
     }
 
-    onboardingData.documentation.certificates.forEach((cert, index) => {
-      formData.append(`certificate_${index}`, cert);
-    });
+    // Certificates
+    if (onboardingData.documentation.certificates && Array.isArray(onboardingData.documentation.certificates)) {
+      console.log('Number of certificates:', onboardingData.documentation.certificates.length);
+      onboardingData.documentation.certificates.forEach((cert, index) => {
+        if (cert && cert.file) {
+          console.log(`Appending certificate ${index}:`, cert.file.name);
+          formData.append('certificates', cert.file);
+        } else {
+          console.warn(`Certificate ${index} is invalid or has no file:`, cert);
+        }
+      });
+    } else {
+      console.warn('Certificates array not found or not an array');
+    }
 
-    console.log('📤 Sending request to backend...');
-    const response = await fetch('http://localhost:3000/api/worker/onboarding', {
+    console.log('Sending request to backend...');
+    const response = await fetch('http://localhost:8000/workers/onboarding', {
       method: 'POST',
+      credentials: 'include',
       body: formData,
     });
 
-    console.log('📥 Response status:', response.status);
+    console.log('Response status:', response.status);
 
     if (!response.ok) {
       const error = await response.json();
@@ -38,10 +54,10 @@ export const submitOnboardingData = async (onboardingData) => {
     }
 
     const result = await response.json();
-    console.log('✅ Success:', result);
+    console.log('Success:', result);
     return result;
   } catch (error) {
-    console.error('❌ Error submitting onboarding:', error);
+    console.error('Error submitting onboarding:', error);
     throw error;
   }
 };

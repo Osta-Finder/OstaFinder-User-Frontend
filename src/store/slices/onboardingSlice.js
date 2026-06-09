@@ -39,12 +39,19 @@ const onboardingSlice = createSlice({
       state.professional = { ...state.professional, ...action.payload };
     },
     setNationalId: (state, action) => {
-      state.documentation.nationalId = action.payload.file;
+      state.documentation.nationalId = {
+        file: action.payload.file,
+        preview: action.payload.preview,
+        name: action.payload.file?.name || '',
+      };
       state.documentation.nationalIdPreview = action.payload.preview;
     },
     addCertificate: (state, action) => {
-      state.documentation.certificates.push(action.payload.file);
-      state.documentation.certificatePreviews.push(action.payload.preview);
+      state.documentation.certificates.push({
+        file: action.payload.file,
+        preview: action.payload.preview,
+        name: action.payload.file.name,
+      });
     },
     removeCertificate: (state, action) => {
       const index = action.payload;

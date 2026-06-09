@@ -7,6 +7,40 @@ export default function BasicDataStep({ onValidationChange }) {
   const basicData = useSelector((state) => state.onboarding.basicData);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWorkerData = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/workers/profile', {
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            const worker = data.data;
+            const names = worker.name?.split(' ') || ['', ''];
+            
+            dispatch(updateBasicData({
+              firstName: names[0] || '',
+              lastName: names.slice(1).join(' ') || '',
+              email: worker.email || '',
+              phone: worker.phoneNumber || '',
+              city: worker.city || '',
+              address: worker.address || '',
+            }));
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching worker data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkerData();
+  }, [dispatch]);
 
   const validateField = (name, value) => {
     switch (name) {

@@ -96,8 +96,8 @@ export default function Register() {
     } catch (err) {
       // err contains server error
       console.log(err);
-
-      toast.error("فشل التسجيل", {
+      const errMsg = err?.data?.message || "فشل التسجيل";
+      toast.error(errMsg, {
         position: "top-left",
         rtl: true,
         theme: "light",
