@@ -32,11 +32,9 @@ import WorkDetails from "../features/worker/pages/WorkDetails";
 import AddWork from "../features/worker/pages/AddWork";
 import EditWork from "../features/worker/pages/EditWork";
 import TechnicianProfile from "../features/worker/pages/TechincalProfile";
-import WorkDetails from "../features/worker/pages/WorkDetails";
 import WorkerDashboard from "../features/worker/pages/WorkerDashboard";
 import WorkerLayout from "../layouts/WorkerLayout";
 
-import CreateOrderPage from "../features/client/pages/createOrderPage";
 import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
 // import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import UploadTest from "../features/test/UploadTest";
