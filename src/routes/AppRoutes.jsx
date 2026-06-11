@@ -33,6 +33,7 @@ import OnboardingSuccess from "../features/worker/pages/OnboardingSuccess";
 import WorkerLayout from "../layouts/WorkerLayout";
 import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
 import UploadTest from "../features/test/UploadTest";
+import ProtectedWorkerRoute from "../components/ProtectedWorkerRoute";
 
 export default function AppRoutes() {
   return (
@@ -53,11 +54,17 @@ export default function AppRoutes() {
         <Route path="/create-order/:workerId" element={<CreateOrderPage />} />
         <Route path="/request-details/" element={<RequestDetailsPage />} />
 
-        {/* Worker Routes - All wrapped in WorkerLayout */}
+        {/* Worker Routes - All wrapped in WorkerLayout and ProtectedWorkerRoute */}
         <Route path="/onboarding-demo" element={<OnboardingDemo />} />
         <Route path="/onboarding" element={<WorkerOnboarding />} />
         <Route path="/onboarding-success" element={<OnboardingSuccess />} />
-        <Route element={<WorkerLayout />}>
+        <Route
+          element={
+            <ProtectedWorkerRoute>
+              <WorkerLayout />
+            </ProtectedWorkerRoute>
+          }
+        >
           <Route path={WorkerRoutes.DASHBOARD} element={<WorkerDashboard />} />
           <Route path={WorkerRoutes.REQUESTS} element={<IncomingRequests />} />
           <Route path={WorkerRoutes.SERVICE_ADD} element={<AddService />} />

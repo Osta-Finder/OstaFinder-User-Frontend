@@ -16,48 +16,80 @@ export const submitOnboardingData = async (onboardingData) => {
     formData.append('yearsOfExperience', onboardingData.professional.yearsOfExperience);
     formData.append('bio', onboardingData.professional.bio);
 
-    // National ID
-    console.log('National ID in Redux state:', onboardingData.documentation.nationalId);
+    // Upload files separately using the upload endpoint
+    const uploadedFiles = {};
+
+    // Upload National ID
+    console.log('Uploading national ID...');
     if (onboardingData.documentation.nationalId && onboardingData.documentation.nationalId.file) {
-      console.log('✓ Appending national ID file:', onboardingData.documentation.nationalId.file.name, `Size: ${onboardingData.documentation.nationalId.file.size} bytes`);
-      formData.append('nationalId', onboardingData.documentation.nationalId.file);
-    } else {
-      console.warn('✗ National ID file not found or invalid');
-      console.warn('National ID object:', onboardingData.documentation.nationalId);
-    }
+      const nationalIdFormData = new FormData();
+      nationalIdFormData.append('file', onboardingData.documentation.nationalId.file);
+      
+      try {
+        const nationalIdResponse = await fetch('http://localhost:8000/upload', {
+          method: 'POST',
+          credentials: 'include',
+          body: nationalIdFormData,
+        });
 
-    // Certificates
-    console.log('Certificates in Redux state:', onboardingData.documentation.certificates);
-    if (onboardingData.documentation.certificates && Array.isArray(onboardingData.documentation.certificates)) {
-      console.log('Number of certificates to send:', onboardingData.documentation.certificates.length);
-      onboardingData.documentation.certificates.forEach((cert, index) => {
-        console.log(`Certificate ${index}:`, cert);
-        if (cert && cert.file) {
-          console.log(`✓ Appending certificate ${index}:`, cert.file.name, `Size: ${cert.file.size} bytes`);
-          formData.append('certificates', cert.file);
-        } else {
-          console.warn(`✗ Certificate ${index} is invalid or has no file:`, cert);
+        if (!nationalIdResponse.ok) {
+          throw new Error('Failed to upload national ID');
         }
-      });
-      console.log('✓ All certificates appended to FormData');
-    } else {
-      console.warn('✗ Certificates array not found or not an array');
-    }
 
-    // Log FormData contents
-    console.log('FormData contents:');
-    let certificateCount = 0;
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`  ${key}: File(${value.name}, ${value.size} bytes)`);
-        if (key === 'certificates') certificateCount++;
-      } else {
-        console.log(`  ${key}: ${value}`);
+        const nationalIdData = await nationalIdResponse.json();
+        uploadedFiles.nationalId = nationalIdData.data.url;
+        console.log('✓ National ID uploaded:', uploadedFiles.nationalId);
+        formData.append('nationalId', uploadedFiles.nationalId);
+      } catch (err) {
+        console.error('Error uploading national ID:', err);
+        throw err;
       }
     }
-    console.log(`✓ Total certificates in FormData: ${certificateCount}`);
 
-    console.log('Sending request to backend...');
+    // Upload Certificates
+    console.log('Uploading certificates...');
+    if (onboardingData.documentation.certificates && Array.isArray(onboardingData.documentation.certificates)) {
+      console.log('Number of certificates to upload:', onboardingData.documentation.certificates.length);
+      uploadedFiles.certificates = [];
+
+      for (let i = 0; i < onboardingData.documentation.certificates.length; i++) {
+        const cert = onboardingData.documentation.certificates[i];
+        if (cert && cert.file) {
+          const certificateFormData = new FormData();
+          certificateFormData.append('file', cert.file);
+
+          try {
+            console.log(`Uploading certificate ${i + 1}/${onboardingData.documentation.certificates.length}...`);
+            const certificateResponse = await fetch('http://localhost:8000/upload', {
+              method: 'POST',
+              credentials: 'include',
+              body: certificateFormData,
+            });
+
+            if (!certificateResponse.ok) {
+              throw new Error(`Failed to upload certificate ${i + 1}`);
+            }
+
+            const certificateData = await certificateResponse.json();
+            uploadedFiles.certificates.push(certificateData.data.url);
+            console.log(`✓ Certificate ${i + 1} uploaded:`, certificateData.data.url);
+            formData.append('certificates', certificateData.data.url);
+          } catch (err) {
+            console.error(`Error uploading certificate ${i + 1}:`, err);
+            throw err;
+          }
+        }
+      }
+    }
+
+    console.log('All files uploaded successfully');
+    console.log('FormData to send to onboarding:', {
+      basicData: onboardingData.basicData,
+      professional: onboardingData.professional,
+      uploadedFiles: uploadedFiles,
+    });
+
+    console.log('Sending request to onboarding endpoint...');
     
     // Create AbortController for timeout handling
     const controller = new AbortController();
