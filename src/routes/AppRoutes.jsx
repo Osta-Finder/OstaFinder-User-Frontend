@@ -34,6 +34,7 @@ import WorkerLayout from "../layouts/WorkerLayout";
 import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
 import UploadTest from "../features/test/UploadTest";
 import ProtectedWorkerRoute from "../components/ProtectedWorkerRoute";
+import PendingApprovalPage from "../features/approval/pages/PendingApprovalPage";
 
 export default function AppRoutes() {
   return (
@@ -57,6 +58,7 @@ export default function AppRoutes() {
         {/* Worker Routes - All wrapped in WorkerLayout and ProtectedWorkerRoute */}
         <Route path="/onboarding-demo" element={<OnboardingDemo />} />
         <Route path="/onboarding" element={<WorkerOnboarding />} />
+        <Route path="/pending-approval" element={<PendingApprovalPage />} />
         <Route path="/onboarding-success" element={<OnboardingSuccess />} />
         <Route
           element={

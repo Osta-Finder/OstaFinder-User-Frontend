@@ -1,31 +1,20 @@
-/**
- * ============================================
- * PAGE CONTAINER COMPONENT
- * ============================================
- * A wrapper for page content with a title, description, and actions.
- */
+import TopAppBar from '../components/shared/TopAppBar'
+import AmbientBackground from '../components/shared/AmbientBackground'
 
 export default function PageContainer({
   children,
-  title,
-  description,
-  actions,
+  showBackButton = false,
+  onBackClick,
 }) {
   return (
-    <div className="p-4 md:p-8 font-sans">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">{title}</h1>
-            {description && (
-              <p className="text-gray-500 text-sm">{description}</p>
-            )}
-          </div>
-          {actions && <div className="w-full sm:w-auto">{actions}</div>}
-        </div>
+    <div style={{ backgroundColor: '#fbf8fc', color: '#1b1b1e', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+      <TopAppBar showBackButton={showBackButton} onBackClick={onBackClick} />
+
+      <main style={{ width: '100%', maxWidth: '600px', paddingLeft: '16px', paddingRight: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10, paddingTop: '80px' }}>
         {children}
-      </div>
+      </main>
+
+      <AmbientBackground />
     </div>
-  );
+  )
 }
