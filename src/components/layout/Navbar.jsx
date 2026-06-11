@@ -26,29 +26,29 @@ export default function Navbar() {
   // const isAuthenticated = isLoggedIn;
   const avatarLetter = user?.name?.charAt(0) || "U";
 
-  useEffect(() => {
-    if (!isHome) return;
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isHome]);
+//   useEffect(() => {
+//     if (!isHome) return;
+//     const onScroll = () => setScrolled(window.scrollY > 20);
+//     window.addEventListener("scroll", onScroll, { passive: true });
+//     onScroll();
+//     return () => window.removeEventListener("scroll", onScroll);
+//   }, [isHome]);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+//   useEffect(() => {
+//     const handleClickOutside = (e) => {
+//       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+//         setDropdownOpen(false);
+//       }
+//     };
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
 
-  const handleLogout = async () => {
-    setDropdownOpen(false);
-    await logout();
-    navigate("/");
-  };
+//   const handleLogout = async () => {
+//     setDropdownOpen(false);
+//     await logout();
+//     navigate("/");
+//   };
 
   return (
     <div

@@ -24,10 +24,16 @@ import IncomingRequests from "../features/worker/pages/IncomingRequests";
 import PreviousWorks from "../features/worker/pages/PreviousWorks";
 import Service from "../features/worker/pages/Service";
 import ServicesManagement from "../features/worker/pages/ServicesManagement";
+
+import WorkDetails from "../features/worker/pages/WorkDetails";
+import AddWork from "../features/worker/pages/AddWork";
+import EditWork from "../features/worker/pages/EditWork";
 import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import WorkDetails from "../features/worker/pages/WorkDetails";
 import WorkerDashboard from "../features/worker/pages/WorkerDashboard";
 import WorkerLayout from "../layouts/WorkerLayout";
+
+import CreateOrderPage from "../features/client/pages/createOrderPage";
 import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
 // import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import UploadTest from "../features/test/UploadTest";
@@ -67,6 +73,8 @@ export default function AppRoutes() {
             element={<ServicesManagement />}
           />
           <Route path={WorkerRoutes.WORKS} element={<PreviousWorks />} />
+          <Route path={`${WorkerRoutes.WORKS}/add`} element={<AddWork />} />
+          <Route path={`${WorkerRoutes.WORKS}/edit/:id`} element={<EditWork />} />
           <Route
             path={WorkerRoutes.WORK_DETAIL(":id")}
             element={<WorkDetails />}

@@ -14,7 +14,69 @@ export const workerApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    getWorkerWorks: builder.query({
+      query: () => ({
+        url: "/workers/works",
+        method: "GET",
+      }),
+      providesTags: ["WorkerWorks"],
+    }),
+    getWorkerWorkById: builder.query({
+      query: (id) => ({
+        url: `/workers/works/${id}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "WorkerWork", id }],
+    }),
+    addWorkerWork: builder.mutation({
+      query: (body) => ({
+        url: "/workers/works",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["WorkerWorks"],
+    }),
+    updateWorkerWork: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/workers/works/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => ["WorkerWorks", { type: "WorkerWork", id }],
+    }),
+    deleteWorkerWork: builder.mutation({
+      query: (id) => ({
+        url: `/workers/works/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["WorkerWorks"],
+    }),
+    getIncomingRequests: builder.query({
+      query: () => ({
+        url: "/workers/requests",
+        method: "GET",
+      }),
+      providesTags: ["WorkerRequests"],
+    }),
+    updateRequestStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/workers/requests/${id}/status`,
+        method: "PUT",
+        body: { status },
+      }),
+      invalidatesTags: ["WorkerRequests", "WorkerWorks"],
+    }),
   }),
-    overrideExisting: false,
+  overrideExisting: false,
 });
-export const { useGetTopWorkersQuery, useGetFilteredWorkersQuery } = workerApi;
+export const {
+  useGetTopWorkersQuery,
+  useGetFilteredWorkersQuery,
+  useGetWorkerWorksQuery,
+  useGetWorkerWorkByIdQuery,
+  useAddWorkerWorkMutation,
+  useUpdateWorkerWorkMutation,
+  useDeleteWorkerWorkMutation,
+  useGetIncomingRequestsQuery,
+  useUpdateRequestStatusMutation,
+} = workerApi;
