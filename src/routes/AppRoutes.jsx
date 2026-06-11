@@ -37,6 +37,7 @@ import CreateOrderPage from "../features/client/pages/createOrderPage";
 import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
 // import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import UploadTest from "../features/test/UploadTest";
+import AccountDashboardPage from "./../features/public/pages/AccountDashboardPage";
 
 export default function AppRoutes() {
   return (
@@ -46,6 +47,7 @@ export default function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/account-profile" element={<AccountDashboardPage />} />
 
         {/* Client Routes */}
         <Route path="/client-home" element={<ClientHome />} />
