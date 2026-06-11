@@ -12,7 +12,7 @@ const initialFormState = {
   price: "",
   clientName: "",
   date: "",
-  source: "outside",
+  // source is NOT included - backend always forces source = "outside" for manual adds
 };
 
 export default function AddWork() {
@@ -38,8 +38,10 @@ export default function AddWork() {
     const newErrors = {};
     if (!formData.title.trim()) newErrors.title = "عنوان العمل مطلوب";
     if (!formData.category) newErrors.category = "يرجى اختيار التصنيف";
-    if (!formData.location.trim()) newErrors.location = "المدينة/المنطقة مطلوبة";
-    if (!formData.description.trim()) newErrors.description = "تفاصيل العمل مطلوبة";
+    if (!formData.location.trim())
+      newErrors.location = "المدينة/المنطقة مطلوبة";
+    if (!formData.description.trim())
+      newErrors.description = "تفاصيل العمل مطلوبة";
     if (!formData.clientName.trim()) newErrors.clientName = "اسم العميل مطلوب";
     if (!formData.date) newErrors.date = "تاريخ العمل مطلوب";
     if (!formData.price || Number(formData.price) <= 0) {
@@ -61,7 +63,7 @@ export default function AddWork() {
       description: formData.description.trim(),
       clientName: formData.clientName.trim(),
       date: formData.date,
-      source: formData.source,
+      // source is intentionally omitted — backend forces "outside"
       status: status, // From URL query param
       price: Number(formData.price),
     };
@@ -73,6 +75,11 @@ export default function AddWork() {
       navigate(WorkerRoutes.WORKS);
     } catch (err) {
       console.error("Failed to save work:", err);
+      alert(
+        err?.data?.message ||
+          err?.error ||
+          "حدث خطأ أثناء الإضافة: " + JSON.stringify(err),
+      );
     }
   };
 
@@ -93,7 +100,10 @@ export default function AddWork() {
             <div className="space-y-6">
               {/* Title */}
               <div>
-                <label htmlFor="title" className="block text-sm font-bold text-gray-800 mb-2">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-bold text-gray-800 mb-2"
+                >
                   عنوان العمل
                 </label>
                 <input
@@ -105,13 +115,18 @@ export default function AddWork() {
                   className={`w-full px-4 py-3 rounded-2xl border transition-all placeholder:text-gray-400 ${errors.title ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
                   placeholder="مثال: تأسيس سباكة لفيلا سكنية"
                 />
-                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
+                {errors.title && (
+                  <p className="text-red-500 text-xs mt-1">{errors.title}</p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Category */}
                 <div>
-                  <label htmlFor="category" className="block text-sm font-bold text-gray-800 mb-2">
+                  <label
+                    htmlFor="category"
+                    className="block text-sm font-bold text-gray-800 mb-2"
+                  >
                     التصنيف
                   </label>
                   <select
@@ -127,12 +142,19 @@ export default function AddWork() {
                     <option value={ServiceCategory.AC}>تكييف</option>
                     <option value={ServiceCategory.CLEANING}>تنظيف</option>
                   </select>
-                  {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
+                  {errors.category && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.category}
+                    </p>
+                  )}
                 </div>
 
                 {/* Location */}
                 <div>
-                  <label htmlFor="location" className="block text-sm font-bold text-gray-800 mb-2">
+                  <label
+                    htmlFor="location"
+                    className="block text-sm font-bold text-gray-800 mb-2"
+                  >
                     المدينة / المنطقة
                   </label>
                   <input
@@ -144,12 +166,19 @@ export default function AddWork() {
                     className={`w-full px-4 py-3 rounded-2xl border transition-all placeholder:text-gray-400 ${errors.location ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
                     placeholder="مثال: الرياض, جدة"
                   />
-                  {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location}</p>}
+                  {errors.location && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.location}
+                    </p>
+                  )}
                 </div>
 
                 {/* Client Name */}
                 <div>
-                  <label htmlFor="clientName" className="block text-sm font-bold text-gray-800 mb-2">
+                  <label
+                    htmlFor="clientName"
+                    className="block text-sm font-bold text-gray-800 mb-2"
+                  >
                     اسم العميل
                   </label>
                   <input
@@ -161,28 +190,42 @@ export default function AddWork() {
                     className={`w-full px-4 py-3 rounded-2xl border transition-all placeholder:text-gray-400 ${errors.clientName ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
                     placeholder="اسم العميل أو الجهة"
                   />
-                  {errors.clientName && <p className="text-red-500 text-xs mt-1">{errors.clientName}</p>}
+                  {errors.clientName && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.clientName}
+                    </p>
+                  )}
                 </div>
 
                 {/* Date */}
                 <div>
-                  <label htmlFor="date" className="block text-sm font-bold text-gray-800 mb-2">
+                  <label
+                    htmlFor="date"
+                    className="block text-sm font-bold text-gray-800 mb-2"
+                  >
                     التاريخ
                   </label>
+
                   <input
                     id="date"
                     name="date"
                     type="date"
                     value={formData.date}
                     onChange={handleChange}
+                    max={new Date().toISOString().split("T")[0]}
                     className={`w-full px-4 py-3 rounded-2xl border transition-all text-gray-700 bg-white ${errors.date ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
                   />
-                  {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+                  {errors.date && (
+                    <p className="text-red-500 text-xs mt-1">{errors.date}</p>
+                  )}
                 </div>
 
                 {/* Price */}
                 <div>
-                  <label htmlFor="price" className="block text-sm font-bold text-gray-800 mb-2">
+                  <label
+                    htmlFor="price"
+                    className="block text-sm font-bold text-gray-800 mb-2"
+                  >
                     التكلفة / السعر
                   </label>
                   <div className="relative">
@@ -201,30 +244,18 @@ export default function AddWork() {
                       ج.م
                     </span>
                   </div>
-                  {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
-                </div>
-
-                {/* Source */}
-                <div>
-                  <label htmlFor="source" className="block text-sm font-bold text-gray-800 mb-2">
-                    مصدر العمل
-                  </label>
-                  <select
-                    id="source"
-                    name="source"
-                    value={formData.source}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 transition-all text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="outside">عمل خارجي</option>
-                    <option value="platform">عبر منصة أوسطى فايندر</option>
-                  </select>
+                  {errors.price && (
+                    <p className="text-red-500 text-xs mt-1">{errors.price}</p>
+                  )}
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label htmlFor="description" className="block text-sm font-bold text-gray-800 mb-2">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-bold text-gray-800 mb-2"
+                >
                   تفاصيل العمل
                 </label>
                 <textarea
@@ -236,7 +267,11 @@ export default function AddWork() {
                   className={`w-full px-4 py-3 rounded-2xl border transition-all placeholder:text-gray-400 resize-none ${errors.description ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
                   placeholder="اكتب وصفاً مفصلاً لما قمت بإنجازه، المواد المستخدمة، ومراحل العمل..."
                 />
-                {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                {errors.description && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.description}
+                  </p>
+                )}
               </div>
 
               {/* Media Upload - placeholder for now */}
@@ -268,7 +303,8 @@ export default function AddWork() {
                     أو اضغط لاختيار الصور والفيديوهات من جهازك
                   </p>
                   <p className="text-xs text-gray-400">
-                    الحد الأقصى 5 ميجابايت للملف الواحد. الصيغ المدعومة: JPG, PNG, MP4
+                    الحد الأقصى 5 ميجابايت للملف الواحد. الصيغ المدعومة: JPG,
+                    PNG, MP4
                   </p>
                 </div>
               </div>
