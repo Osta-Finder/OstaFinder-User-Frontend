@@ -83,12 +83,6 @@ export const submitOnboardingData = async (onboardingData) => {
     }
 
     console.log('All files uploaded successfully');
-    console.log('FormData to send to onboarding:', {
-      basicData: onboardingData.basicData,
-      professional: onboardingData.professional,
-      uploadedFiles: uploadedFiles,
-    });
-
     console.log('Sending request to onboarding endpoint...');
     
     // Create AbortController for timeout handling
