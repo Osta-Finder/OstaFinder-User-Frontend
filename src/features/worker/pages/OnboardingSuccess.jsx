@@ -8,7 +8,7 @@ export default function OnboardingSuccess() {
 
   const handleContinue = () => {
     dispatch(resetOnboarding());
-    navigate('/worker-dashboard');
+    navigate('/pending-approval');
   };
 
   return (
