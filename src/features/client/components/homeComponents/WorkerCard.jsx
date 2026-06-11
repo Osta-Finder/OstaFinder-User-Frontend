@@ -1,11 +1,14 @@
 import { Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function WorkerCard({worker}) {
-  return (
-    <Link to={`/worker-profile/${worker._id}`}>
+  const navigate = useNavigate();
 
-    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between relative overflow-hidden">
+  return (
+    <div
+      onClick={() => navigate(`/worker-profile/${worker._id}`)}
+      className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between relative overflow-hidden cursor-pointer"
+    >
       
       <div className="absolute top-4 left-4 flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg">
         <span className="text-amber-600 font-bold text-xs md:text-sm">{worker.rating.toFixed(1)}</span>
@@ -40,6 +43,7 @@ export default function WorkerCard({worker}) {
           to={`/create-order/${worker._id}`} 
           state={{ worker }}
           className="bg-orange-500 hover:bg-orange-600 text-white text-xs md:text-sm font-bold px-5 py-2.5 rounded-xl transition duration-150 inline-block text-center"
+          onClick={(e) => e.stopPropagation()}
         >
           طلب خدمة 
         </Link>
@@ -53,6 +57,5 @@ export default function WorkerCard({worker}) {
       </div>
 
     </div>
-    </Link>
   )
 }

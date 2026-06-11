@@ -17,6 +17,9 @@ import CreateOrderPage from "../features/client/pages/createOrderPage";
 import Settings from "../features/client/pages/Settings";
 import AboutUs from "../features/public/pages/AboutUs";
 import ContactUs from "../features/public/pages/ContactUs";
+import Faq from "../features/public/pages/Faq";
+import Policy from "../features/public/pages/Policy";
+import Terms from "../features/public/pages/Terms";
 import LandingPage from "../features/public/pages/LandingPage";
 import { WorkerRoutes } from "../features/worker/constants/routes.config";
 import AddService from "../features/worker/pages/AddService";
@@ -47,6 +50,9 @@ export default function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/faq" element={<Faq />} />
+        <Route path="/privacy" element={<Policy />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="/account-profile" element={<AccountDashboardPage />} />
 
         {/* Client Routes */}
