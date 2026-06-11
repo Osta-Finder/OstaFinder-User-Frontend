@@ -15,7 +15,9 @@ export default function DocumentationStep({ onValidationChange }) {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!documentation.nationalId) newErrors.nationalId = 'الهوية الوطنية مطلوبة';
+    if (!documentation.nationalId || !documentation.nationalId.file) {
+      newErrors.nationalId = 'الهوية الوطنية مطلوبة';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -265,9 +267,19 @@ export default function DocumentationStep({ onValidationChange }) {
           }}>
             شهادات الخبرة أو الاعتماد المهني{' '}
             <span style={{ color: '#594139', fontWeight: 'normal' }}>
-              (اختياري)
+              (اختياري - يمكنك اختيار عدة شهادات)
             </span>
           </label>
+          <p style={{
+            fontSize: '0.875rem',
+            color: '#8d7167',
+            backgroundColor: '#f5f3f0',
+            padding: '0.75rem',
+            borderRadius: '0.5rem',
+            border: '1px solid #e1d5ce',
+          }}>
+            💡 لاختيار عدة شهادات: اضغط Ctrl (أو Cmd على Mac) واختر أكثر من ملف
+          </p>
           <div
             onClick={() => certificatesInputRef.current?.click()}
             style={{
