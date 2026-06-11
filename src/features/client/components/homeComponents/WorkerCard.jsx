@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 
 export default function WorkerCard({worker}) {
   return (
+    <Link to={`/worker-profile/${worker._id}`}>
+
     <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between relative overflow-hidden">
       
       <div className="absolute top-4 left-4 flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg">
@@ -36,6 +38,7 @@ export default function WorkerCard({worker}) {
 
         <Link 
           to={`/create-order/${worker._id}`} 
+          state={{ worker }}
           className="bg-orange-500 hover:bg-orange-600 text-white text-xs md:text-sm font-bold px-5 py-2.5 rounded-xl transition duration-150 inline-block text-center"
         >
           طلب خدمة 
@@ -50,5 +53,6 @@ export default function WorkerCard({worker}) {
       </div>
 
     </div>
+    </Link>
   )
 }

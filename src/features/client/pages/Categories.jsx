@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Dialog, DialogPanel } from '@headlessui/react';
 import { SlidersHorizontal, X } from 'lucide-react';
@@ -34,17 +34,38 @@ export default function WorkersPage() {
     setSearchParams(newParams);
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    handleFilterChange('keyword', searchInput);
-  };
 
   const handlePageChange = (pageNumber) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('page', pageNumber);
+  const newParams = new URLSearchParams(searchParams);
+
+  newParams.set('page', pageNumber);
+
+  if (searchInput.trim()) {
     newParams.set('keyword', searchInput);
+  } else {
+    newParams.delete('keyword');
+  }
+
+  setSearchParams(newParams);
+};
+
+  useEffect(() => {
+  const delayDebounce = setTimeout(() => {
+    const newParams = new URLSearchParams(searchParams);
+
+    if (searchInput.trim()) {
+      newParams.set('keyword', searchInput);
+    } else {
+      newParams.delete('keyword');
+    }
+
+    newParams.set('page', 1);
+
     setSearchParams(newParams);
-  };
+  }, 1000);
+
+  return () => clearTimeout(delayDebounce);
+}, [searchInput]);
 
   return (
     
@@ -83,7 +104,7 @@ export default function WorkersPage() {
 
       <main className="w-full md:w-3/4 flex flex-col justify-between">
         <div>
-          <SearchBar searchInput={searchInput} setSearchInput={setSearchInput} onSubmit={handleSearchSubmit} />
+          <SearchBar searchInput={searchInput} setSearchInput={setSearchInput} />
 
           {isLoadingWorkers ? (
             <div className="text-center py-20 text-gray-500">جاري البحث عن أفضل الفنيين...</div>
