@@ -26,29 +26,29 @@ export default function Navbar() {
   // const isAuthenticated = isLoggedIn;
   const avatarLetter = user?.name?.charAt(0) || "U";
 
-  useEffect(() => {
-    if (!isHome) return;
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isHome]);
+//   useEffect(() => {
+//     if (!isHome) return;
+//     const onScroll = () => setScrolled(window.scrollY > 20);
+//     window.addEventListener("scroll", onScroll, { passive: true });
+//     onScroll();
+//     return () => window.removeEventListener("scroll", onScroll);
+//   }, [isHome]);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+//   useEffect(() => {
+//     const handleClickOutside = (e) => {
+//       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+//         setDropdownOpen(false);
+//       }
+//     };
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
 
-  const handleLogout = async () => {
-    setDropdownOpen(false);
-    await logout();
-    navigate("/");
-  };
+//   const handleLogout = async () => {
+//     setDropdownOpen(false);
+//     await logout();
+//     navigate("/");
+//   };
 
   return (
     <div
@@ -65,11 +65,7 @@ export default function Navbar() {
         <span className="hidden sm:inline-block text-lg font-semibold">
           Osta Finder
         </span>
-        <img
-          src={logo}
-          alt="logo"
-          className="w-10 h-10 object-contain"
-        />
+        <img src={logo} alt="logo" className="w-10 h-10 object-contain" />
       </NavLink>
       <div />
 
@@ -132,7 +128,7 @@ export default function Navbar() {
             {dropdownOpen && (
               <div className="absolute left-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
                 <NavLink
-                  to="/client-profile"
+                  to="/account-profile"
                   onClick={() => setDropdownOpen(false)}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >

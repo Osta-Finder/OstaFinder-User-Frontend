@@ -22,10 +22,9 @@ import {
 } from "../constants/worker.constants";
 import {
   mockWorkerServices,
-  mockWorks,
-  mockDashboardStats,
   formatPrice,
 } from "../data/mockData";
+import { useGetWorkerWorksQuery } from "../../../services/workerApi";
 
 /// ─── Mock profile data (replace with API call later) ─────────────────────────
 const mockProfile = {
@@ -106,6 +105,10 @@ export default function TechnicianProfile() {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
+  // Fetch works from API
+  const { data: worksData } = useGetWorkerWorksQuery();
+  const allWorks = worksData?.data || [];
+
   // Filter services by selected category label
   const filteredServices =
     activeFilter === ALL_FILTER
@@ -115,7 +118,7 @@ export default function TechnicianProfile() {
         );
 
   // Show only last 3 works in the preview gallery
-  const galleryWorks = mockWorks.slice(0, 3);
+  const galleryWorks = allWorks.slice(0, 3);
 
   // Handle booking form submission
   const handleBookingSubmit = (e) => {
@@ -233,19 +236,19 @@ export default function TechnicianProfile() {
                 to={WorkerRoutes.WORKS}
                 className="text-xs font-semibold text-[#F26B1D] hover:underline"
               >
-                عرض الكل ({mockWorks.length})
+                عرض الكل ({allWorks.length})
               </Link>
             </div>
 
             <div className="p-6">
-              {mockWorks.length === 0 ? (
+              {allWorks.length === 0 ? (
                 <EmptyState message="لم يتم رفع أعمال سابقة حتى الآن." icon="🏗️" />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {galleryWorks.map((work) => (
                     <Link
-                      key={work.id}
-                      to={WorkerRoutes.WORK_DETAIL(work.id)}
+                      key={work._id || work.id}
+                      to={WorkerRoutes.WORK_DETAIL(work._id || work.id)}
                       className="group bg-gray-50 rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300"
                     >
                       {/* Image / placeholder */}

@@ -12,6 +12,7 @@ import AppRoutes from "./routes/AppRoutes";
 import MainLayout from "./layouts/MainLayout";
 import { useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useGetMeQuery } from "./services/authApi";
 
 export default function App() {
