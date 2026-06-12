@@ -17,15 +17,21 @@ import CreateOrderPage from "../features/client/pages/createOrderPage";
 import Settings from "../features/client/pages/Settings";
 import AboutUs from "../features/public/pages/AboutUs";
 import ContactUs from "../features/public/pages/ContactUs";
+import Faq from "../features/public/pages/Faq";
+import Policy from "../features/public/pages/Policy";
+import Terms from "../features/public/pages/Terms";
 import LandingPage from "../features/public/pages/LandingPage";
+import AccountDashboardPage from "./../features/public/pages/AccountDashboardPage";
 import { WorkerRoutes } from "../features/worker/constants/routes.config";
 import AddService from "../features/worker/pages/AddService";
 import IncomingRequests from "../features/worker/pages/IncomingRequests";
 import PreviousWorks from "../features/worker/pages/PreviousWorks";
 import Service from "../features/worker/pages/Service";
 import ServicesManagement from "../features/worker/pages/ServicesManagement";
-import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import WorkDetails from "../features/worker/pages/WorkDetails";
+import AddWork from "../features/worker/pages/AddWork";
+import EditWork from "../features/worker/pages/EditWork";
+import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import WorkerDashboard from "../features/worker/pages/WorkerDashboard";
 import WorkerOnboarding from "../features/worker/pages/WorkerOnboarding";
 import OnboardingDemo from "../features/worker/pages/OnboardingDemo";
@@ -46,6 +52,10 @@ export default function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/faq" element={<Faq />} />
+        <Route path="/privacy" element={<Policy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/account-profile" element={<AccountDashboardPage />} />
 
         {/* Client Routes */}
         <Route path="/client-home" element={<ClientHome />} />
@@ -89,6 +99,8 @@ export default function AppRoutes() {
             element={<ServicesManagement />}
           />
           <Route path={WorkerRoutes.WORKS} element={<PreviousWorks />} />
+          <Route path={`${WorkerRoutes.WORKS}/add`} element={<AddWork />} />
+          <Route path={`${WorkerRoutes.WORKS}/edit/:id`} element={<EditWork />} />
           <Route
             path={WorkerRoutes.WORK_DETAIL(":id")}
             element={<WorkDetails />}

@@ -66,6 +66,21 @@ export const authApi = apiSlice.injectEndpoints({
         }
       },
     }),
+    updateMe: builder.mutation({
+      query: (data) => ({
+        url: '/auth/me',
+        method: 'PUT',
+        body: data,
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setCredentials({ user: data.user || data }));
+        } catch (err) {
+          console.log(err);
+        }
+      },
+    }),
   }),
   overrideExisting: false,
 });
@@ -75,4 +90,5 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useGetMeQuery,
+  useUpdateMeMutation,
 } = authApi;

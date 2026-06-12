@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import HeroSection from "../components/HeroSection";
 import MarqueeSimple from "../../../components/ui/MarqueeSimple";
 import JoinAsWorker from "../components/JoinAsWorker";
@@ -8,18 +9,16 @@ import PopularCategories from "../components/PopularCategories";
 import BestWorkers from "../../client/components/homeComponents/BestWorkers";
 import { testimonials } from "../../../mock/testimonials";
 import { testimonialsExtra } from "../../../mock/testimonials_extra";
-import { useGetMeQuery } from "../../../services/authApi";
 
 const handleClick = () => {
   console.log("Button clicked!");
 };
 
 export default function LandingPage() {
-  const isLoggedIn = localStorage.getItem("loggedIN") === "true";
-  const { data: user } = useGetMeQuery(undefined, { skip: !isLoggedIn });
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   const role = user?.role;
-  const isGuest = !isLoggedIn;
+  const isGuest = !isAuthenticated;
   const isClient = role === "client";
   const isWorker = role === "worker";
 
