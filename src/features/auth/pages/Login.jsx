@@ -75,7 +75,8 @@ export default function Login() {
       setTimeout(() => {
         if (role === "client") {
           navigate("/");
-        } else {
+        } else if (role === "worker") {
+          // Navigate to a protected route so ProtectedWorkerRoute can handle redirection
           navigate("/worker/dashboard");
         }
       }, 1000);

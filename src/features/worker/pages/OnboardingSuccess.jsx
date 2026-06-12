@@ -8,6 +8,8 @@ export default function OnboardingSuccess() {
 
   const handleContinue = () => {
     dispatch(resetOnboarding());
+    // Clear the onboarding flag
+    localStorage.removeItem('onboardingCompleted');
     navigate('/pending-approval');
   };
 

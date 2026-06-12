@@ -57,6 +57,7 @@ export const authApi = apiSlice.injectEndpoints({
         url: '/auth/me',
         method: 'GET',
       }),
+      refetchOnMountOrArgChange: true,
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;

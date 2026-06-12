@@ -39,6 +39,10 @@ export default function WorkerOnboarding() {
     try {
       const response = await submitOnboardingData(onboardingData);
       console.log('Onboarding submitted successfully:', response);
+      
+      // Set flag to indicate onboarding is complete
+      localStorage.setItem('onboardingCompleted', 'true');
+      
       navigate('/onboarding-success');
     } catch (err) {
       console.error('Error submitting:', err);
