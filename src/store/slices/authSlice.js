@@ -1,7 +1,6 @@
 // src/store/slices/authSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
-// Initialize state from cookies if present
 const initialState = {
   user: null,
   isAuthenticated: false,

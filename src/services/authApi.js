@@ -17,7 +17,6 @@ export const authApi = apiSlice.injectEndpoints({
           dispatch(setCredentials({ user, accessToken }));
         } catch (err) {
           console.log(err);
-          // handle error in component
         }
       },
     }),
@@ -61,11 +60,9 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          const user = data.data || data.user || data;
-          dispatch(setCredentials({ user }));
+          dispatch(setCredentials({ user: data }));
         } catch (err) {
           console.log(err);
-          // handle error silently
         }
       },
     }),
