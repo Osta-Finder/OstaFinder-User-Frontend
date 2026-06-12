@@ -23,10 +23,13 @@ export const WorkerRoutes = {
   WORKS: "/worker/works",
   WORK_DETAIL: (id) => `/worker/works/${id}`,
 
+  // Profile
+  PROFILE: "/worker-profile",
+  PROFILE_VIEW: (id) => `/worker-profile/${id}`,
+
   // Other
   WALLET: "/worker/wallet",
   SUPPORT: "/worker/support",
-  PROFILE: "/worker-profile/:id",
 };
 
 export const WorkerNavItems = [

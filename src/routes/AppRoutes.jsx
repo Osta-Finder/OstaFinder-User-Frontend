@@ -34,6 +34,7 @@ import WorkerLayout from "../layouts/WorkerLayout";
 import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
 import UploadTest from "../features/test/UploadTest";
 import ProtectedWorkerRoute from "../components/ProtectedWorkerRoute";
+import OnboardingGuard from "../components/OnboardingGuard";
 import PendingApprovalPage from "../features/approval/pages/PendingApprovalPage";
 import RejectedPage from "../features/approval/pages/RejectedPage";
 
@@ -58,7 +59,14 @@ export default function AppRoutes() {
 
         {/* Worker Routes - All wrapped in WorkerLayout and ProtectedWorkerRoute */}
         <Route path="/onboarding-demo" element={<OnboardingDemo />} />
-        <Route path="/onboarding" element={<WorkerOnboarding />} />
+        <Route 
+          path="/onboarding" 
+          element={
+            <OnboardingGuard>
+              <WorkerOnboarding />
+            </OnboardingGuard>
+          } 
+        />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
         <Route path="/rejected" element={<RejectedPage />} />
         <Route path="/onboarding-success" element={<OnboardingSuccess />} />
@@ -93,7 +101,15 @@ export default function AppRoutes() {
 
         {/* Shared Routes */}
         {/* <Route path="/worker-profile" element={<WorkerProfile />} /> */}
-        <Route path={WorkerRoutes.PROFILE} element={<TechnicianProfile />} />
+        <Route 
+          path="/worker-profile" 
+          element={
+            <ProtectedWorkerRoute>
+              <TechnicianProfile />
+            </ProtectedWorkerRoute>
+          } 
+        />
+        <Route path="/worker-profile/:id" element={<TechnicianProfile />} />
 
         {/* Test */}
         <Route path="/upload-test" element={<UploadTest />} />

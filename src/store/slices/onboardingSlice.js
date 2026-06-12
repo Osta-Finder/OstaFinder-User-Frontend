@@ -16,10 +16,12 @@ const initialState = {
     bio: '',
   },
   documentation: {
-    nationalId: null,
-    nationalIdPreview: null,
-    certificates: [],
-    certificatePreviews: [],
+    nationalId: '', // Store URL string only
+    nationalIdPreview: null, // Store preview separately for UI display
+    nationalIdFileName: '', // Store file name for display
+    certificates: [], // Store URL strings only
+    certificatePreviews: [], // Store previews separately for UI display
+    certificateFileNames: [], // Store file names for display
   },
   isLoading: false,
   error: null,
@@ -39,24 +41,22 @@ const onboardingSlice = createSlice({
       state.professional = { ...state.professional, ...action.payload };
     },
     setNationalId: (state, action) => {
-      state.documentation.nationalId = {
-        file: action.payload.file,
-        preview: action.payload.preview,
-        name: action.payload.file?.name || '',
-      };
+      // Store URL string in nationalId, preview for UI, and filename for display
+      state.documentation.nationalId = action.payload.url || '';
       state.documentation.nationalIdPreview = action.payload.preview;
+      state.documentation.nationalIdFileName = action.payload.fileName || '';
     },
     addCertificate: (state, action) => {
-      state.documentation.certificates.push({
-        file: action.payload.file,
-        preview: action.payload.preview,
-        name: action.payload.file.name,
-      });
+      // Store URL string and metadata separately
+      state.documentation.certificates.push(action.payload.url || '');
+      state.documentation.certificatePreviews.push(action.payload.preview);
+      state.documentation.certificateFileNames.push(action.payload.fileName || '');
     },
     removeCertificate: (state, action) => {
       const index = action.payload;
       state.documentation.certificates.splice(index, 1);
       state.documentation.certificatePreviews.splice(index, 1);
+      state.documentation.certificateFileNames.splice(index, 1);
     },
     setLoading: (state, action) => {
       state.isLoading = action.payload;

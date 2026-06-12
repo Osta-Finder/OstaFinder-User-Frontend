@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setCurrentStep } from '../../../store/slices/onboardingSlice';
 import { submitOnboardingData } from '../../../services/onboardingApi';
+import { useGetMeQuery } from '../../../services/authApi';
 import OnboardingHeader from '../components/OnboardingHeader';
 import OnboardingFooter from '../components/OnboardingFooter';
 import ProgressStepper from '../components/ProgressStepper';
@@ -18,6 +19,7 @@ export default function WorkerOnboarding() {
   const [canProceed, setCanProceed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const { refetch: refetchUser } = useGetMeQuery();
 
   const handleNextStep = () => {
     if (currentStep < 3) {
@@ -39,6 +41,9 @@ export default function WorkerOnboarding() {
     try {
       const response = await submitOnboardingData(onboardingData);
       console.log('Onboarding submitted successfully:', response);
+      
+      // Refresh user data to update onboardingCompleted flag
+      await refetchUser();
       
       navigate('/onboarding-success');
     } catch (err) {

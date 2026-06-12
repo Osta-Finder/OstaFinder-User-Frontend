@@ -10,12 +10,13 @@ export default function DocumentationStep({ onValidationChange }) {
   const dispatch = useDispatch();
   const documentation = useSelector((state) => state.onboarding.documentation);
   const [errors, setErrors] = useState({});
+  const [uploading, setUploading] = useState(false);
   const nationalIdInputRef = useRef(null);
   const certificatesInputRef = useRef(null);
 
   const validateForm = () => {
     const newErrors = {};
-    if (!documentation.nationalId || !documentation.nationalId.file) {
+    if (!documentation.nationalId) {
       newErrors.nationalId = 'الهوية الوطنية مطلوبة';
     }
 
@@ -28,42 +29,106 @@ export default function DocumentationStep({ onValidationChange }) {
     onValidationChange(isValid);
   }, [documentation.nationalId]);
 
-  const handleNationalIdChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      console.log('National ID file selected:', file.name);
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        console.log('National ID preview loaded, size:', event.target.result.length);
-        dispatch(
-          setNationalId({
-            file: file,
-            preview: event.target.result,
-          })
-        );
-      };
-      reader.readAsDataURL(file);
+  const uploadFileToServer = async (file) => {
+    try {
+      const fileFormData = new FormData();
+      fileFormData.append('file', file);
+
+      const response = await fetch('http://localhost:8000/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: fileFormData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.data.url; // Return the URL string
+    } catch (err) {
+      console.error('Upload error:', err);
+      throw err;
     }
   };
 
-  const handleCertificateChange = (e) => {
-    const files = e.target.files;
-    if (files) {
-      console.log('Adding certificates:', files.length);
-      Array.from(files).forEach((file, index) => {
-        console.log(`Processing certificate ${index}:`, file.name);
+  const handleNationalIdChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        setUploading(true);
+        console.log('National ID file selected:', file.name);
+
+        // First, upload file to server
+        const uploadedUrl = await uploadFileToServer(file);
+        console.log('✓ National ID uploaded, URL:', uploadedUrl);
+
+        // Then, create preview for UI
         const reader = new FileReader();
         reader.onload = (event) => {
-          console.log(`Certificate ${index} loaded, preview size:`, event.target.result.length);
+          console.log('National ID preview loaded');
+          // Dispatch URL string to Redux, not file object
           dispatch(
-            addCertificate({
-              file: file,
+            setNationalId({
+              url: uploadedUrl,
               preview: event.target.result,
+              fileName: file.name,
             })
           );
         };
         reader.readAsDataURL(file);
-      });
+      } catch (err) {
+        console.error('Error handling national ID:', err);
+        setErrors({
+          nationalId: `خطأ في رفع الملف: ${err.message}`,
+        });
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
+
+  const handleCertificateChange = async (e) => {
+    const files = e.target.files;
+    if (files) {
+      try {
+        setUploading(true);
+        console.log('Adding certificates:', files.length);
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          console.log(`Processing certificate ${i}:`, file.name);
+
+          try {
+            // Upload file to server
+            const uploadedUrl = await uploadFileToServer(file);
+            console.log(`✓ Certificate ${i + 1} uploaded, URL:`, uploadedUrl);
+
+            // Create preview for UI
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              console.log(`Certificate ${i} preview loaded`);
+              // Dispatch URL string to Redux, not file object
+              dispatch(
+                addCertificate({
+                  url: uploadedUrl,
+                  preview: event.target.result,
+                  fileName: file.name,
+                })
+              );
+            };
+            reader.readAsDataURL(file);
+          } catch (err) {
+            console.error(`Error uploading certificate ${i}:`, err);
+            setErrors((prev) => ({
+              ...prev,
+              [`certificate_${i}`]: `خطأ في رفع الشهادة: ${err.message}`,
+            }));
+          }
+        }
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
@@ -126,7 +191,7 @@ export default function DocumentationStep({ onValidationChange }) {
             الهوية الوطنية / الإقامة <span style={{ color: '#a83900' }}>*</span>
           </label>
           <div
-            onClick={() => nationalIdInputRef.current?.click()}
+            onClick={() => !uploading && nationalIdInputRef.current?.click()}
             style={{
               border: `2px dashed ${errors.nationalId ? '#ba1a1a' : '#e1e3e4'}`,
               borderRadius: '0.5rem',
@@ -136,41 +201,69 @@ export default function DocumentationStep({ onValidationChange }) {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#f3f4f5',
-              cursor: 'pointer',
+              cursor: uploading ? 'wait' : 'pointer',
               transition: 'all 0.3s',
+              opacity: uploading ? 0.6 : 1,
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e7e8e9';
-              e.currentTarget.style.borderColor = '#a83900';
+              if (!uploading) {
+                e.currentTarget.style.backgroundColor = '#e7e8e9';
+                e.currentTarget.style.borderColor = '#a83900';
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f3f4f5';
-              e.currentTarget.style.borderColor = errors.nationalId ? '#ba1a1a' : '#e1e3e4';
+              if (!uploading) {
+                e.currentTarget.style.backgroundColor = '#f3f4f5';
+                e.currentTarget.style.borderColor = errors.nationalId ? '#ba1a1a' : '#e1e3e4';
+              }
             }}
           >
-            <span className="material-symbols-outlined" style={{
-              fontSize: '2rem',
-              color: '#594139',
-              marginBottom: '0.5rem',
-            }}>
-              image
-            </span>
-            <p style={{
-              fontSize: '1rem',
-              color: '#594139',
-              textAlign: 'center',
-            }}>
-              اسحب وأفلت الملف هنا أو{' '}
-              <span style={{ color: '#a83900', fontWeight: 'bold', textDecoration: 'underline' }}>
-                تصفح
-              </span>
-            </p>
+            {uploading ? (
+              <>
+                <span className="material-symbols-outlined" style={{
+                  fontSize: '2rem',
+                  color: '#594139',
+                  marginBottom: '0.5rem',
+                  animation: 'spin 1s linear infinite',
+                }}>
+                  hourglass_empty
+                </span>
+                <p style={{
+                  fontSize: '1rem',
+                  color: '#594139',
+                  textAlign: 'center',
+                }}>
+                  جاري رفع الملف...
+                </p>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined" style={{
+                  fontSize: '2rem',
+                  color: '#594139',
+                  marginBottom: '0.5rem',
+                }}>
+                  image
+                </span>
+                <p style={{
+                  fontSize: '1rem',
+                  color: '#594139',
+                  textAlign: 'center',
+                }}>
+                  اسحب وأفلت الملف هنا أو{' '}
+                  <span style={{ color: '#a83900', fontWeight: 'bold', textDecoration: 'underline' }}>
+                    تصفح
+                  </span>
+                </p>
+              </>
+            )}
           </div>
           <input
             ref={nationalIdInputRef}
             type="file"
             accept="image/*,.pdf"
             onChange={handleNationalIdChange}
+            disabled={uploading}
             style={{ display: 'none' }}
           />
           {errors.nationalId && (
@@ -188,8 +281,7 @@ export default function DocumentationStep({ onValidationChange }) {
               gap: '1rem',
               border: '1px solid #e1e3e4',
             }}>
-              {/* معاينة الصورة إذا كانت صورة */}
-              {documentation.nationalId.preview && isImageFile(documentation.nationalId.name) && (
+              {documentation.nationalIdPreview && isImageFile(documentation.nationalIdFileName) && (
                 <div style={{
                   width: '100%',
                   maxHeight: '200px',
@@ -198,7 +290,7 @@ export default function DocumentationStep({ onValidationChange }) {
                   border: '1px solid #d1d3d4',
                 }}>
                   <img
-                    src={documentation.nationalId.preview}
+                    src={documentation.nationalIdPreview}
                     alt="معاينة الهوية"
                     style={{
                       width: '100%',
@@ -208,15 +300,14 @@ export default function DocumentationStep({ onValidationChange }) {
                   />
                 </div>
               )}
-              
-              {/* اسم الملف والأزرار */}
+
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span className="material-symbols-outlined" style={{
                     color: '#a83900',
                     fontSize: '1.5rem',
                   }}>
-                    {getFileIcon(documentation.nationalId.name)}
+                    {getFileIcon(documentation.nationalIdFileName)}
                   </span>
                   <span style={{
                     fontSize: '1rem',
@@ -226,12 +317,12 @@ export default function DocumentationStep({ onValidationChange }) {
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                   }}>
-                    {documentation.nationalId.name}
+                    {documentation.nationalIdFileName}
                   </span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => dispatch(setNationalId({ file: null, preview: null }))}
+                  onClick={() => dispatch(setNationalId({ url: '', preview: null, fileName: '' }))}
                   style={{
                     color: '#594139',
                     backgroundColor: 'transparent',
@@ -281,7 +372,7 @@ export default function DocumentationStep({ onValidationChange }) {
             💡 لاختيار عدة شهادات: اضغط Ctrl (أو Cmd على Mac) واختر أكثر من ملف
           </p>
           <div
-            onClick={() => certificatesInputRef.current?.click()}
+            onClick={() => !uploading && certificatesInputRef.current?.click()}
             style={{
               border: '2px dashed #e1e3e4',
               borderRadius: '0.5rem',
@@ -291,35 +382,62 @@ export default function DocumentationStep({ onValidationChange }) {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#f3f4f5',
-              cursor: 'pointer',
+              cursor: uploading ? 'wait' : 'pointer',
               transition: 'all 0.3s',
+              opacity: uploading ? 0.6 : 1,
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e7e8e9';
-              e.currentTarget.style.borderColor = '#a83900';
+              if (!uploading) {
+                e.currentTarget.style.backgroundColor = '#e7e8e9';
+                e.currentTarget.style.borderColor = '#a83900';
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f3f4f5';
-              e.currentTarget.style.borderColor = '#e1e3e4';
+              if (!uploading) {
+                e.currentTarget.style.backgroundColor = '#f3f4f5';
+                e.currentTarget.style.borderColor = '#e1e3e4';
+              }
             }}
           >
-            <span className="material-symbols-outlined" style={{
-              fontSize: '2rem',
-              color: '#594139',
-              marginBottom: '0.5rem',
-            }}>
-              school
-            </span>
-            <p style={{
-              fontSize: '1rem',
-              color: '#594139',
-              textAlign: 'center',
-            }}>
-              اسحب وأفلت الملف هنا أو{' '}
-              <span style={{ color: '#a83900', fontWeight: 'bold', textDecoration: 'underline' }}>
-                تصفح
-              </span>
-            </p>
+            {uploading ? (
+              <>
+                <span className="material-symbols-outlined" style={{
+                  fontSize: '2rem',
+                  color: '#594139',
+                  marginBottom: '0.5rem',
+                  animation: 'spin 1s linear infinite',
+                }}>
+                  hourglass_empty
+                </span>
+                <p style={{
+                  fontSize: '1rem',
+                  color: '#594139',
+                  textAlign: 'center',
+                }}>
+                  جاري رفع الملفات...
+                </p>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined" style={{
+                  fontSize: '2rem',
+                  color: '#594139',
+                  marginBottom: '0.5rem',
+                }}>
+                  school
+                </span>
+                <p style={{
+                  fontSize: '1rem',
+                  color: '#594139',
+                  textAlign: 'center',
+                }}>
+                  اسحب وأفلت الملف هنا أو{' '}
+                  <span style={{ color: '#a83900', fontWeight: 'bold', textDecoration: 'underline' }}>
+                    تصفح
+                  </span>
+                </p>
+              </>
+            )}
           </div>
           <input
             ref={certificatesInputRef}
@@ -327,12 +445,13 @@ export default function DocumentationStep({ onValidationChange }) {
             accept="image/*,.pdf"
             multiple
             onChange={handleCertificateChange}
+            disabled={uploading}
             style={{ display: 'none' }}
           />
 
           {documentation.certificates.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {documentation.certificates.map((cert, index) => (
+              {documentation.certificates.map((certUrl, index) => (
                 <div
                   key={index}
                   style={{
@@ -345,8 +464,7 @@ export default function DocumentationStep({ onValidationChange }) {
                     border: '1px solid #e1e3e4',
                   }}
                 >
-                  {/* معاينة الصورة إذا كانت صورة */}
-                  {cert.preview && isImageFile(cert.name) && (
+                  {documentation.certificatePreviews[index] && isImageFile(documentation.certificateFileNames[index]) && (
                     <div style={{
                       width: '100%',
                       maxHeight: '200px',
@@ -355,7 +473,7 @@ export default function DocumentationStep({ onValidationChange }) {
                       border: '1px solid #d1d3d4',
                     }}>
                       <img
-                        src={cert.preview}
+                        src={documentation.certificatePreviews[index]}
                         alt={`معاينة شهادة ${index + 1}`}
                         style={{
                           width: '100%',
@@ -365,15 +483,14 @@ export default function DocumentationStep({ onValidationChange }) {
                       />
                     </div>
                   )}
-                  
-                  {/* اسم الملف والأزرار */}
+
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <span className="material-symbols-outlined" style={{
                         color: '#a83900',
                         fontSize: '1.5rem',
                       }}>
-                        {getFileIcon(cert.name)}
+                        {getFileIcon(documentation.certificateFileNames[index])}
                       </span>
                       <span style={{
                         fontSize: '1rem',
@@ -383,7 +500,7 @@ export default function DocumentationStep({ onValidationChange }) {
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
                       }}>
-                        {cert.name}
+                        {documentation.certificateFileNames[index]}
                       </span>
                     </div>
                     <button

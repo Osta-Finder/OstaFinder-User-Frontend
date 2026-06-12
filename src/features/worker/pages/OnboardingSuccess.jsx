@@ -1,10 +1,25 @@
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
 import { resetOnboarding } from '../../../store/slices/onboardingSlice';
+import { useGetMeQuery } from '../../../services/authApi';
 
 export default function OnboardingSuccess() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { data: user } = useGetMeQuery();
+  const reduxUser = useSelector((state) => state.auth.user);
+
+  // Auto-redirect after 5 seconds if user is already marked as onboarded
+  useEffect(() => {
+    const currentUser = reduxUser || user;
+    if (currentUser?.onboardingCompleted) {
+      const timer = setTimeout(() => {
+        handleContinue();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [reduxUser, user]);
 
   const handleContinue = () => {
     dispatch(resetOnboarding());
