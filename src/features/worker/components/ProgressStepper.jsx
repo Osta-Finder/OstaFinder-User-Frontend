@@ -91,7 +91,6 @@ export default function ProgressStepper({ currentStep }) {
           </div>
           <span
             style={{
-              fontWeight: '500',
               fontSize: '0.875rem',
               color: currentStep === step.number ? '#a83900' : '#191c1d',
               fontWeight: currentStep === step.number ? 'bold' : '500',
