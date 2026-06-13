@@ -132,7 +132,7 @@ export default function Navbar() {
             {dropdownOpen && (
               <div className="absolute left-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
                 <NavLink
-                  to="/client-profile"
+                  to="/account-profile"
                   onClick={() => setDropdownOpen(false)}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
