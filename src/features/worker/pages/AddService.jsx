@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { WorkerRoutes } from "../constants/routes.config";
 import { ServiceCategory } from "../constants/worker.constants";
+import { useAddWorkerServiceMutation } from "../../../services/workerApi";
 
 const initialFormState = {
   title: "",
@@ -21,6 +22,7 @@ const initialFormState = {
 
 export default function AddService() {
   const navigate = useNavigate();
+  const [addService, { isLoading }] = useAddWorkerServiceMutation();
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
 
@@ -48,7 +50,7 @@ export default function AddService() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -64,8 +66,17 @@ export default function AddService() {
 
     console.log("Saving service...", payload);
 
-    // Navigate back to services on success
-    navigate(WorkerRoutes.SERVICES);
+    try {
+      await addService(payload).unwrap();
+      navigate(WorkerRoutes.SERVICES);
+    } catch (err) {
+      console.error("Failed to save service:", err);
+      alert(
+        err?.data?.message ||
+          err?.error ||
+          "حدث خطأ أثناء إضافة الخدمة"
+      );
+    }
   };
 
   return (
@@ -251,7 +262,8 @@ export default function AddService() {
             <div className="mt-8">
               <button
                 type="submit"
-                className="w-1/3 min-w-[150px] bg-[#b45309] text-white py-3.5 rounded-2xl font-bold hover:bg-[#92400e] transition-colors shadow-sm flex items-center justify-center gap-2"
+                disabled={isLoading}
+                className="w-1/3 min-w-[150px] bg-[#b45309] text-white py-3.5 rounded-2xl font-bold hover:bg-[#92400e] transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -267,7 +279,7 @@ export default function AddService() {
                     d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
                   />
                 </svg>
-                حفظ الخدمة
+                {isLoading ? "جاري الحفظ..." : "حفظ الخدمة"}
               </button>
             </div>
           </form>
