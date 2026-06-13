@@ -13,7 +13,7 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
 
   if (result.error?.status === 401) {
     if (!refreshPromise) {
-      const refreshResult = await customBaseQuery(
+      refreshPromise = customBaseQuery(
         {
           url: "/auth/refresh",
           method: "POST",
@@ -22,6 +22,8 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
         extraOptions,
       );
     }
+
+    const refreshResult = await refreshPromise;
     if (refreshResult.data) {
       // retry original request with refreshed cookie
       result = await customBaseQuery(args, api, extraOptions);

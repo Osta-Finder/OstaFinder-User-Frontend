@@ -1,5 +1,8 @@
 import { Building2, Home, Map, Plus } from "lucide-react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import AddAddressModal from "./AddAddressModal";
 
 const fallbackAddresses = [
   {
@@ -18,45 +21,41 @@ const fallbackAddresses = [
   },
 ];
 
+const emptyStateText = "لا توجد عناوين محفوظة حتى الآن";
+
 export default function SavedAddresses() {
+  const [isAddOpen, setIsAddOpen] = useState(false);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const userAddresses =
-    user?.addresses || user?.savedAddresses || user?.locations || [];
-  const singleAddress = user?.address || user?.location;
-  const dynamicAddresses = Array.isArray(userAddresses)
-    ? userAddresses.map((address, index) => ({
-        id: address?._id || address?.id || `address-${index}`,
-        title: address?.title || address?.label || `عنوان ${index + 1}`,
-        description:
-          address?.description ||
-          address?.address ||
-          address?.street ||
-          address?.city ||
-          String(address || ""),
-        icon: index === 0 ? Home : Building2,
-        iconClass:
-          index === 0
-            ? "bg-[#ffe0ce] text-[#a83900]"
-            : "bg-[#eceff6] text-[#3e4b63]",
-      }))
-    : [];
-  const addresses =
-    isAuthenticated && dynamicAddresses.length
-      ? dynamicAddresses
-      : isAuthenticated && singleAddress
-        ? [
-            {
-              id: "main-address",
-              title: "العنوان الرئيسي",
-              description: singleAddress,
-              icon: Home,
-              iconClass: "bg-[#ffe0ce] text-[#a83900]",
-            },
-          ]
-        : fallbackAddresses;
+  const userAddresses = Array.isArray(user?.addresses) ? user.addresses : [];
+  const dynamicAddresses = userAddresses.map((address, index) => ({
+    id: address?._id || address?.id || `address-${index}`,
+    title: address?.title || address?.label || `عنوان ${index + 1}`,
+    description:
+      address?.description ||
+      address?.address ||
+      [address?.street, address?.area, address?.city]
+        .filter(Boolean)
+        .join("، ") ||
+      "",
+    icon: index === 0 ? Home : Building2,
+    iconClass:
+      index === 0
+        ? "bg-[#ffe0ce] text-[#a83900]"
+        : "bg-[#eceff6] text-[#3e4b63]",
+  }));
+  const addresses = isAuthenticated ? dynamicAddresses : fallbackAddresses;
+
+  const handleAddClick = () => {
+    if (!isAuthenticated) {
+      toast.info("يرجى تسجيل الدخول لإضافة عنوان جديد");
+      return;
+    }
+
+    setIsAddOpen(true);
+  };
 
   return (
-    <section className="rounded-[32px] border border-[#f1ddd4] bg-white p-7 shadow-[0_8px_24px_rgba(92,28,0,0.06)]">
+    <section className="rounded-4xl border border-[#f1ddd4] bg-white p-7 shadow-[0_8px_24px_rgba(92,28,0,0.06)]">
       <header className="mb-7 flex items-center justify-between">
         <div className="flex items-center gap-3 text-[#a83900]">
           <Map size={26} strokeWidth={2.1} />
@@ -67,12 +66,20 @@ export default function SavedAddresses() {
       </header>
 
       <div className="space-y-3">
+        {isAuthenticated && !addresses.length ? (
+          <div className="rounded-lg border border-[#f1ddd4] px-5 py-6 text-center text-[#4d3328]">
+            {emptyStateText}
+          </div>
+        ) : null}
+
         {addresses.map(({ id, title, description, icon: Icon, iconClass }) => (
           <article
             key={id}
             className="flex min-h-24 items-center justify-between rounded-lg border border-[#f1ddd4] px-5 py-4"
           >
-            <div className={`grid h-12 w-12 place-items-center rounded-full ${iconClass}`}>
+            <div
+              className={`grid h-12 w-12 place-items-center rounded-full ${iconClass}`}
+            >
               <Icon size={24} />
             </div>
             <div className="text-right">
@@ -84,12 +91,19 @@ export default function SavedAddresses() {
 
         <button
           type="button"
-          className="flex min-h-20 w-full items-center justify-center gap-4 rounded-lg border-2 border-dashed border-[#e7b9a7] text-lg font-medium text-[#4a2a1d]"
+          onClick={handleAddClick}
+          className="flex min-h-20 cursor-pointer hover:bg-[#f1ddd4] w-full items-center justify-center gap-4 rounded-lg border-2 border-dashed border-[#e7b9a7] text-lg font-medium text-[#4a2a1d]"
         >
           <Plus size={24} />
           إضافة عنوان جديد
         </button>
       </div>
+
+      <AddAddressModal
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        user={user}
+      />
     </section>
   );
 }

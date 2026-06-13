@@ -83,6 +83,13 @@ export const authApi = apiSlice.injectEndpoints({
         }
       },
     }),
+    uploadImage: builder.mutation({
+      query: (formData) => ({
+        url: '/upload',
+        method: 'POST',
+        body: formData,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -93,4 +100,5 @@ export const {
   useLogoutMutation,
   useGetMeQuery,
   useUpdateMeMutation,
+  useUploadImageMutation,
 } = authApi;
