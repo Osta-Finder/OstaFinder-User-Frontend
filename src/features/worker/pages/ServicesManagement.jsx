@@ -14,7 +14,7 @@ import { WorkerRoutes } from "../constants/routes.config";
 
 export default function ServicesManagement() {
   const { data: response, isLoading } = useGetWorkerServicesQuery();
-  const servicesList = response?.data || [];
+  const services = response?.data || [];
 
   const AddButton = (
     <Link
@@ -30,12 +30,11 @@ export default function ServicesManagement() {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-600"></div>
-          <p className="text-gray-500 font-medium">جاري تحميل الخدمات...</p>
+      <PageContainer title="إدارة الخدمات" description="جاري تحميل الخدمات...">
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
@@ -50,8 +49,8 @@ export default function ServicesManagement() {
         <SectionHeader title="خدماتي المعروضة" />
 
         <div className="p-6 flex flex-col gap-4">
-          {servicesList.length > 0 ? (
-            servicesList.map((service) => (
+          {services.length > 0 ? (
+            services.map((service) => (
               <ServiceCard key={service._id || service.id} service={service} />
             ))
           ) : (

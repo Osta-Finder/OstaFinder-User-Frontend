@@ -24,18 +24,26 @@ import {
   formatPrice,
 } from "../data/mockData";
 import {
-  useGetWorkerPublicProfileQuery,
-  useGetWorkerPublicServicesQuery,
-  useGetWorkerPublicWorksQuery,
-  useGetWorkerPublicReviewsQuery,
+  useGetWorkerWorksQuery,
+  useGetWorkerServicesQuery,
 } from "../../../services/workerApi";
-import { useCreateOrderMutation } from "../../../services/orderApi";
 
-const getInitials = (name) => {
-  if (!name) return "";
-  const parts = name.trim().split(" ");
-  if (parts.length === 1) return parts[0].substring(0, 2);
-  return parts[0][0] + (parts[parts.length - 1]?.[0] || "");
+/// ─── Mock profile data (replace with API call later) ─────────────────────────
+const mockProfile = {
+  name: "محمد عبد الله",
+  specialty: "فني كهرباء وتكييف متخصص",
+  rating: 4.9,
+  reviewCount: 124,
+  bio: "خبرة أكثر من 10 سنوات في تأسيس وصيانة شبكات الكهرباء وتكييفات الهواء للمنازل والشركات. أتميز بالدقة في المواعيد واستخدام أحدث المعدات والتقنيات لضمان جودة وأمان لا مثيل لهما.",
+  tags: ["موثوق", "منضبط في المواعيد", "معتمد", "متاح للطوارئ"],
+  avatarInitials: "م ع",
+  phone: "+20 101 234 5678",
+  email: "m.abdullah@ostafinder.com",
+  location: "القاهرة الجديدة، مصر",
+  experience: "10 سنوات",
+  completedJobs: 142,
+  workingHours: "8:00 ص - 10:00 م",
+  responseTime: "أقل من ساعة",
 };
 
 // ─── Filter categories derived from constants ─────────────────────────────────
@@ -67,42 +75,20 @@ export default function TechnicianProfile() {
   const [urgency, setUrgency] = useState("normal");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
-  const [clientPhone, setClientPhone] = useState("");
 
-  // Fetch worker profile and related data 
-  const { data: profileResponse, isLoading: isLoadingProfile, error: profileError } = useGetWorkerPublicProfileQuery(id);
-  const { data: servicesResponse } = useGetWorkerPublicServicesQuery(id);
-  const { data: worksResponse } = useGetWorkerPublicWorksQuery(id);
-  const { data: reviewsResponse } = useGetWorkerPublicReviewsQuery(id);
-
-  const [createOrder, { isLoading: isCreatingOrder }] = useCreateOrderMutation();
-
-  const profile = profileResponse?.data;
-  const servicesList = servicesResponse?.data || [];
-  const allWorks = worksResponse?.data || [];
-  const reviewsList = reviewsResponse?.data || [];
-
-  // Derived filter categories from services list to show only relevant filters
-  const filterCategories = [
-    ALL_FILTER,
-    ...Array.from(
-      new Set(
-        servicesList
-          .map((s) => SERVICE_CATEGORY_LABELS[s.category] || s.category)
-          .filter(Boolean)
-      )
-    ),
-  ];
+  // Fetch works and services from API
+  const { data: worksData } = useGetWorkerWorksQuery();
+  const { data: servicesData } = useGetWorkerServicesQuery();
+  const allWorks = worksData?.data || [];
+  const allServices = servicesData?.data || [];
 
   // Filter services by selected category label
   const filteredServices =
     activeFilter === ALL_FILTER
-      ? servicesList
-      : servicesList.filter(
-        (s) =>
-          SERVICE_CATEGORY_LABELS[s.category] === activeFilter ||
-          s.category === activeFilter
-      );
+      ? allServices
+      : allServices.filter(
+          (s) => SERVICE_CATEGORY_LABELS[s.category] === activeFilter
+        );
 
   // Show only last 3 works in the preview gallery
   const galleryWorks = allWorks.slice(0, 3);
@@ -570,20 +556,40 @@ export default function TechnicianProfile() {
                 </button>
               </div>
 
-              {/* Modal Body */}
-              <div className="p-6">
-                {bookingSuccess ? (
-                  /* Success Message */
-                  <div className="py-8 flex flex-col items-center justify-center text-center space-y-4 animate-scaleUp">
-                    <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-4xl shadow-md border border-emerald-100">
-                      ✓
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-gray-900">تم إرسال طلب الحجز بنجاح!</h4>
-                      <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto">
-                        تم استلام طلبك، وسيقوم {profile.name} بالتواصل معك هاتفياً أو عبر التطبيق خلال دقائق للمتابعة.
-                      </p>
-                    </div>
+            {/* Modal Body */}
+            <div className="p-6">
+              {bookingSuccess ? (
+                /* Success Message */
+                <div className="py-8 flex flex-col items-center justify-center text-center space-y-4 animate-scaleUp">
+                  <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-4xl shadow-md border border-emerald-100">
+                    ✓
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-900">تم إرسال طلب الحجز بنجاح!</h4>
+                    <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto">
+                      تم استلام طلبك، وسيقوم {mockProfile.name} بالتواصل معك هاتفياً أو عبر التطبيق خلال دقائق للمتابعة.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                /* Booking Form */
+                <form onSubmit={handleBookingSubmit} className="space-y-4">
+                  {/* Select Service */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700">اختر الخدمة المطلوبة *</label>
+                    <select
+                      required
+                      value={selectedService}
+                      onChange={(e) => setSelectedService(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:border-orange-400 focus:bg-white transition-colors"
+                    >
+                      <option value="">-- اختر من قائمة خدمات الفني --</option>
+                      {allServices.map((svc) => (
+                        <option key={svc._id || svc.id} value={svc._id || svc.id}>
+                          {svc.title} ({svc.price ? `${svc.price} ج.م` : "سعر متغير"})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 ) : (
                   /* Booking Form */

@@ -65,6 +65,20 @@ const CalendarIcon = () => (
   </svg>
 );
 
+const formatDate = (dateString) => {
+  if (!dateString) return "—";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch (e) {
+    return dateString;
+  }
+};
+
 export default function ServiceCard({ service }) {
   const icon = CATEGORY_ICONS[service.category] ?? "🔧";
   const categoryLabel = service.category;
@@ -94,7 +108,7 @@ export default function ServiceCard({ service }) {
             <span className="hidden md:inline text-gray-300">•</span>
             <span className="flex items-center gap-1">
               <CalendarIcon />
-              {service.createdAt ? new Date(service.createdAt).toLocaleDateString("ar-EG") : ""}
+              {formatDate(service.createdAt)}
             </span>
           </div>
         </div>

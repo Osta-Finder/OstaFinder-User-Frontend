@@ -1,20 +1,74 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { WorkerRoutes } from "../constants/routes.config";
 import StatusBadge from "../components/StatusBadge";
 import { formatPrice } from "../data/mockData";
+import {
+  useGetWorkerServiceByIdQuery,
+  useUpdateWorkerServiceMutation,
+  useDeleteWorkerServiceMutation,
+} from "../../../services/workerApi";
+
+const formatDate = (dateString) => {
+  if (!dateString) return "—";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch (e) {
+    return dateString;
+  }
+};
 
 export default function Service() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  // Mock fetching service details
-  const service = {
-    id,
-    title: "تفاصيل الخدمة رقم #" + id,
-    location: "المعادي، القاهرة",
-    date: "اليوم، 10:00 صباحاً",
-    price: 350,
-    status: "pending", // Example status
+  const { data: response, isLoading } = useGetWorkerServiceByIdQuery(id);
+  const [updateService, { isLoading: isUpdating }] = useUpdateWorkerServiceMutation();
+  const [deleteService, { isLoading: isDeleting }] = useDeleteWorkerServiceMutation();
+
+  const service = response?.data;
+
+  const handleToggleStatus = async () => {
+    if (!service) return;
+    const newStatus = service.status === "active" ? "paused" : "active";
+    try {
+      await updateService({ id, status: newStatus }).unwrap();
+    } catch (err) {
+      console.error("Failed to toggle status:", err);
+      alert("تعذر تعديل حالة الخدمة.");
+    }
   };
+
+  const handleDelete = async () => {
+    if (!window.confirm("هل أنت متأكد من رغبتك في حذف هذه الخدمة؟")) return;
+    try {
+      await deleteService(id).unwrap();
+      navigate(WorkerRoutes.SERVICES);
+    } catch (err) {
+      console.error("Failed to delete service:", err);
+      alert("تعذر حذف الخدمة.");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans flex justify-center items-center" dir="rtl">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+      </div>
+    );
+  }
+
+  if (!service) {
+    return (
+      <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans text-center text-gray-500" dir="rtl">
+        الخدمة غير موجودة.
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans" dir="rtl">
@@ -42,9 +96,17 @@ export default function Service() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-16 h-16 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 shrink-0 text-3xl">
-              🔧
-            </div>
+            {service.image ? (
+              <img
+                src={service.image}
+                alt={service.title}
+                className="w-16 h-16 rounded-2xl object-cover shrink-0"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 shrink-0 text-3xl">
+                🔧
+              </div>
+            )}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {service.title}
@@ -63,7 +125,7 @@ export default function Service() {
 
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
               <p className="text-sm text-gray-500 mb-1">تاريخ ووقت التنفيذ</p>
-              <p className="font-medium text-gray-800">{service.date}</p>
+              <p className="font-medium text-gray-800">{formatDate(service.createdAt)}</p>
             </div>
 
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -82,18 +144,24 @@ export default function Service() {
           <div className="mt-8 pt-8 border-t border-gray-100">
             <h3 className="text-lg font-bold text-gray-900 mb-4">الوصف</h3>
             <p className="text-gray-600 leading-relaxed">
-              هذا نص تجريبي يوضح وصف الخدمة المطلوبة. العميل يواجه مشكلة في لوحة
-              الكهرباء الرئيسية وتحتاج إلى فحص وصيانة سريعة. يجب إحضار كافة
-              الأدوات اللازمة للفحص.
+              {service.description}
             </p>
           </div>
 
           <div className="mt-8 flex gap-3">
-            <button className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors">
-              تعديل الحالة
+            <button
+              onClick={handleToggleStatus}
+              disabled={isUpdating}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50"
+            >
+              {service.status === "active" ? "تجميد الخدمة" : "تنشيط الخدمة"}
             </button>
-            <button className="bg-red-50 hover:bg-red-100 text-red-600 px-6 py-2.5 rounded-xl font-medium transition-colors">
-              إلغاء الخدمة
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-red-50 hover:bg-red-100 text-red-600 px-6 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50"
+            >
+              حذف الخدمة
             </button>
           </div>
         </div>
