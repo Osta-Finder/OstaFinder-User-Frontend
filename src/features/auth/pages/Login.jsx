@@ -77,7 +77,7 @@ export default function Login() {
         if (role === "client") {
           navigate("/client-home");
         } else {
-          navigate("/worker-dashboard");
+          navigate("/worker/dashboard");
         }
       }, 1000);
     } catch (err) {

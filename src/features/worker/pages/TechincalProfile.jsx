@@ -21,10 +21,12 @@ import {
   SERVICE_CATEGORY_LABELS,
 } from "../constants/worker.constants";
 import {
-  mockWorkerServices,
   formatPrice,
 } from "../data/mockData";
-import { useGetWorkerWorksQuery } from "../../../services/workerApi";
+import {
+  useGetWorkerWorksQuery,
+  useGetWorkerServicesQuery,
+} from "../../../services/workerApi";
 
 /// ─── Mock profile data (replace with API call later) ─────────────────────────
 const mockProfile = {
@@ -105,15 +107,17 @@ export default function TechnicianProfile() {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Fetch works from API
+  // Fetch works and services from API
   const { data: worksData } = useGetWorkerWorksQuery();
+  const { data: servicesData } = useGetWorkerServicesQuery();
   const allWorks = worksData?.data || [];
+  const allServices = servicesData?.data || [];
 
   // Filter services by selected category label
   const filteredServices =
     activeFilter === ALL_FILTER
-      ? mockWorkerServices
-      : mockWorkerServices.filter(
+      ? allServices
+      : allServices.filter(
           (s) => SERVICE_CATEGORY_LABELS[s.category] === activeFilter
         );
 
@@ -540,8 +544,8 @@ export default function TechnicianProfile() {
                       className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:border-orange-400 focus:bg-white transition-colors"
                     >
                       <option value="">-- اختر من قائمة خدمات الفني --</option>
-                      {mockWorkerServices.map((svc) => (
-                        <option key={svc.id} value={svc.id}>
+                      {allServices.map((svc) => (
+                        <option key={svc._id || svc.id} value={svc._id || svc.id}>
                           {svc.title} ({svc.price ? `${svc.price} ج.م` : "سعر متغير"})
                         </option>
                       ))}

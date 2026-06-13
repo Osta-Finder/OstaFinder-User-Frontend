@@ -42,7 +42,10 @@ export const workerApi = apiSlice.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: (result, error, { id }) => ["WorkerWorks", { type: "WorkerWork", id }],
+      invalidatesTags: (result, error, { id }) => [
+        "WorkerWorks",
+        { type: "WorkerWork", id },
+      ],
     }),
     deleteWorkerWork: builder.mutation({
       query: (id) => ({
@@ -66,6 +69,78 @@ export const workerApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["WorkerRequests", "WorkerWorks"],
     }),
+    // Worker Profile and Dashboard============================>
+    getWorkerProfile: builder.query({
+      query: () => ({
+        url: "/workers/profile",
+        method: "GET",
+      }),
+      providesTags: ["WorkerProfile"],
+    }),
+
+    getDashboardStats: builder.query({
+      query: () => ({
+        url: "/workers/stats",
+        method: "GET",
+      }),
+      providesTags: ["WorkerStats"],
+    }),
+
+    getDashboardRequests: builder.query({
+      query: () => ({
+        url: "/workers/dashboard-requests",
+        method: "GET",
+      }),
+      providesTags: ["WorkerRequests"],
+    }),
+    getWorkerServices: builder.query({
+      query: () => ({
+        url: "/workers/services",
+        method: "GET",
+      }),
+      providesTags: ["WorkerServices"],
+    }),
+    getWorkerServiceById: builder.query({
+      query: (id) => ({
+        url: `/workers/services/${id}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "WorkerService", id }],
+    }),
+    addWorkerService: builder.mutation({
+      query: (body) => ({
+        url: "/workers/services",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["WorkerServices"],
+    }),
+    updateWorkerService: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/workers/services/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        "WorkerServices",
+        { type: "WorkerService", id },
+      ],
+    }),
+    deleteWorkerService: builder.mutation({
+      query: (id) => ({
+        url: `/workers/services/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["WorkerServices"],
+    }),
+    uploadImage: builder.mutation({
+      query: (formData) => ({
+        url: "/upload",
+        method: "POST",
+        body: formData,
+      }),
+    }),
+    //======================================>
   }),
   overrideExisting: false,
 });
@@ -79,4 +154,14 @@ export const {
   useDeleteWorkerWorkMutation,
   useGetIncomingRequestsQuery,
   useUpdateRequestStatusMutation,
+  // NEW
+  useGetWorkerProfileQuery,
+  useGetDashboardStatsQuery,
+  useGetDashboardRequestsQuery,
+  useGetWorkerServicesQuery,
+  useGetWorkerServiceByIdQuery,
+  useAddWorkerServiceMutation,
+  useUpdateWorkerServiceMutation,
+  useDeleteWorkerServiceMutation,
+  useUploadImageMutation,
 } = workerApi;

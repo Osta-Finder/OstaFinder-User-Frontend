@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { resetOnboarding } from '../../../store/slices/onboardingSlice';
+import { WorkerRoutes } from '../constants/routes.config';
 
 export default function OnboardingSuccess() {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ export default function OnboardingSuccess() {
 
   const handleContinue = () => {
     dispatch(resetOnboarding());
-    navigate('/worker-dashboard');
+    navigate(WorkerRoutes.DASHBOARD);
   };
 
   return (
