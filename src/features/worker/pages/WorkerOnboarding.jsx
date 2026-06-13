@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCurrentStep } from '../../../store/slices/onboardingSlice';
+import { setCurrentStep, resetOnboarding } from '../../../store/slices/onboardingSlice';
 import { setCredentials } from '../../../store/slices/authSlice';
 import { useSubmitOnboardingMutation } from '../../../services/workerApi';
 import OnboardingHeader from '../components/OnboardingHeader';
@@ -20,6 +20,11 @@ export default function WorkerOnboarding() {
   const [submitError, setSubmitError] = useState(null);
 
   const [submitOnboarding, { isLoading: isSubmitting }] = useSubmitOnboardingMutation();
+
+  // Always start from step 1 when this page loads
+  useEffect(() => {
+    dispatch(resetOnboarding());
+  }, []);
 
   const handleNextStep = () => {
     if (currentStep < 3) {

@@ -40,23 +40,21 @@ export default function DocumentationStep({ onValidationChange }) {
   const [errors, setErrors] = useState({});
   const [uploadingNationalId, setUploadingNationalId] = useState(false);
   const [uploadingCert, setUploadingCert] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const nationalIdInputRef = useRef(null);
   const certificatesInputRef = useRef(null);
 
-  const validateForm = () => {
-    const newErrors = {};
-    // nationalId in Redux is now a URL string after upload
-    if (!documentation.nationalIdPreview && !documentation.nationalId) {
-      newErrors.nationalId = 'الهوية الوطنية مطلوبة';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const isValid = !!(documentation.nationalId || documentation.nationalIdPreview);
 
   useEffect(() => {
-    const isValid = validateForm();
     onValidationChange(isValid);
-  }, [documentation.nationalId, documentation.nationalIdPreview]);
+    // Only show error if user already tried to interact (submitted attempt)
+    if (submitted && !isValid) {
+      setErrors({ nationalId: 'الهوية الوطنية مطلوبة' });
+    } else if (isValid) {
+      setErrors({});
+    }
+  }, [documentation.nationalId, documentation.nationalIdPreview, submitted]);
 
   const handleNationalIdChange = async (e) => {
     const file = e.target.files?.[0];
@@ -143,7 +141,12 @@ export default function DocumentationStep({ onValidationChange }) {
 
           {!isNationalIdUploaded && (
             <div
-              onClick={() => !uploadingNationalId && nationalIdInputRef.current?.click()}
+              onClick={() => {
+                if (!uploadingNationalId) {
+                  setSubmitted(true);
+                  nationalIdInputRef.current?.click();
+                }
+              }}
               style={{
                 border: `2px dashed ${errors.nationalId ? '#ba1a1a' : '#e1e3e4'}`,
                 borderRadius: '0.5rem',
@@ -215,6 +218,9 @@ export default function DocumentationStep({ onValidationChange }) {
             شهادات الخبرة أو الاعتماد المهني{' '}
             <span style={{ color: '#594139', fontWeight: 'normal' }}>(اختياري)</span>
           </label>
+          <p style={{ fontSize: '0.85rem', color: '#888', margin: 0 }}>
+            يمكنك رفع أكثر من ملف — اضغط على "تصفح" وحدد عدة ملفات دفعة واحدة
+          </p>
 
           <div
             onClick={() => !uploadingCert && certificatesInputRef.current?.click()}
