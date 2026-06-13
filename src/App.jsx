@@ -10,13 +10,16 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import MainLayout from "./layouts/MainLayout";
-import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useGetMeQuery } from "./services/authApi";
 
 export default function App() {
-  const { data } = useGetMeQuery(); // Fetch user data on app load to check authentication status
+  // On every app load / reload, re-hydrate auth state from the server session (cookie-based).
+  // This ensures onboardingCompleted and approvalStatus are always fresh from the backend.
+  useGetMeQuery();
+
   return (
     <>
       <div

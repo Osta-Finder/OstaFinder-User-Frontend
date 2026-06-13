@@ -1,4 +1,5 @@
 import { apiSlice } from "./apiSlice";
+import { setCredentials } from "../store/slices/authSlice";
 
 export const workerApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -66,6 +67,32 @@ export const workerApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["WorkerRequests", "WorkerWorks"],
     }),
+    submitOnboarding: builder.mutation({
+      query: (formData) => ({
+        url: "/workers/onboarding",
+        method: "POST",
+        body: formData,
+        formData: true,
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          // Backend returns updated worker in data.data
+          if (data?.data) {
+            dispatch(setCredentials({ user: data.data }));
+          }
+        } catch (_err) {
+          // handled in component
+        }
+      },
+    }),
+    getWorkerProfile: builder.query({
+      query: () => ({
+        url: "/workers/profile",
+        method: "GET",
+      }),
+      providesTags: ["WorkerProfile"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -79,4 +106,6 @@ export const {
   useDeleteWorkerWorkMutation,
   useGetIncomingRequestsQuery,
   useUpdateRequestStatusMutation,
+  useSubmitOnboardingMutation,
+  useGetWorkerProfileQuery,
 } = workerApi;
