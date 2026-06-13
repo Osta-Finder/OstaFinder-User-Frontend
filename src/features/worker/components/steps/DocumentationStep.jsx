@@ -18,7 +18,7 @@ async function uploadToSupabase(file) {
   formData.append('file', file);
   formData.append('bucket', 'official-docs');
 
-  const res = await fetch(`${API_BASE}/api/upload`, {
+  const res = await fetch(`${API_BASE}/upload`, {
     method: 'POST',
     body: formData,
     credentials: 'include', // send cookies for auth

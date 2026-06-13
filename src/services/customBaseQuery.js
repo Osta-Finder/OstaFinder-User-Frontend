@@ -5,7 +5,7 @@ const productionURL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 let refreshPromise = null;
 
 export const customBaseQuery = fetchBaseQuery({
-  baseUrl: `${productionURL}/api`,
+  baseUrl: productionURL,
   credentials: "include",
 });
 export const baseQueryWithReauth = async (args, api, extraOptions) => {
@@ -13,16 +13,16 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
 
   if (result.error?.status === 401) {
     if (!refreshPromise) {
-      refreshPromise = customBaseQuery(
-        { url: "/auth/refresh", method: "POST" },
+      const refreshResult = await customBaseQuery(
+        {
+          url: "/auth/refresh",
+          method: "POST",
+        },
         api,
         extraOptions,
-      ).finally(() => {
-        refreshPromise = null;
-      });
+      );
     }
-    const refreshResult = await refreshPromise;
-    if (refreshResult?.data) {
+    if (refreshResult.data) {
       // retry original request with refreshed cookie
       result = await customBaseQuery(args, api, extraOptions);
     } else {
