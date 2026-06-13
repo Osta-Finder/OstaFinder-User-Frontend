@@ -591,105 +591,85 @@ export default function TechnicianProfile() {
                       ))}
                     </select>
                   </div>
-                ) : (
-                  /* Booking Form */
-                  <form onSubmit={handleBookingSubmit} className="space-y-4">
-                    {/* Select Service */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-gray-700">اختر الخدمة المطلوبة *</label>
-                      <select
-                        required
-                        value={selectedService}
-                        onChange={(e) => setSelectedService(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:border-orange-400 focus:bg-white transition-colors"
-                      >
-                        <option value="">-- اختر من قائمة خدمات الفني --</option>
-                        {servicesList.map((svc) => (
-                          <option key={svc._id || svc.id} value={svc._id || svc.id}>
-                            {svc.title} ({svc.price ? `${svc.price} ج.م` : "سعر متغير"})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
 
-                    {/* Urgency selection */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-gray-700">مدى استعجال الطلب</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setUrgency("normal")}
-                          className={`py-2 rounded-xl text-xs font-semibold border transition-all duration-200 ${urgency === "normal"
-                            ? "bg-slate-100 border-slate-350 text-slate-800"
-                            : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
-                            }`}
-                        >
-                          حجز عادي (غير مستعجل)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setUrgency("urgent")}
-                          className={`py-2 rounded-xl text-xs font-bold border transition-all duration-200 ${urgency === "urgent"
-                            ? "bg-red-50 border-red-200 text-red-600 shadow-sm"
-                            : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
-                            }`}
-                        >
-                          ⚠️ عاجل وطارئ جداً
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Phone */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-gray-700">رقم الهاتف للتواصل *</label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="مثال: 01012345678"
-                        value={clientPhone}
-                        onChange={(e) => setClientPhone(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:bg-white transition-colors"
-                      />
-                    </div>
-
-                    {/* Address */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-gray-700">عنوان موقع العمل بالتفصيل *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="مثال: القاهرة الجديدة، التجمع الخامس، شارع التسعين"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:bg-white transition-colors"
-                      />
-                    </div>
-
-                    {/* Description / Notes */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-gray-700">ملاحظات أو تفاصيل إضافية للمشكلة</label>
-                      <textarea
-                        rows={3}
-                        placeholder="اكتب هنا أي تفاصيل إضافية أو صور عطل تود إخبار الفني بها لمساعدته على تشخيص المشكلة..."
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:bg-white transition-colors resize-none"
-                      />
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="pt-2">
+                  {/* Urgency selection */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700">مدى استعجال الطلب</label>
+                    <div className="grid grid-cols-2 gap-3">
                       <button
-                        type="submit"
-                        disabled={isCreatingOrder}
-                        className="w-full py-3 bg-[#F26B1D] hover:bg-[#d95914] text-white rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-lg text-sm disabled:opacity-50"
+                        type="button"
+                        onClick={() => setUrgency("normal")}
+                        className={`py-2 rounded-xl text-xs font-semibold border transition-all duration-200 ${urgency === "normal"
+                          ? "bg-slate-100 border-slate-350 text-slate-800"
+                          : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
+                          }`}
                       >
-                        {isCreatingOrder ? "جاري إرسال الطلب..." : "إرسال الطلب للفني"}
+                        حجز عادي (غير مستعجل)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUrgency("urgent")}
+                        className={`py-2 rounded-xl text-xs font-bold border transition-all duration-200 ${urgency === "urgent"
+                          ? "bg-red-50 border-red-200 text-red-600 shadow-sm"
+                          : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
+                          }`}
+                      >
+                        ⚠️ عاجل وطارئ جداً
                       </button>
                     </div>
-                  </form>
-                )}
-              </div>
+                  </div>
+
+                  {/* Phone */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700">رقم الهاتف للتواصل *</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="مثال: 01012345678"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:bg-white transition-colors"
+                    />
+                  </div>
+
+                  {/* Address */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700">عنوان موقع العمل بالتفصيل *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="مثال: القاهرة الجديدة، التجمع الخامس، شارع التسعين"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:bg-white transition-colors"
+                    />
+                  </div>
+
+                  {/* Description / Notes */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700">ملاحظات أو تفاصيل إضافية للمشكلة</label>
+                    <textarea
+                      rows={3}
+                      placeholder="اكتب هنا أي تفاصيل إضافية أو صور عطل تود إخبار الفني بها لمساعدته على تشخيص المشكلة..."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:bg-white transition-colors resize-none"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={isCreatingOrder}
+                      className="w-full py-3 bg-[#F26B1D] hover:bg-[#d95914] text-white rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-lg text-sm disabled:opacity-50"
+                    >
+                      {isCreatingOrder ? "جاري إرسال الطلب..." : "إرسال الطلب للفني"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
 
             </div>
           </div>

@@ -134,13 +134,7 @@ export const workerApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["WorkerRequests"],
     }),
-    getWorkerServices: builder.query({
-      query: () => ({
-        url: "/workers/services",
-        method: "GET",
-      }),
-      providesTags: ["WorkerServices"],
-    }),
+   
     getWorkerServiceById: builder.query({
       query: (id) => ({
         url: `/workers/services/${id}`,
@@ -148,14 +142,7 @@ export const workerApi = apiSlice.injectEndpoints({
       }),
       providesTags: (result, error, id) => [{ type: "WorkerService", id }],
     }),
-    addWorkerService: builder.mutation({
-      query: (body) => ({
-        url: "/workers/services",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["WorkerServices"],
-    }),
+    
     updateWorkerService: builder.mutation({
       query: ({ id, ...body }) => ({
         url: `/workers/services/${id}`,
@@ -167,13 +154,7 @@ export const workerApi = apiSlice.injectEndpoints({
         { type: "WorkerService", id },
       ],
     }),
-    deleteWorkerService: builder.mutation({
-      query: (id) => ({
-        url: `/workers/services/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["WorkerServices"],
-    }),
+   
     uploadImage: builder.mutation({
       query: (formData) => ({
         url: "/upload",
@@ -198,7 +179,6 @@ export const {
   useSubmitOnboardingMutation,
   useGetWorkerProfileQuery,
   // NEW
-  useGetWorkerProfileQuery,
   useGetDashboardStatsQuery,
   useGetDashboardRequestsQuery,
   useGetWorkerServicesQuery,
