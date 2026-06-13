@@ -82,8 +82,11 @@ export default function HowItWorks() {
     <section className="w-full" style={{ background: "#F8FAFC" }}>
       <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
         <div className="mx-auto mb-16 max-w-4xl text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-            إزاي Osta Finder هيحللك مشكلتك؟
+          <h2 className="text-4xl font-black tracking-tight text-gray-900 sm:text-5xl leading-normal">
+            إزاي <span className="relative inline-block" style={{ color: 'var(--primary-color)' }}>
+              Osta Finder
+              <span className="absolute -bottom-2 left-0 w-full h-1.5 rounded-full opacity-80" style={{ backgroundColor: 'var(--primary-color)' }}></span>
+            </span> هيحللك مشكلتك؟
           </h2>
           <p
             className="mt-4 text-lg"

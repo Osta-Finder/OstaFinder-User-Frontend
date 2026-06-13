@@ -22,6 +22,10 @@ export const requestsApi = apiSlice.injectEndpoints({
       },
       providesTags: ['Requests'],
     }),
+    getRequestById: builder.query({
+      query: (id) => `/requests/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Request', id }],
+    }),
     cancelRequest: builder.mutation({
       query: (id) => ({
         url: `/requests/${id}/cancel`,
@@ -56,6 +60,18 @@ export const requestsApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: (result, error, requestId) => ['Requests', { type: 'Rating', id: requestId }],
     }),
+    updateRequestStatus: builder.mutation({
+      query: ({ id, status, eta }) => ({
+        url: `/requests/${id}/status`,
+        method: "PATCH",
+        body: { status, eta },
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        "Requests",
+        "RequestStats",
+        { type: "Request", id },
+      ],
+    }),
   }),
   overrideExisting: false,
 });
@@ -63,9 +79,11 @@ export const requestsApi = apiSlice.injectEndpoints({
 export const {
   useGetRequestStatsQuery,
   useGetRequestsQuery,
+  useGetRequestByIdQuery,
   useCancelRequestMutation,
   useGetRatingQuery,
   useCreateRatingMutation,
   useUpdateRatingMutation,
   useDeleteRatingMutation,
+  useUpdateRequestStatusMutation,
 } = requestsApi;

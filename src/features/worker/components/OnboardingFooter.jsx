@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function OnboardingFooter() {
   return (
     <footer style={{
@@ -25,7 +27,7 @@ export default function OnboardingFooter() {
         fontSize: '1rem',
         color: '#594139',
       }}>
-        <a href="#" style={{
+        <Link to="/privacy" style={{
           color: '#594139',
           textDecoration: 'none',
           transition: 'color 0.3s',
@@ -34,9 +36,9 @@ export default function OnboardingFooter() {
         onMouseLeave={(e) => e.target.style.color = '#594139'}
         >
           سياسة الخصوصية
-        </a>
+        </Link>
         <span>•</span>
-        <a href="#" style={{
+        <Link to="/terms" style={{
           color: '#594139',
           textDecoration: 'none',
           transition: 'color 0.3s',
@@ -45,7 +47,7 @@ export default function OnboardingFooter() {
         onMouseLeave={(e) => e.target.style.color = '#594139'}
         >
           الشروط والأحكام
-        </a>
+        </Link>
       </div>
       <div style={{
         fontSize: '1rem',

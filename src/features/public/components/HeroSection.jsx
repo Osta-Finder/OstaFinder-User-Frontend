@@ -1,12 +1,35 @@
 import { Button } from "@headlessui/react";
 import { Input } from "@headlessui/react";
 import clsx from "clsx";
-import { Fragment } from "react";
+import { Fragment, useState, useCallback } from "react";
 import { motion } from "motion/react";
 import pic1 from "../../../assets/images/pic1.png";
 import MiniTestimonialDemo from "./MiniTestimonialDemo";
+import { useNavigate } from "react-router-dom";
 
 export default function HeroSection({ handleClick }) {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+
+  const handleSearch = useCallback(() => {
+    try {
+      if (typeof handleClick === "function") handleClick();
+    } catch (e) {
+      // ignore errors from external handler
+    }
+
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("keyword", query.trim());
+    const search = params.toString() ? `?${params.toString()}` : "";
+    navigate(`/categories${search}`);
+  }, [handleClick, navigate, query]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
     <div className="relative overflow-hidden w-full min-h-screen flex items-center justify-center" dir="rtl">
       {/* Background Image & Overlays */}
@@ -72,20 +95,23 @@ export default function HeroSection({ handleClick }) {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="w-full max-w-2xl bg-white p-2 rounded-full shadow-2xl flex flex-col sm:flex-row items-center gap-2 border border-white/40 focus-within:ring-4 focus-within:ring-amber-500/30 transition-all duration-300"
           >
-            <div className="flex-1 w-full relative flex items-center px-4">
+              <div className="flex-1 w-full relative flex items-center px-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <Input
                 type="text"
                 name="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full bg-transparent border-none py-3 text-gray-900 placeholder-gray-400 focus:outline-none text-base sm:text-lg outline-none"
                 placeholder="اكتب ما تحتاجه مثل: صيانة سباكة، كهرباء..."
               />
-            </div>
+              </div>
 
             <Button
-              onClick={handleClick}
+              onClick={handleSearch}
               className="w-full sm:w-auto rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 px-8 py-3.5 text-base font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
             >
               ابحث عن صنايعي

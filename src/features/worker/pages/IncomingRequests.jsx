@@ -1,23 +1,44 @@
 import { useState } from "react";
-import { mockIncomingRequests } from "../data/mockData";
+import { useGetIncomingRequestsQuery, useUpdateRequestStatusMutation } from "../../../services/workerApi";
 import PageContainer from "../components/PageContainer";
 import EmptyState from "../components/EmptyState";
 import { formatPrice } from "../data/mockData"; // Import formatPrice for price formatting
 
 export default function IncomingRequests() {
-  const [requests, setRequests] = useState(mockIncomingRequests);
+  const { data: response, isLoading } = useGetIncomingRequestsQuery();
+  const [updateStatus] = useUpdateRequestStatusMutation();
 
-  const handleAccept = (id) => {
-    // Basic optimistic update for mock purposes
-    setRequests(requests.filter((req) => req.id !== id));
-    console.log("Accepted request:", id);
+  const requests = response?.data || [];
+
+  const handleAccept = async (id) => {
+    try {
+      await updateStatus({ id, status: "accepted" }).unwrap();
+      console.log("Accepted request:", id);
+    } catch (err) {
+      console.error("Failed to accept request:", err);
+      alert("تعذر قبول الطلب.");
+    }
   };
 
-  const handleReject = (id) => {
-    // Basic optimistic update for mock purposes
-    setRequests(requests.filter((req) => req.id !== id));
-    console.log("Rejected request:", id);
+  const handleReject = async (id) => {
+    try {
+      await updateStatus({ id, status: "rejected" }).unwrap();
+      console.log("Rejected request:", id);
+    } catch (err) {
+      console.error("Failed to reject request:", err);
+      alert("تعذر رفض الطلب.");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <PageContainer title="الطلبات الواردة" description="جاري تحميل الطلبات...">
+        <div className="flex justify-center items-center py-20">
+           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer
@@ -39,7 +60,7 @@ export default function IncomingRequests() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {requests.map((req) => (
             <div
-              key={req.id}
+              key={req._id || req.id}
               className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow"
             >
               {/* Side Accent Line */}
@@ -165,7 +186,7 @@ export default function IncomingRequests() {
               {/* Actions */}
               <div className="flex gap-3 pr-3 mt-auto">
                 <button
-                  onClick={() => handleReject(req.id)}
+                  onClick={() => handleReject(req._id || req.id)}
                   className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors flex justify-center items-center gap-2 focus:ring-2 focus:ring-gray-200 focus:outline-none"
                 >
                   <svg
@@ -185,7 +206,7 @@ export default function IncomingRequests() {
                   رفض
                 </button>
                 <button
-                  onClick={() => handleAccept(req.id)}
+                  onClick={() => handleAccept(req._id || req.id)}
                   className="flex-1 py-3 rounded-xl bg-[#b45309] text-white font-medium hover:bg-[#92400e] transition-colors flex justify-center items-center gap-2 shadow-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 >
                   <svg

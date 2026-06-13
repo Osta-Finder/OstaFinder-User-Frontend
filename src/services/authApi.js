@@ -1,11 +1,10 @@
 // src/services/authApi.js
 import { apiSlice } from './apiSlice';
 import { setCredentials, logout } from '../store/slices/authSlice';
-import { setCookie, deleteCookie } from '../utils/cookies';
 
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    register: builder.mutation({      
+    register: builder.mutation({
       query: (data) => ({
         url: '/auth/register',
         method: 'POST',
@@ -13,11 +12,11 @@ export const authApi = apiSlice.injectEndpoints({
       }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;          
+          const { data } = await queryFulfilled;
           const { user, accessToken } = data;
-          // setCookie('accessToken', accessToken, 7);
           dispatch(setCredentials({ user, accessToken }));
         } catch (err) {
+          console.log(err);
           // handle error in component
         }
       },
@@ -28,17 +27,14 @@ export const authApi = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      providesTags: ['Auth'],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          console.log("onQueryStarted");
-          
-          const { data } = await queryFulfilled;          
-          const { user, accessToken } = data;
-          // setCookie('accessToken', accessToken, 7);
-          dispatch(setCredentials({ user, accessToken }));
+          const { data } = await queryFulfilled;
+          const { user } = data;
+          dispatch(setCredentials({ user }));
         } catch (err) {
           console.log(err);
-          
         }
       },
     }),
@@ -50,10 +46,10 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
-          // deleteCookie('accessToken');
-          localStorage.removeItem("loggedIN");
           dispatch(logout());
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
       },
     }),
     getMe: builder.query({
@@ -64,12 +60,26 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("me");
-          const { user, accessToken } = data;
-          // if (accessToken) setCookie('accessToken', accessToken, 7);
-          dispatch(setCredentials({ user, accessToken }));
+          const { user } = data;
+          dispatch(setCredentials({ user: data }));
         } catch (err) {
+          console.log(err);
           // handle error silently
+        }
+      },
+    }),
+    updateMe: builder.mutation({
+      query: (data) => ({
+        url: '/auth/me',
+        method: 'PUT',
+        body: data,
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setCredentials({ user: data.user || data }));
+        } catch (err) {
+          console.log(err);
         }
       },
     }),
@@ -82,4 +92,5 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useGetMeQuery,
+  useUpdateMeMutation,
 } = authApi;
