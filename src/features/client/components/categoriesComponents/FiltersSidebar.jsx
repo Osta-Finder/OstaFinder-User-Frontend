@@ -18,7 +18,7 @@ export default function FiltersSidebar({ categories, isLoadingCategories, search
             <li>
               <button
                 onClick={() => handleFilterChange('category', '')}
-                className={`w-full text-right text-xs px-3 py-2 rounded-lg transition-colors ${
+                className={`w-full text-right text-xs px-3 py-2 cursor-pointer rounded-lg transition-colors ${
                   currentCategory === '' ? 'bg-orange-50 text-orange-600 font-bold' : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >
@@ -26,11 +26,11 @@ export default function FiltersSidebar({ categories, isLoadingCategories, search
               </button>
             </li>
             {categories.map((cat) => (
-              <li key={cat._id}>
+              <li key={cat.slug || cat._id}> 
                 <button
-                  onClick={() => handleFilterChange('category', cat._id)}
-                  className={`w-full text-right text-xs px-3 py-2 rounded-lg transition-colors ${
-                    currentCategory === cat._id ? 'bg-orange-50 text-orange-600 font-bold' : 'text-gray-600 hover:bg-gray-50'
+                  onClick={() => handleFilterChange('category', cat.slug)}
+                  className={`w-full text-right text-xs px-3 cursor-pointer py-2 rounded-lg transition-colors ${
+                    currentCategory === cat.slug ? 'bg-orange-50 text-orange-600 font-bold' : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
                   {cat.name}
