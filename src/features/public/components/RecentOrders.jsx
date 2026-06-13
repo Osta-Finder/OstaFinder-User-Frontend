@@ -1,5 +1,6 @@
 import { ClipboardList, Hammer, PaintRoller, Wrench } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useGetOrdersQuery } from "../../../services/orderApi";
 
 const fallbackOrders = [
   {
@@ -32,35 +33,65 @@ const fallbackOrders = [
 ];
 
 export default function RecentOrders() {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const userOrders = user?.orders || user?.requests || user?.recentOrders || [];
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { data, isLoading } = useGetOrdersQuery(undefined, {
+    skip: !isAuthenticated,
+  });
+
+  const ordersData = data?.data || [];
+
   const orders =
-    isAuthenticated && Array.isArray(userOrders) && userOrders.length
-      ? userOrders.map((order, index) => {
+    isAuthenticated && Array.isArray(ordersData) && ordersData.length > 0
+      ? ordersData.map((order, index) => {
           const service =
-            order?.service?.name ||
             order?.category?.name ||
+            order?.service?.name ||
             order?.serviceName ||
             order?.title ||
             "خدمة";
-          const status = order?.status || order?.state || "غير محدد";
+
+          const statusMap = {
+            pending: "معلق",
+            accepted: "مقبول",
+            rejected: "مرفوض",
+            completed: "مكتمل",
+            cancelled: "ملغي",
+          };
+          const status = statusMap[order?.status] || order?.status || "غير محدد";
+
+          let date = "-";
+          if (order?.createdAt) {
+            try {
+              date = new Date(order.createdAt).toLocaleDateString("ar-EG", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+            } catch (e) {
+              date = order.createdAt;
+            }
+          }
 
           return {
             service,
             orderNumber: order?.orderNumber || order?.code || order?._id || order?.id || "-",
-            date: order?.date || order?.createdAt || order?.scheduledDate || "-",
+            date,
             status,
             action: order?.action || "التفاصيل",
             icon: index % 3 === 0 ? Hammer : index % 3 === 1 ? Wrench : PaintRoller,
             statusClass:
               status === "مكتمل" || status === "completed"
                 ? "bg-[#dff3e8] text-[#177245]"
-                : status === "قيد التنفيذ" || status === "in-progress"
+                : status === "مقبول" || status === "accepted" || status === "قيد التنفيذ" || status === "in-progress"
                   ? "bg-[#ffe3cc] text-[#8a4b17]"
-                  : "bg-[#e5e8f6] text-[#66708b]",
+                  : status === "مرفوض" || status === "rejected" || status === "ملغي" || status === "cancelled"
+                    ? "bg-[#fbebeb] text-[#af2323]"
+                    : "bg-[#e5e8f6] text-[#66708b]",
           };
         })
-      : fallbackOrders;
+      : !isAuthenticated
+        ? fallbackOrders
+        : [];
 
   return (
     <section className="rounded-[32px] border border-[#f1ddd4] bg-white p-7 shadow-[0_8px_24px_rgba(92,28,0,0.06)]">
@@ -88,30 +119,47 @@ export default function RecentOrders() {
             </tr>
           </thead>
           <tbody>
-            {orders.map(({ service, orderNumber, date, status, action, icon: Icon, statusClass }) => (
-              <tr key={orderNumber} className="border-b border-[#f6eee9] last:border-0">
-                <td className="py-5">
-                  <div className="flex items-center gap-3">
-                    <span className="grid h-10 w-10 place-items-center rounded-full bg-[#fff3eb] text-[#a83900]">
-                      <Icon size={21} />
-                    </span>
-                    <span className="text-lg font-medium text-[#2a160f]">{service}</span>
+            {isLoading ? (
+              <tr>
+                <td colSpan="5" className="py-8 text-center text-lg text-gray-500">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <span className="h-8 w-8 animate-spin rounded-full border-4 border-[#ff7417] border-t-transparent"></span>
+                    <span>جاري تحميل طلباتك...</span>
                   </div>
                 </td>
-                <td className="py-5 text-lg text-[#2a160f]">{orderNumber}</td>
-                <td className="py-5 text-lg text-[#2a160f]">{date}</td>
-                <td className="py-5">
-                  <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${statusClass}`}>
-                    {status}
-                  </span>
-                </td>
-                <td className="py-5">
-                  <a href="#" className="text-lg font-medium text-[#a83900]">
-                    {action}
-                  </a>
+              </tr>
+            ) : orders.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="py-8 text-center text-lg text-gray-500">
+                  لا توجد طلبات سابقة.
                 </td>
               </tr>
-            ))}
+            ) : (
+              orders.map(({ service, orderNumber, date, status, action, icon: Icon, statusClass }) => (
+                <tr key={orderNumber} className="border-b border-[#f6eee9] last:border-0">
+                  <td className="py-5">
+                    <div className="flex items-center gap-3">
+                      <span className="grid h-10 w-10 place-items-center rounded-full bg-[#fff3eb] text-[#a83900]">
+                        <Icon size={21} />
+                      </span>
+                      <span className="text-lg font-medium text-[#2a160f]">{service}</span>
+                    </div>
+                  </td>
+                  <td className="py-5 text-lg text-[#2a160f]">{orderNumber}</td>
+                  <td className="py-5 text-lg text-[#2a160f]">{date}</td>
+                  <td className="py-5">
+                    <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${statusClass}`}>
+                      {status}
+                    </span>
+                  </td>
+                  <td className="py-5">
+                    <a href="#" className="text-lg font-medium text-[#a83900]">
+                      {action}
+                    </a>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
