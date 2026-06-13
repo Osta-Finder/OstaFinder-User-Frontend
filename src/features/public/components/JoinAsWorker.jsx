@@ -1,5 +1,5 @@
-import { Button } from "@headlessui/react";
 import { motion } from "motion/react";
+import { Link } from "react-router-dom";
 import logo from "../../../assets/images/logo.png";
 
 export default function JoinAsWorker({ handleClick }) {
@@ -65,23 +65,23 @@ export default function JoinAsWorker({ handleClick }) {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Button
-                    onClick={handleClick}
-                    className="rounded-full px-10 py-4 text-lg font-extrabold text-white shadow-lg transform transition duration-200 ease-out hover:scale-105 w-full sm:w-auto"
+                  <Link
+                    to="/register?role=worker"
+                    className="inline-block text-center rounded-full px-10 py-4 text-lg font-extrabold text-white shadow-lg transform transition duration-200 ease-out hover:scale-105 w-full sm:w-auto"
                     style={{
                       backgroundColor: "var(--primary-color)",
                       boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
                     }}
                   >
                     سجل الآن
-                  </Button>
+                  </Link>
                 </motion.div>
-                <a
-                  href="/about-us"
+                <Link
+                  to="/about-us"
                   className="hidden sm:inline-block text-base sm:text-lg text-white font-semibold hover:text-white ml-3"
                 >
                   تعرف أكثر
-                </a>
+                </Link>
               </div>
             </div>
 

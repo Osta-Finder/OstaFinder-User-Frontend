@@ -3,19 +3,27 @@ import CuButton from "../ui/Button";
 import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useLogoutMutation } from "../../services/authApi";
+import { useGetMeQuery } from "./../../services/authApi";
+
 import clsx from "clsx";
+import logo from "../../assets/images/logo.png";
 
 export default function Navbar() {
+  const isLoggedIn = localStorage.getItem("loggedIN") === "true";
+  const { data: meData, isLoading: meLoading } = useGetMeQuery(undefined, {
+    skip: !isLoggedIn,
+  });
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [logout] = useLogoutMutation();
 
+  // const user = meData;
+  // const isAuthenticated = isLoggedIn;
   const avatarLetter = user?.name?.charAt(0) || "U";
 
   useEffect(() => {
@@ -58,7 +66,7 @@ export default function Navbar() {
           Osta Finder
         </span>
         <img
-          src="../../assets/images/logo.png"
+          src={logo}
           alt="logo"
           className="w-10 h-10 object-contain"
         />
@@ -78,18 +86,6 @@ export default function Navbar() {
           }
         >
           الفئات
-        </NavLink>
-        <NavLink
-          to="/client-requests"
-          className={({ isActive }) =>
-            clsx(
-              "transition-colors",
-              isActive && "font-semibold underline underline-offset-4",
-              isActive ? "text-[var(--primary-color)]" : "",
-            )
-          }
-        >
-          طلبات العميل
         </NavLink>
         <NavLink
           to="/contact-us"
@@ -119,7 +115,7 @@ export default function Navbar() {
 
       {/* right: auth section */}
       <div className="flex items-center gap-4">
-        {isAuthenticated && user ? (
+        {!meLoading && isAuthenticated ? (
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -129,7 +125,7 @@ export default function Navbar() {
                 {avatarLetter}
               </div>
               <span className="text-sm font-medium max-w-[100px] truncate">
-                {user.name}
+                {user?.name}
               </span>
             </button>
 
@@ -141,6 +137,13 @@ export default function Navbar() {
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   الملف الشخصي
+                </NavLink>
+                <NavLink
+                  to="/client-requests"
+                  onClick={() => setDropdownOpen(false)}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  طلبات العميل
                 </NavLink>
                 <NavLink
                   to="/settings"
@@ -160,30 +163,32 @@ export default function Navbar() {
             )}
           </div>
         ) : (
-          <>
-            <NavLink
-              to="/login"
-              className={({ isActive }) =>
-                clsx(
-                  "cursor-pointer",
-                  isActive && "underline underline-offset-4",
-                )
-              }
-            >
-              <CuButton>تسجيل الدخول</CuButton>
-            </NavLink>
-            <NavLink
-              to="/register"
-              className={({ isActive }) =>
-                clsx(
-                  "cursor-pointer",
-                  isActive && "underline underline-offset-4",
-                )
-              }
-            >
-              <CuButton>إنشاء حساب</CuButton>
-            </NavLink>
-          </>
+          !meLoading && (
+            <>
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  clsx(
+                    "cursor-pointer",
+                    isActive && "underline underline-offset-4",
+                  )
+                }
+              >
+                <CuButton>تسجيل الدخول</CuButton>
+              </NavLink>
+              <NavLink
+                to="/register"
+                className={({ isActive }) =>
+                  clsx(
+                    "cursor-pointer",
+                    isActive && "underline underline-offset-4",
+                  )
+                }
+              >
+                <CuButton>إنشاء حساب</CuButton>
+              </NavLink>
+            </>
+          )
         )}
       </div>
     </div>

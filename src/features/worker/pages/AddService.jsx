@@ -17,6 +17,7 @@ const initialFormState = {
 
 export default function AddService() {
   const navigate = useNavigate();
+  const [addService, { isLoading }] = useAddWorkerServiceMutation();
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [uploadedImage, setUploadedImage] = useState("");

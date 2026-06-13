@@ -1,6 +1,10 @@
+import { Link } from "react-router-dom";
+import { useGetCategoriesQuery } from "../../services/categoryApi";
 import logo from "../../assets/images/logo.png";
 
 export default function Footer() {
+  const { data: categoriesResponse } = useGetCategoriesQuery();
+  const categories = (categoriesResponse?.data || []).slice(0, 4);
   return (
     <footer className="w-full bg-[#1E293B] text-white">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -17,7 +21,9 @@ export default function Footer() {
 
             <div className="flex items-center gap-3">
               <a
-                href="#"
+                href="https://www.facebook.com/ostafinder"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="facebook"
                 className="text-white hover:text-gray-200"
               >
@@ -32,7 +38,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://x.com/ostafinder"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="twitter"
                 className="text-white hover:text-gray-200"
               >
@@ -47,7 +55,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/ostafinder"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="instagram"
                 className="text-white hover:text-gray-200"
               >
@@ -69,24 +79,24 @@ export default function Footer() {
             <h4 className="text-sm font-semibold mb-4">روابط سريعة</h4>
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
-                <a href="/" className="hover:text-white">
+                <Link to="/" className="hover:text-white">
                   الرئيسية
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/categories" className="hover:text-white">
+                <Link to="/categories" className="hover:text-white">
                   الخدمات
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/faq" className="hover:text-white">
+                <Link to="/faq" className="hover:text-white">
                   الأسئلة الشائعة
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/privacy" className="hover:text-white">
+                <Link to="/privacy" className="hover:text-white">
                   سياسة الخصوصية
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -95,26 +105,16 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold mb-4">خدمات شائعة</h4>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li>
-                <a href="/categories/plumbing" className="hover:text-white">
-                  سباكة
-                </a>
-              </li>
-              <li>
-                <a href="/categories/electric" className="hover:text-white">
-                  كهرباء
-                </a>
-              </li>
-              <li>
-                <a href="/categories/carpentry" className="hover:text-white">
-                  نجارة
-                </a>
-              </li>
-              <li>
-                <a href="/categories/maintenance" className="hover:text-white">
-                  صيانة أجهزة
-                </a>
-              </li>
+              {categories.map((cat) => (
+                <li key={cat._id}>
+                  <Link
+                    to={`/categories?category=${cat._id}&page=1`}
+                    className="hover:text-white"
+                  >
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

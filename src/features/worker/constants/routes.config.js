@@ -26,7 +26,7 @@ export const WorkerRoutes = {
   // Other
   WALLET: "/worker/wallet",
   SUPPORT: "/worker/support",
-  PROFILE: "/worker/profile",
+  PROFILE: "/worker-profile/:id",
 };
 
 export const WorkerNavItems = [

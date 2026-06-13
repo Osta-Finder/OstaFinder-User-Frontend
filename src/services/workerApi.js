@@ -54,6 +54,28 @@ export const workerApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["WorkerWorks"],
     }),
+    getWorkerServices: builder.query({
+      query: () => ({
+        url: "/workers/services",
+        method: "GET",
+      }),
+      providesTags: ["WorkerServices"],
+    }),
+    addWorkerService: builder.mutation({
+      query: (body) => ({
+        url: "/workers/services",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["WorkerServices"],
+    }),
+    deleteWorkerService: builder.mutation({
+      query: (id) => ({
+        url: `/workers/services/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["WorkerServices"],
+    }),
     getIncomingRequests: builder.query({
       query: () => ({
         url: "/workers/requests",
