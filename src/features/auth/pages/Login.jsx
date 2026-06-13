@@ -69,14 +69,23 @@ export default function Login() {
         theme: "light",
       });
 
-      // Assuming result contains user role
-      const role =
-        result.user?.role === "worker" ? "worker" : result.user?.role;
+      const user = result.user;
+      const role = user?.role;
+
       setTimeout(() => {
-        if (role === "client") {
-          navigate("/");
+        if (role === "worker") {
+          // Enforce worker flow based on backend state
+          if (!user?.onboardingCompleted) {
+            navigate("/onboarding", { replace: true });
+          } else if (user?.approvalStatus === "pending") {
+            navigate("/worker/pending-approval", { replace: true });
+          } else if (user?.approvalStatus === "rejected") {
+            navigate("/worker/rejected", { replace: true });
+          } else {
+            navigate("/worker/dashboard", { replace: true });
+          }
         } else {
-          navigate("/worker/dashboard");
+          navigate("/", { replace: true });
         }
       }, 1000);
     } catch (err) {
@@ -87,7 +96,7 @@ export default function Login() {
         rtl: true,
         theme: "light",
       });
-      setErrors({ submit: errMsg });
+      setErrors({ submit: err?.data?.message || err?.message || 'فشل تسجيل الدخول' });
     }
   };
 

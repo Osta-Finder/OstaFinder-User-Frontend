@@ -6,6 +6,7 @@ export default function ProfessionalStep({ onValidationChange }) {
   const dispatch = useDispatch();
   const professional = useSelector((state) => state.onboarding.professional);
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [charCount, setCharCount] = useState(professional.bio.length);
 
   const specializations = [
@@ -19,21 +20,25 @@ export default function ProfessionalStep({ onValidationChange }) {
     'تمديدات غاز',
   ];
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!professional.specialization) newErrors.specialization = 'التخصص مطلوب';
-    if (!professional.yearsOfExperience) newErrors.yearsOfExperience = 'سنوات الخبرة مطلوبة';
-    if (professional.yearsOfExperience && professional.yearsOfExperience < 0) {
-      newErrors.yearsOfExperience = 'يجب أن تكون سنوات الخبرة موجبة';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const isFormValid = () => {
+    if (!professional.specialization) return false;
+    if (!professional.yearsOfExperience) return false;
+    if (professional.yearsOfExperience < 0) return false;
+    return true;
   };
 
+  const validateField = (name, value) => {
+    if (name === 'specialization') return !value ? 'التخصص مطلوب' : '';
+    if (name === 'yearsOfExperience') {
+      if (!value && value !== 0) return 'سنوات الخبرة مطلوبة';
+      if (value < 0) return 'يجب أن تكون سنوات الخبرة موجبة';
+    }
+    return '';
+  };
+
+  // Only update canProceed — never show errors on initial render
   useEffect(() => {
-    const isValid = validateForm();
-    onValidationChange(isValid);
+    onValidationChange(isFormValid());
   }, [professional]);
 
   const handleChange = (e) => {
@@ -44,6 +49,16 @@ export default function ProfessionalStep({ onValidationChange }) {
     } else if (name !== 'bio') {
       dispatch(updateProfessional({ [name]: value }));
     }
+    // Show error only if field was already touched
+    if (touched[name]) {
+      setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
   };
 
   const generateBio = () => {
@@ -108,9 +123,9 @@ export default function ProfessionalStep({ onValidationChange }) {
             name="specialization"
             value={professional.specialization}
             onChange={handleChange}
+            onBlur={handleBlur}
             style={inputStyle(!!errors.specialization)}
             onFocus={(e) => e.target.style.borderColor = '#a83900'}
-            onBlur={(e) => e.target.style.borderColor = errors.specialization ? '#ba1a1a' : '#e1e3e4'}
           >
             <option value="">اختر تخصصك الأساسي</option>
             {specializations.map((spec) => (
@@ -141,11 +156,11 @@ export default function ProfessionalStep({ onValidationChange }) {
             name="yearsOfExperience"
             value={professional.yearsOfExperience}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="مثال: 5"
             min="0"
             style={inputStyle(!!errors.yearsOfExperience)}
             onFocus={(e) => e.target.style.borderColor = '#a83900'}
-            onBlur={(e) => e.target.style.borderColor = errors.yearsOfExperience ? '#ba1a1a' : '#e1e3e4'}
           />
           {errors.yearsOfExperience && (
             <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>

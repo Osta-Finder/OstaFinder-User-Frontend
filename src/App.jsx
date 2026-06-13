@@ -17,6 +17,7 @@ import { useGetMeQuery } from "./services/authApi";
 
 export default function App() {
   const { data } = useGetMeQuery(); // Fetch user data on app load to check authentication status
+
   return (
     <>
       <div

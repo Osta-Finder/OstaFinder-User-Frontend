@@ -23,6 +23,7 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
       );
     }
     if (refreshResult.data) {
+      // retry original request with refreshed cookie
       result = await customBaseQuery(args, api, extraOptions);
     } else {
       console.log("logout user");

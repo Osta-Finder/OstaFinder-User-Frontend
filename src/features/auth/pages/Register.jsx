@@ -102,7 +102,7 @@ export default function Register() {
         rtl: true,
         theme: "light",
       });
-      setErrors({ submit: errMsg });
+      setErrors({ submit: err?.data?.message || err?.message || 'فشل التسجيل' });
     }
   };
 

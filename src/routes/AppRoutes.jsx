@@ -2,7 +2,11 @@
  * ============================================
  * APP ROUTES
  * ============================================
- * All worker routes now use centralized route config
+ * Worker flow is enforced by WorkerGuard:
+ *   onboardingCompleted = false        → /onboarding
+ *   approvalStatus = pending           → /worker/pending-approval
+ *   approvalStatus = rejected          → /worker/rejected
+ *   approvalStatus = approved          → worker dashboard pages
  */
 
 import { Route, Routes } from "react-router-dom";
@@ -27,16 +31,18 @@ import IncomingRequests from "../features/worker/pages/IncomingRequests";
 import PreviousWorks from "../features/worker/pages/PreviousWorks";
 import Service from "../features/worker/pages/Service";
 import ServicesManagement from "../features/worker/pages/ServicesManagement";
-
 import WorkDetails from "../features/worker/pages/WorkDetails";
 import AddWork from "../features/worker/pages/AddWork";
 import EditWork from "../features/worker/pages/EditWork";
 import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import WorkerDashboard from "../features/worker/pages/WorkerDashboard";
 import WorkerLayout from "../layouts/WorkerLayout";
-
+import WorkerOnboarding from "../features/worker/pages/WorkerOnboarding";
+import OnboardingDemo from "../features/worker/pages/OnboardingDemo";
+import ApprovalPendingPage from "../features/worker/pages/ApprovalPendingPage";
+import RejectedPage from "../features/worker/pages/RejectedPage";
+import WorkerGuard from "../features/worker/components/WorkerGuard";
 import RequestDetailsPage from "./../features/worker/pages/RequestDetailsPage";
-// import TechnicianProfile from "../features/worker/pages/TechincalProfile";
 import UploadTest from "../features/test/UploadTest";
 import AccountDashboardPage from "./../features/public/pages/AccountDashboardPage";
 
@@ -63,36 +69,49 @@ export default function AppRoutes() {
         <Route path="/create-order/:workerId" element={<CreateOrderPage />} />
         <Route path="/request-details/" element={<RequestDetailsPage />} />
 
-        {/* Worker Routes - All wrapped in WorkerLayout */}
-        {/* <Route path="/onboarding-demo" element={<OnboardingDemo />} />
-        <Route path="/onboarding" element={<WorkerOnboarding />} /> */}
-        <Route element={<WorkerLayout />}>
-          <Route path={WorkerRoutes.DASHBOARD} element={<WorkerDashboard />} />
-          <Route path={WorkerRoutes.REQUESTS} element={<IncomingRequests />} />
-          <Route path={WorkerRoutes.SERVICE_ADD} element={<AddService />} />
-          <Route
-            path={WorkerRoutes.SERVICE_DETAIL(":id")}
-            element={<Service />}
-          />
-          <Route
-            path={WorkerRoutes.SERVICES}
-            element={<ServicesManagement />}
-          />
-          <Route path={WorkerRoutes.WORKS} element={<PreviousWorks />} />
-          <Route path={`${WorkerRoutes.WORKS}/add`} element={<AddWork />} />
-          <Route path={`${WorkerRoutes.WORKS}/edit/:id`} element={<EditWork />} />
-          <Route
-            path={WorkerRoutes.WORK_DETAIL(":id")}
-            element={<WorkDetails />}
-          />
+        {/* ============================================
+            WORKER ROUTES — all guarded by WorkerGuard
+            WorkerGuard enforces the flow:
+              not authenticated      → /login
+              !onboardingCompleted   → /onboarding
+              approvalStatus=pending → /worker/pending-approval
+              approvalStatus=rejected→ /worker/rejected
+              approved               → passes through to children
+            ============================================ */}
+        <Route element={<WorkerGuard />}>
+          {/* Onboarding — shown when onboardingCompleted = false */}
+          <Route path="/onboarding" element={<WorkerOnboarding />} />
+
+          {/* Approval pending — shown when approvalStatus = pending */}
+          <Route path="/worker/pending-approval" element={<ApprovalPendingPage />} />
+
+          {/* Rejected — shown when approvalStatus = rejected */}
+          <Route path="/worker/rejected" element={<RejectedPage />} />
+
+          {/* Approved worker pages — wrapped in WorkerLayout */}
+          <Route element={<WorkerLayout />}>
+            <Route path={WorkerRoutes.DASHBOARD} element={<WorkerDashboard />} />
+            <Route path={WorkerRoutes.REQUESTS} element={<IncomingRequests />} />
+            <Route path={WorkerRoutes.SERVICE_ADD} element={<AddService />} />
+            <Route path={WorkerRoutes.SERVICE_DETAIL(":id")} element={<Service />} />
+            <Route path={WorkerRoutes.SERVICES} element={<ServicesManagement />} />
+            <Route path={WorkerRoutes.WORKS} element={<PreviousWorks />} />
+            <Route path={`${WorkerRoutes.WORKS}/add`} element={<AddWork />} />
+            <Route path={`${WorkerRoutes.WORKS}/edit/:id`} element={<EditWork />} />
+            <Route path={WorkerRoutes.WORK_DETAIL(":id")} element={<WorkDetails />} />
+          </Route>
         </Route>
+
+        {/* Demo page — not guarded */}
+        <Route path="/onboarding-demo" element={<OnboardingDemo />} />
+
         <Route path="request-details/:id" element={<RequestDetailsPage />} />
+
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         {/* Shared Routes */}
-        {/* <Route path="/worker-profile" element={<WorkerProfile />} /> */}
         <Route path={WorkerRoutes.PROFILE} element={<TechnicianProfile />} />
 
         {/* Test */}
