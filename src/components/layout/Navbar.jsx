@@ -144,14 +144,7 @@ export default function Navbar() {
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   طلبات العميل
-                </NavLink>
-                <NavLink
-                  to="/settings"
-                  onClick={() => setDropdownOpen(false)}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  الإعدادات
-                </NavLink>
+                </NavLink>            
                 <hr className="my-1 border-gray-100" />
                 <button
                   onClick={handleLogout}
