@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { WorkerRoutes } from "../constants/routes.config";
-import { ServiceCategory } from "../constants/worker.constants";
-import { useAddWorkerWorkMutation } from "../../../services/workerApi";
+import {
+  useAddWorkerWorkMutation,
+  useGetWorkerProfileQuery,
+  useUploadImageMutation,
+} from "../../../services/workerApi";
 
 const initialFormState = {
   title: "",
-  category: "",
   location: "",
   description: "",
   price: "",
   clientName: "",
   date: "",
-  // source is NOT included - backend always forces source = "outside" for manual adds
 };
 
 export default function AddWork() {
@@ -21,10 +22,14 @@ export default function AddWork() {
   const status = searchParams.get("status") || "completed"; // Default to completed
 
   const [addWork, { isLoading }] = useAddWorkerWorkMutation();
+  const [uploadImage, { isLoading: isUploadingImage }] = useUploadImageMutation();
   const [formData, setFormData] = useState(initialFormState);
+  const [uploadedImages, setUploadedImages] = useState([]);
   const [errors, setErrors] = useState({});
 
   const isCompleted = status === "completed";
+
+  const { data: worker } = useGetWorkerProfileQuery();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,10 +39,32 @@ export default function AddWork() {
     }
   };
 
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const fileData = new FormData();
+    fileData.append("file", file);
+    fileData.append("bucket", "services");
+
+    try {
+      const response = await uploadImage(fileData).unwrap();
+      if (response.success && response.data?.url) {
+        setUploadedImages((prev) => [...prev, response.data.url]);
+      }
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("فشل رفع الصورة. يرجى المحاولة مرة أخرى.");
+    }
+  };
+
+  const handleRemoveImage = (indexToRemove) => {
+    setUploadedImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.title.trim()) newErrors.title = "عنوان العمل مطلوب";
-    if (!formData.category) newErrors.category = "يرجى اختيار التصنيف";
     if (!formData.location.trim())
       newErrors.location = "المدينة/المنطقة مطلوبة";
     if (!formData.description.trim())
@@ -56,19 +83,24 @@ export default function AddWork() {
 
     if (!validateForm()) return;
 
+    const categoryName =
+      worker?.data?.category?.name ||
+      worker?.data?.category ||
+      worker?.category?.name ||
+      worker?.category ||
+      "";
+
     const payload = {
       title: formData.title.trim(),
-      category: formData.category,
+      category: categoryName,
       location: formData.location.trim(),
       description: formData.description.trim(),
       clientName: formData.clientName.trim(),
       date: formData.date,
-      // source is intentionally omitted — backend forces "outside"
       status: status, // From URL query param
       price: Number(formData.price),
+      images: uploadedImages,
     };
-
-    console.log("Saving work...", payload);
 
     try {
       await addWork(payload).unwrap();
@@ -129,7 +161,14 @@ export default function AddWork() {
                   >
                     التصنيف
                   </label>
-                  <select
+                  <div className="px-4 py-3 rounded-2xl border bg-gray-100 text-gray-700">
+                    {worker?.data?.category?.name ||
+                      worker?.data?.category ||
+                      worker?.category?.name ||
+                      worker?.category ||
+                      "غير محدد"}
+                  </div>
+                  {/* <select
                     id="category"
                     name="category"
                     value={formData.category}
@@ -141,7 +180,7 @@ export default function AddWork() {
                     <option value={ServiceCategory.PLUMBING}>سباكة</option>
                     <option value={ServiceCategory.AC}>تكييف</option>
                     <option value={ServiceCategory.CLEANING}>تنظيف</option>
-                  </select>
+                  </select> */}
                   {errors.category && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.category}
@@ -164,7 +203,7 @@ export default function AddWork() {
                     value={formData.location}
                     onChange={handleChange}
                     className={`w-full px-4 py-3 rounded-2xl border transition-all placeholder:text-gray-400 ${errors.location ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"}`}
-                    placeholder="مثال: الرياض, جدة"
+                    placeholder="مثال: العريش, بئر العبد"
                   />
                   {errors.location && (
                     <p className="text-red-500 text-xs mt-1">
@@ -274,39 +313,82 @@ export default function AddWork() {
                 )}
               </div>
 
-              {/* Media Upload - placeholder for now */}
+              {/* Media Upload */}
               <div>
                 <label className="block text-sm font-bold text-gray-800 mb-2">
-                  صور / فيديوهات العمل
+                  صور العمل
                 </label>
-                <div className="border-2 border-dashed border-gray-200 rounded-3xl p-8 flex flex-col items-center justify-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer group">
+                
+                {/* Uploaded Images List */}
+                {uploadedImages.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                    {uploadedImages.map((imgUrl, index) => (
+                      <div key={index} className="relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm aspect-video">
+                        <img
+                          src={imgUrl}
+                          alt={`Work Preview ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full shadow-md transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <label className="border-2 border-dashed border-gray-200 rounded-3xl p-8 flex flex-col items-center justify-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    disabled={isUploadingImage}
+                  />
                   <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 text-gray-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
+                    {isUploadingImage ? (
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600"></div>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6 text-gray-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                    )}
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 mb-1">
-                    اسحب وأفلت الملفات هنا
+                    {isUploadingImage ? "جاري رفع الصورة..." : "اضغط لاختيار صورة لإضافتها للعمل"}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-2">
-                    أو اضغط لاختيار الصور والفيديوهات من جهازك
-                  </p>
                   <p className="text-xs text-gray-400">
-                    الحد الأقصى 5 ميجابايت للملف الواحد. الصيغ المدعومة: JPG,
-                    PNG, MP4
+                    الحد الأقصى 5 ميجابايت. الصيغ المدعومة: JPG, PNG
                   </p>
-                </div>
+                </label>
               </div>
             </div>
 
