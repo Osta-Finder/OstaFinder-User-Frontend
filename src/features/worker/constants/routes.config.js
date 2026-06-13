@@ -41,18 +41,13 @@ export const WorkerNavItems = [
     icon: "ClipboardList",
   },
   {
+    path: WorkerRoutes.SERVICES,
+    label: "إدارة الخدمات",
+    icon: "ClipboardList",
+  },
+  {
     path: WorkerRoutes.WORKS,
     label: "معرض أعمالي",
     icon: "Briefcase",
-  },
-  {
-    path: WorkerRoutes.WALLET,
-    label: "المحفظة",
-    icon: "Wallet",
-  },
-  {
-    path: WorkerRoutes.SUPPORT,
-    label: "الدعم الفني",
-    icon: "Headphones",
   },
 ];

@@ -127,4 +127,13 @@ export const CATEGORY_ICONS = {
   [ServiceCategory.PLUMBING]: "💧",
   [ServiceCategory.AC]: "❄️",
   [ServiceCategory.CLEANING]: "🧹",
+  electricity: "⚡",
+  plumbing: "💧",
+  ac: "❄️",
+  cleaning: "🧹",
+  "كهرباء": "⚡",
+  "سباكة": "💧",
+  "تكييف": "❄️",
+  "تنظيف": "🧹",
+  "تكييف وتبريد": "❄️",
 };

@@ -61,7 +61,7 @@ export default function Navbar() {
           : "bg-white/75 text-black backdrop-blur-md shadow-md",
       )}
     >
-      <NavLink to="/" className="flex items-center gap-2">
+      <NavLink to={user?.role === "worker" ? "/worker/dashboard" : "/"} className="flex items-center gap-2">
         <span className="hidden sm:inline-block text-lg font-semibold">
           Osta Finder
         </span>
@@ -75,18 +75,20 @@ export default function Navbar() {
 
       {/* center links - absolutely centered to ensure visual center alignment */}
       <div className="absolute left-1/2 transform -translate-x-1/2 inset-y-0 flex items-center gap-6">
-        <NavLink
-          to="/categories"
-          className={({ isActive }) =>
-            clsx(
-              "transition-colors",
-              isActive && "font-semibold underline underline-offset-4",
-              isActive ? "text-[var(--primary-color)]" : "",
-            )
-          }
-        >
-          الفئات
-        </NavLink>
+        {user?.role !== "worker" && (
+          <NavLink
+            to="/categories"
+            className={({ isActive }) =>
+              clsx(
+                "transition-colors",
+                isActive && "font-semibold underline underline-offset-4",
+                isActive ? "text-[var(--primary-color)]" : "",
+              )
+            }
+          >
+            الفئات
+          </NavLink>
+        )}
         <NavLink
           to="/contact-us"
           className={({ isActive }) =>
@@ -131,27 +133,41 @@ export default function Navbar() {
 
             {dropdownOpen && (
               <div className="absolute left-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
-                <NavLink
-                  to="/client-profile"
-                  onClick={() => setDropdownOpen(false)}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  الملف الشخصي
-                </NavLink>
-                <NavLink
-                  to="/client-requests"
-                  onClick={() => setDropdownOpen(false)}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  طلبات العميل
-                </NavLink>
-                <NavLink
-                  to="/settings"
-                  onClick={() => setDropdownOpen(false)}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  الإعدادات
-                </NavLink>
+                {user?.role === "worker" ? (
+                  <>
+                    <NavLink
+                      to="/worker/dashboard"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      لوحة التحكم
+                    </NavLink>
+                    <NavLink
+                      to="/worker/requests"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      إدارة الطلبات
+                    </NavLink>
+                  </>
+                ) : (
+                  <>
+                    <NavLink
+                      to="/account-profile"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      الملف الشخصي
+                    </NavLink>
+                    <NavLink
+                      to="/client-requests"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      طلبات العميل
+                    </NavLink>
+                  </>
+                )}
                 <hr className="my-1 border-gray-100" />
                 <button
                   onClick={handleLogout}

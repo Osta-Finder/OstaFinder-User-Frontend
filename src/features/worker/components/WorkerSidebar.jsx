@@ -7,6 +7,7 @@
  */
 
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { WorkerRoutes, WorkerNavItems } from "../constants/routes.config";
 
 const SidebarIcons = {
@@ -69,6 +70,7 @@ const isActivePath = (currentPath, targetPath) => {
 
 export default function WorkerSidebar() {
   const location = useLocation();
+  const { user } = useSelector((state) => state.auth);
 
   const getLinkClass = (path) => {
     const baseClass = "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm";
@@ -78,20 +80,24 @@ export default function WorkerSidebar() {
     return baseClass + " text-gray-500 hover:bg-gray-50 hover:text-slate-900";
   };
 
+  const workerName = user?.name || "الأسطى محمد";
+  const workerCategory = user?.category?.name || user?.category || "فني معتمد";
+  const avatarUrl = user?.profilePicture || user?.image || "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=200";
+
   return (
     <aside className="w-full lg:w-64 bg-white border-e border-gray-100 flex flex-col justify-between p-4 shrink-0">
       {/* Profile Section */}
       <div>
-        <Link to={WorkerRoutes.PROFILE} className="group flex flex-col items-center text-center pb-6 border-b border-gray-100 mb-6 mt-4 block hover:no-underline">
+        <Link to={user?._id ? `/worker-profile/${user._id}` : "#"} className="group flex flex-col items-center text-center pb-6 border-b border-gray-100 mb-6 mt-4 block hover:no-underline">
           <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border border-gray-100 shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
             <img
-              src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=200"
-              alt="الأسطى محمد"
+              src={avatarUrl}
+              alt={workerName}
               className="w-full h-full object-cover"
             />
           </div>
-          <h2 className="text-base font-bold text-slate-900 group-hover:text-[#F26B1D] transition-colors">الأسطى محمد</h2>
-          <p className="text-xs text-gray-400 mt-0.5">فني كهرباء معتمد</p>
+          <h2 className="text-base font-bold text-slate-900 group-hover:text-[#F26B1D] transition-colors">{workerName}</h2>
+          <p className="text-xs text-gray-400 mt-0.5">{workerCategory}</p>
         </Link>
 
         {/* Navigation */}

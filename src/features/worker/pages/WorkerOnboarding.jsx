@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCurrentStep } from '../../../store/slices/onboardingSlice';
-import { submitOnboardingData } from '../../../services/onboardingApi';
+import { setCurrentStep, resetOnboarding } from '../../../store/slices/onboardingSlice';
+import { setCredentials } from '../../../store/slices/authSlice';
+import { useSubmitOnboardingMutation } from '../../../services/workerApi';
 import OnboardingHeader from '../components/OnboardingHeader';
 import OnboardingFooter from '../components/OnboardingFooter';
 import ProgressStepper from '../components/ProgressStepper';
@@ -16,8 +17,14 @@ export default function WorkerOnboarding() {
   const currentStep = useSelector((state) => state.onboarding.currentStep);
   const onboardingData = useSelector((state) => state.onboarding);
   const [canProceed, setCanProceed] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const [submitError, setSubmitError] = useState(null);
+
+  const [submitOnboarding, { isLoading: isSubmitting }] = useSubmitOnboardingMutation();
+
+  // Always start from step 1 when this page loads
+  useEffect(() => {
+    dispatch(resetOnboarding());
+  }, []);
 
   const handleNextStep = () => {
     if (currentStep < 3) {
@@ -34,18 +41,52 @@ export default function WorkerOnboarding() {
   };
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
-    setError(null);
+    setSubmitError(null);
+
+    // Backend uses multer upload.none() — accepts text fields only (no file uploads)
+    const formData = new FormData();
+
+    // Basic data
+    formData.append('firstName', onboardingData.basicData.firstName);
+    formData.append('lastName', onboardingData.basicData.lastName);
+    formData.append('email', onboardingData.basicData.email);
+    formData.append('phone', onboardingData.basicData.phone);
+    formData.append('city', onboardingData.basicData.city);
+    formData.append('address', onboardingData.basicData.address);
+
+    // Professional data
+    formData.append('specialization', onboardingData.professional.specialization);
+    formData.append('yearsOfExperience', String(onboardingData.professional.yearsOfExperience));
+    if (onboardingData.professional.bio) {
+      formData.append('bio', onboardingData.professional.bio);
+    }
+
+    // Documentation — send Supabase URLs (strings) stored in Redux after upload
+    // nationalId is the Supabase public URL set by DocumentationStep after upload
+    if (onboardingData.documentation.nationalId) {
+      formData.append('nationalId', onboardingData.documentation.nationalId);
+    }
+    // certificates is an array of Supabase public URLs
+    onboardingData.documentation.certificates.forEach((url) => {
+      formData.append('certificates', url);
+    });
+
     try {
-      const response = await submitOnboardingData(onboardingData);
-      console.log('Onboarding submitted successfully:', response);
-      navigate('/onboarding-success');
+      const result = await submitOnboarding(formData).unwrap();
+
+      // Backend returns { success, message, data: updatedWorker }
+      // workerApi.onQueryStarted already dispatches setCredentials with result.data
+      // but we also update here as a safety net
+      if (result?.data) {
+        dispatch(setCredentials({ user: result.data }));
+      }
+
+      navigate('/worker/pending-approval', { replace: true });
     } catch (err) {
-      console.error('Error submitting:', err);
-      setError(err.message || 'حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.');
-      alert(err.message || 'حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.');
-    } finally {
-      setIsSubmitting(false);
+      console.error('Onboarding submit error:', err);
+      const msg =
+        err?.data?.message || err?.message || 'حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.';
+      setSubmitError(msg);
     }
   };
 
@@ -63,155 +104,155 @@ export default function WorkerOnboarding() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: '#f8f9fa',
-      color: '#191c1d',
-    }}>
-      <OnboardingHeader />
-      <main style={{
-        flexGrow: 1,
+    <div
+      style={{
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        padding: '2.5rem 1rem',
-      }}>
+        backgroundColor: '#f8f9fa',
+        color: '#191c1d',
+      }}
+    >
+      <OnboardingHeader />
+      <main
+        style={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '2.5rem 1rem',
+        }}
+      >
         <div style={{ maxWidth: '42rem', width: '100%' }}>
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h1 style={{
-              fontSize: '2rem',
-              fontWeight: 'bold',
-              color: '#191c1d',
-              marginBottom: '0.5rem',
-            }}>
+            <h1
+              style={{
+                fontSize: '2rem',
+                fontWeight: 'bold',
+                color: '#191c1d',
+                marginBottom: '0.5rem',
+              }}
+            >
               إكمال الملف الشخصي للفني
             </h1>
-            <p style={{
-              fontSize: '1rem',
-              color: '#594139',
-            }}>
+            <p style={{ fontSize: '1rem', color: '#594139' }}>
               خطوة أخيرة للبدء في استقبال الطلبات كخبير معتمد.
             </p>
           </div>
 
           <ProgressStepper currentStep={currentStep} />
 
-          {error && (
-            <div style={{
-              backgroundColor: '#ffebee',
-              border: '1px solid #ef5350',
-              borderRadius: '0.75rem',
-              padding: '1rem',
-              marginBottom: '1rem',
-              color: '#c62828',
-            }}>
-              {error}
+          {submitError && (
+            <div
+              style={{
+                backgroundColor: '#ffebee',
+                border: '1px solid #ef5350',
+                borderRadius: '0.75rem',
+                padding: '1rem',
+                marginBottom: '1rem',
+                color: '#c62828',
+              }}
+            >
+              {submitError}
             </div>
           )}
 
-          <div style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e1e3e4',
-            borderRadius: '0.75rem',
-            padding: '1.5rem',
-            marginBottom: '2rem',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          }}>
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e1e3e4',
+              borderRadius: '0.75rem',
+              padding: '1.5rem',
+              marginBottom: '2rem',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            }}
+          >
             {renderStep()}
           </div>
 
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-            justifyContent: 'center',
-          }}>
-            <button
-              onClick={handlePreviousStep}
-              disabled={currentStep === 1 || isSubmitting}
-              style={{
-                padding: '0.75rem 2rem',
-                borderRadius: '9999px',
-                fontWeight: '500',
-                fontSize: '1rem',
-                border: '2px solid #8d7167',
-                color: '#191c1d',
-                backgroundColor: 'transparent',
-                cursor: currentStep === 1 || isSubmitting ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s',
-                opacity: currentStep === 1 || isSubmitting ? 0.5 : 1,
-              }}
-              onMouseEnter={(e) => {
-                if (currentStep !== 1 && !isSubmitting) {
-                  e.target.style.backgroundColor = '#f3f4f5';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
-              }}
-            >
-              السابق
-            </button>
-            <button
-              onClick={currentStep === 3 ? handleSubmit : handleNextStep}
-              disabled={!canProceed || isSubmitting}
-              style={{
-                padding: '0.75rem 2rem',
-                borderRadius: '9999px',
-                fontWeight: '500',
-                fontSize: '1rem',
-                backgroundColor: '#a83900',
-                color: '#ffffff',
-                border: 'none',
-                boxShadow: '0 10px 15px -3px rgba(168, 57, 0, 0.39)',
-                cursor: !canProceed || isSubmitting ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s',
-                opacity: !canProceed || isSubmitting ? 0.5 : 1,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-              }}
-              onMouseEnter={(e) => {
-                if (canProceed && !isSubmitting) {
-                  e.target.style.opacity = '0.9';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (canProceed && !isSubmitting) {
-                  e.target.style.opacity = '1';
-                }
-              }}
-            >
-              {isSubmitting ? (
-                <>
-                  <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
-                      hourglass_empty
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              justifyContent: 'center',
+            }}
+          >
+            {currentStep > 1 && (
+              <button
+                onClick={handlePreviousStep}
+                disabled={isSubmitting}
+                style={{
+                  padding: '0.75rem 2rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid #e1e3e4',
+                  backgroundColor: '#fff',
+                  color: '#191c1d',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  fontFamily: "'Be Vietnam Pro', sans-serif",
+                }}
+              >
+                السابق
+              </button>
+            )}
+
+            {currentStep < 3 ? (
+              <button
+                onClick={handleNextStep}
+                disabled={!canProceed}
+                style={{
+                  padding: '0.75rem 2rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  backgroundColor: canProceed ? '#a83900' : '#e1e3e4',
+                  color: canProceed ? '#fff' : '#999',
+                  fontSize: '1rem',
+                  cursor: canProceed ? 'pointer' : 'not-allowed',
+                  fontFamily: "'Be Vietnam Pro', sans-serif",
+                  transition: 'all 0.2s',
+                }}
+              >
+                التالي
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={!canProceed || isSubmitting}
+                style={{
+                  padding: '0.75rem 2rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  backgroundColor: canProceed && !isSubmitting ? '#a83900' : '#e1e3e4',
+                  color: canProceed && !isSubmitting ? '#fff' : '#999',
+                  fontSize: '1rem',
+                  cursor: canProceed && !isSubmitting ? 'pointer' : 'not-allowed',
+                  fontFamily: "'Be Vietnam Pro', sans-serif",
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '1.1rem', animation: 'spin 1s linear infinite' }}
+                    >
+                      autorenew
                     </span>
-                  </span>
-                  جاري الإرسال...
-                </>
-              ) : (
-                <>
-                  {currentStep === 3 ? 'إرسال للمراجعة' : 'الخطوة التالية'}
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} dir="ltr">
-                    {currentStep === 3 ? 'send' : 'arrow_back'}
-                  </span>
-                </>
-              )}
-            </button>
+                    جاري الإرسال...
+                  </>
+                ) : (
+                  'إرسال الطلب'
+                )}
+              </button>
+            )}
           </div>
         </div>
       </main>
       <OnboardingFooter />
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }
