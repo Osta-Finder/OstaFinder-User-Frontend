@@ -51,6 +51,28 @@ export const workerApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["WorkerWorks"],
     }),
+    getWorkerServices: builder.query({
+      query: () => ({
+        url: "/workers/services",
+        method: "GET",
+      }),
+      providesTags: ["WorkerServices"],
+    }),
+    addWorkerService: builder.mutation({
+      query: (body) => ({
+        url: "/workers/services",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["WorkerServices"],
+    }),
+    deleteWorkerService: builder.mutation({
+      query: (id) => ({
+        url: `/workers/services/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["WorkerServices"],
+    }),
     getIncomingRequests: builder.query({
       query: () => ({
         url: "/workers/requests",
@@ -66,6 +88,32 @@ export const workerApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["WorkerRequests", "WorkerWorks"],
     }),
+    getWorkerPublicProfile: builder.query({
+      query: (id) => ({
+        url: `/workers/public/${id}`,
+        method: "GET",
+      }),
+    }),
+    getWorkerPublicServices: builder.query({
+      query: (id) => ({
+        url: `/workers/public/${id}/services`,
+        method: "GET",
+      }),
+    }),
+    getWorkerPublicWorks: builder.query({
+      query: (id) => ({
+        url: `/workers/public/${id}/works`,
+        method: "GET",
+      }),
+      providesTags: ["WorkerWorks"],
+    }),
+    getWorkerPublicReviews: builder.query({
+      query: (id) => ({
+        url: `/workers/public/${id}/reviews`,
+        method: "GET",
+      }),
+      providesTags: ["Rating"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -79,4 +127,11 @@ export const {
   useDeleteWorkerWorkMutation,
   useGetIncomingRequestsQuery,
   useUpdateRequestStatusMutation,
+  useGetWorkerServicesQuery,
+  useAddWorkerServiceMutation,
+  useDeleteWorkerServiceMutation,
+  useGetWorkerPublicProfileQuery,
+  useGetWorkerPublicServicesQuery,
+  useGetWorkerPublicWorksQuery,
+  useGetWorkerPublicReviewsQuery,
 } = workerApi;

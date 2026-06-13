@@ -94,7 +94,7 @@ export default function ServiceCard({ service }) {
             <span className="hidden md:inline text-gray-300">•</span>
             <span className="flex items-center gap-1">
               <CalendarIcon />
-              {service.createdAt}
+              {service.createdAt ? new Date(service.createdAt).toLocaleDateString("ar-EG") : ""}
             </span>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function ServiceCard({ service }) {
 
         <div className="flex items-center gap-2 mt-1">
           <Link
-            to={WorkerRoutes.SERVICE_DETAIL(service.id)}
+            to={WorkerRoutes.SERVICE_DETAIL(service._id || service.id)}
             className="text-sm text-orange-600 hover:text-orange-700 font-medium px-3 py-1.5 hover:bg-orange-50 rounded-lg transition-colors"
           >
             عرض التفاصيل
