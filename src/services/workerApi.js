@@ -162,6 +162,42 @@ export const workerApi = apiSlice.injectEndpoints({
         body: formData,
       }),
     }),
+    updateWorkerProfile: builder.mutation({
+      query: (body) => ({
+        url: "/workers/profile",
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["WorkerProfile"],
+    }),
+    getWorkerPublicProfile: builder.query({
+      query: (id) => ({
+        url: `/workers/public/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["WorkerProfile"],
+    }),
+    getWorkerPublicServices: builder.query({
+      query: (id) => ({
+        url: `/workers/public/${id}/services`,
+        method: "GET",
+      }),
+      providesTags: ["WorkerServices"],
+    }),
+    getWorkerPublicWorks: builder.query({
+      query: (id) => ({
+        url: `/workers/public/${id}/works`,
+        method: "GET",
+      }),
+      providesTags: ["WorkerWorks"],
+    }),
+    getWorkerPublicReviews: builder.query({
+      query: (id) => ({
+        url: `/workers/public/${id}/reviews`,
+        method: "GET",
+      }),
+      providesTags: ["Rating"],
+    }),
     //======================================>
   }),
   overrideExisting: false,
@@ -187,4 +223,11 @@ export const {
   useUpdateWorkerServiceMutation,
   useDeleteWorkerServiceMutation,
   useUploadImageMutation,
+  useUpdateWorkerProfileMutation,
+  useGetWorkerPublicProfileQuery,
+  useGetWorkerPublicServicesQuery,
+  useGetWorkerPublicWorksQuery,
+  useGetWorkerPublicReviewsQuery,
 } = workerApi;
+
+

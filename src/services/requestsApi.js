@@ -72,6 +72,14 @@ export const requestsApi = apiSlice.injectEndpoints({
         { type: "Request", id },
       ],
     }),
+    createRequest: builder.mutation({
+      query: (body) => ({
+        url: "/requests",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Requests", "RequestStats"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -86,4 +94,5 @@ export const {
   useUpdateRatingMutation,
   useDeleteRatingMutation,
   useUpdateRequestStatusMutation,
+  useCreateRequestMutation,
 } = requestsApi;
