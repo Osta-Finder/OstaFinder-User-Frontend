@@ -4,11 +4,12 @@ import { ArrowRight, Send, Star } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { useGetCategoriesQuery } from "../../../services/categoryApi";
-import { useCreateOrderMutation } from "../../../services/orderApi";
+import { useCreateRequestMutation } from "../../../services/requestsApi";
 import Listbox from "../components/orderComponets/Listbox";
 import ServiceDetails from "../components/orderComponets/ServiceDetails";
 import ContactInfo from "../components/orderComponets/ContactInfo";
 import LocationSection from "../components/orderComponets/LocationSection";
+import { useGetMeQuery } from "../../../services/authApi";
 
 export default function CreateOrderPage() {
   const { workerId } = useParams();
@@ -16,35 +17,55 @@ export default function CreateOrderPage() {
   const location = useLocation();
   const worker = location.state?.worker;
 
+  const { data: userData } = useGetMeQuery();
+
   const { data: categoriesResponse } = useGetCategoriesQuery();
   const categories = categoriesResponse?.data || [];
-  const [createOrder, { isLoading: isSubmitting }] = useCreateOrderMutation();
+  const [createOrder, { isLoading: isSubmitting }] = useCreateRequestMutation();
 
   const workerCategory = worker?.category;
+  // const today = new Date().toISOString().split("T")[0];
+
+  const getNow = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
+  const minDateTime = getNow();
 
   const [formData, setFormData] = useState({
     category: workerCategory?._id || "",
     description: "",
-    phone: "",
-    preferredTime: "",
-    location: "",
+    phoneNumber: userData?.phoneNumber || "",
+    date: "",
+    address: userData?.addresses || "",
   });
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (new Date(formData.date) < new Date()) {
+      return toast.error("لا يمكن اختيار تاريخ ووقت في الماضي");
+    }
+
     if (!formData.category) {
       return toast.warn("يرجى اختيار فئة الخدمة أولاً");
+    }
+    const amount = worker?.price;
+    if (amount === undefined) {
+      return toast.error("عذراً، لم يتم العثور على سعر الخدمة للفني.");
     }
     try {
       const response = await createOrder({
         workerId,
-        orderData: formData,
+        orderData: { ...formData, amount: amount },
       }).unwrap();
 
       toast.success(response.message || "تم إرسال طلبك بنجاح!");
 
-      setTimeout(() => navigate("/client-home"), 2000);
+      setTimeout(() => navigate("/client-requests"), 2000);
     } catch (err) {
       const errorMessage =
         err?.data?.message || "عذراً، حدث خطأ ما أثناء إرسال الطلب";
@@ -53,7 +74,7 @@ export default function CreateOrderPage() {
   };
 
   return (
-    <div className="bg-[var(--bg-color)] py-8 px-4 flex-1" dir="rtl">
+    <div className="bg-(--bg-color) py-8 px-4 flex-1" dir="rtl">
       <div className="container mx-auto max-w-6xl">
         <header className="flex items-center justify-between mb-8">
           <button
@@ -66,7 +87,9 @@ export default function CreateOrderPage() {
           </button>
 
           <div className="text-center flex-1 mx-4">
-            <h1 className="text-lg md:text-xl font-bold text-gray-900">طلب خدمة جديد</h1>
+            <h1 className="text-lg md:text-xl font-bold text-gray-900">
+              طلب خدمة جديد
+            </h1>
             <p className="text-xs md:text-sm text-gray-500 leading-relaxed">
               أخبرنا عما تحتاجه وسنقوم بربطك بالفني مباشرة
             </p>
@@ -89,23 +112,28 @@ export default function CreateOrderPage() {
 
               <ServiceDetails
                 value={formData.description}
-                onChange={(val) => setFormData({ ...formData, description: val })}
+                onChange={(val) =>
+                  setFormData({ ...formData, description: val })
+                }
               />
             </div>
 
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
               <ContactInfo
-                phone={formData.phone}
-                preferredTime={formData.preferredTime}
-                onPhoneChange={(val) => setFormData({ ...formData, phone: val })}
-                onTimeChange={(val) =>
-                  setFormData({ ...formData, preferredTime: val })
+                phoneNumber={formData.phoneNumber}
+                date={formData.date}
+                onPhoneNumberChange={(val) =>
+                  setFormData({ ...formData, phoneNumber: val })
                 }
+                minDate={minDateTime}
+                onDateChange={(val) => setFormData({ ...formData, date: val })}
               />
 
               <LocationSection
-                address={formData.location}
-                onAddressChange={(val) => setFormData({ ...formData, location: val })}
+                address={formData.address}
+                onAddressChange={(val) =>
+                  setFormData({ ...formData, address: val })
+                }
               />
             </div>
 
@@ -114,7 +142,7 @@ export default function CreateOrderPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-[var(--primary-color)] hover:bg-[var(--blacker)] disabled:opacity-50 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md"
+                  className="flex-1 bg-(--primary-color) hover:bg-(--blacker) disabled:opacity-50 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md"
                 >
                   <Send size={16} />
                   {isSubmitting ? "جاري الإرسال..." : "إرسال طلب الخدمة"}
@@ -122,7 +150,7 @@ export default function CreateOrderPage() {
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="flex-1 bg-white border-2 border-[var(--primary-color)] text-[var(--blacker)] font-bold py-3.5 rounded-xl hover:bg-[var(--primary-light)]/50 transition text-sm text-center"
+                  className="flex-1 bg-white border-2 border-(--primary-color) text-(--blacker) font-bold py-3.5 rounded-xl hover:bg-[var(--primary-light)]/50 transition text-sm text-center"
                 >
                   إلغاء الطلب
                 </button>
@@ -146,21 +174,30 @@ export default function CreateOrderPage() {
                       }`}
                     />
                   </div>
-                  <h3 className="font-bold text-lg text-gray-900 mb-1">{worker.name}</h3>
-                  <span className="bg-[var(--primary-light)] text-[var(--primary-color)] text-xs font-bold px-3 py-1 rounded-full inline-block mb-3">
+                  <h3 className="font-bold text-lg text-gray-900 mb-1">
+                    {worker.name}
+                  </h3>
+                  <span className="bg-(--primary-light) text-(--primary-color) text-xs font-bold px-3 py-1 rounded-full inline-block mb-3">
                     {worker.category?.name}
                   </span>
                   <div className="flex items-center justify-center gap-1 mb-2">
                     <span className="text-[var(--primary-color)] font-bold text-sm">
                       {worker.rating?.toFixed(1)}
                     </span>
-                    <Star size={14} className="fill-[var(--primary-color)] text-[var(--primary-color)]" />
+                    <Star
+                      size={14}
+                      className="fill-[var(--primary-color)] text-[var(--primary-color)]"
+                    />
                   </div>
                   <div className="border-t border-gray-100 pt-3 mt-1">
-                    <p className="text-[10px] text-gray-400 font-light">تبدأ الخدمة من</p>
+                    <p className="text-[10px] text-gray-400 font-light">
+                      تبدأ الخدمة من
+                    </p>
                     <p className="text-lg font-black text-gray-800">
                       {worker.price}{" "}
-                      <span className="text-xs font-normal text-gray-500">ج.م</span>
+                      <span className="text-xs font-normal text-gray-500">
+                        ج.م
+                      </span>
                     </p>
                   </div>
                 </div>
