@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCurrentStep, resetOnboarding } from '../../../store/slices/onboardingSlice';
+import { setCurrentStep } from '../../../store/slices/onboardingSlice';
 import { setCredentials } from '../../../store/slices/authSlice';
 import { useSubmitOnboardingMutation } from '../../../services/workerApi';
-import OnboardingHeader from '../components/OnboardingHeader';
-import OnboardingFooter from '../components/OnboardingFooter';
+import { useGetMeQuery } from '../../../services/authApi';
+import { updateBasicData } from '../../../store/slices/onboardingSlice';
+import Navbar from '../../../components/layout/Navbar';
 import ProgressStepper from '../components/ProgressStepper';
 import BasicDataStep from '../components/steps/BasicDataStep';
 import ProfessionalStep from '../components/steps/ProfessionalStep';
@@ -21,10 +22,21 @@ export default function WorkerOnboarding() {
 
   const [submitOnboarding, { isLoading: isSubmitting }] = useSubmitOnboardingMutation();
 
-  // Always start from step 1 when this page loads
+  // Fetch user data and pre-fill basic data fields on every page load
+  const { data: meData } = useGetMeQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+
   useEffect(() => {
-    dispatch(resetOnboarding());
-  }, []);
+    if (!meData) return;
+    const nameParts = (meData.name || '').trim().split(' ');
+    dispatch(updateBasicData({
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || '',
+      email: meData.email || '',
+      phone: meData.phoneNumber || '',
+    }));
+  }, [meData]);
 
   const handleNextStep = () => {
     if (currentStep < 3) {
@@ -104,155 +116,101 @@ export default function WorkerOnboarding() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: '#f8f9fa',
-        color: '#191c1d',
-      }}
-    >
-      <OnboardingHeader />
-      <main
-        style={{
-          flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: '2.5rem 1rem',
-        }}
-      >
-        <div style={{ maxWidth: '42rem', width: '100%' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h1
-              style={{
-                fontSize: '2rem',
-                fontWeight: 'bold',
-                color: '#191c1d',
-                marginBottom: '0.5rem',
-              }}
-            >
-              إكمال الملف الشخصي للفني
+    <div className="min-h-screen flex flex-col bg-gray-50" dir="rtl">
+      <Navbar />
+
+      <main className="flex-1 flex flex-col items-center px-4 pt-24 pb-16">
+        <div className="w-full max-w-xl">
+
+          {/* Title */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#a83900]/10 mb-4">
+              <span className="material-symbols-outlined text-[#a83900] text-3xl">engineering</span>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              إكمال الملف الشخصي
             </h1>
-            <p style={{ fontSize: '1rem', color: '#594139' }}>
-              خطوة أخيرة للبدء في استقبال الطلبات كخبير معتمد.
+            <p className="text-sm text-gray-500">
+              خطوة أخيرة للبدء في استقبال الطلبات كخبير معتمد
             </p>
           </div>
 
           <ProgressStepper currentStep={currentStep} />
 
           {submitError && (
-            <div
-              style={{
-                backgroundColor: '#ffebee',
-                border: '1px solid #ef5350',
-                borderRadius: '0.75rem',
-                padding: '1rem',
-                marginBottom: '1rem',
-                color: '#c62828',
-              }}
-            >
+            <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl p-4 mb-5 text-sm text-red-700">
+              <span className="material-symbols-outlined text-base mt-0.5">error</span>
               {submitError}
             </div>
           )}
 
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e1e3e4',
-              borderRadius: '0.75rem',
-              padding: '1.5rem',
-              marginBottom: '2rem',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            }}
-          >
+          {/* Step card */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
             {renderStep()}
           </div>
 
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              justifyContent: 'center',
-            }}
-          >
-            {currentStep > 1 && (
+          {/* Navigation */}
+          <div className="flex items-center gap-3 justify-between">
+            {currentStep > 1 ? (
               <button
                 onClick={handlePreviousStep}
                 disabled={isSubmitting}
-                style={{
-                  padding: '0.75rem 2rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #e1e3e4',
-                  backgroundColor: '#fff',
-                  color: '#191c1d',
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  fontFamily: "'Be Vietnam Pro', sans-serif",
-                }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-40"
               >
+                <span className="material-symbols-outlined text-base">arrow_forward</span>
                 السابق
               </button>
+            ) : (
+              <div />
             )}
+
+            {/* Step indicator */}
+            <span className="text-xs text-gray-400">الخطوة {currentStep} من 3</span>
 
             {currentStep < 3 ? (
               <button
                 onClick={handleNextStep}
                 disabled={!canProceed}
-                style={{
-                  padding: '0.75rem 2rem',
-                  borderRadius: '0.5rem',
-                  border: 'none',
-                  backgroundColor: canProceed ? '#a83900' : '#e1e3e4',
-                  color: canProceed ? '#fff' : '#999',
-                  fontSize: '1rem',
-                  cursor: canProceed ? 'pointer' : 'not-allowed',
-                  fontFamily: "'Be Vietnam Pro', sans-serif",
-                  transition: 'all 0.2s',
-                }}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all
+                  ${canProceed
+                    ? 'bg-[#a83900] text-white hover:bg-[#8f2f00] shadow-md hover:shadow-lg'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
               >
                 التالي
+                <span className="material-symbols-outlined text-base">arrow_back</span>
               </button>
             ) : (
               <button
                 onClick={handleSubmit}
                 disabled={!canProceed || isSubmitting}
-                style={{
-                  padding: '0.75rem 2rem',
-                  borderRadius: '0.5rem',
-                  border: 'none',
-                  backgroundColor: canProceed && !isSubmitting ? '#a83900' : '#e1e3e4',
-                  color: canProceed && !isSubmitting ? '#fff' : '#999',
-                  fontSize: '1rem',
-                  cursor: canProceed && !isSubmitting ? 'pointer' : 'not-allowed',
-                  fontFamily: "'Be Vietnam Pro', sans-serif",
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  transition: 'all 0.2s',
-                }}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all
+                  ${canProceed && !isSubmitting
+                    ? 'bg-[#a83900] text-white hover:bg-[#8f2f00] shadow-md hover:shadow-lg'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
               >
                 {isSubmitting ? (
                   <>
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontSize: '1.1rem', animation: 'spin 1s linear infinite' }}
-                    >
-                      autorenew
-                    </span>
+                    <span className="material-symbols-outlined text-base animate-spin">autorenew</span>
                     جاري الإرسال...
                   </>
                 ) : (
-                  'إرسال الطلب'
+                  <>
+                    إرسال الطلب
+                    <span className="material-symbols-outlined text-base">send</span>
+                  </>
                 )}
               </button>
             )}
           </div>
+
         </div>
       </main>
-      <OnboardingFooter />
+
+      <footer className="py-5 text-center text-xs text-gray-400 border-t border-gray-100">
+        © {new Date().getFullYear()} Osta Finder — جميع الحقوق محفوظة
+      </footer>
     </div>
   );
 }

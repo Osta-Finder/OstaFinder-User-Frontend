@@ -1,106 +1,53 @@
 export default function ProgressStepper({ currentStep }) {
   const steps = [
-    { number: 1, label: 'البيانات الأساسية', completed: currentStep > 1 },
-    { number: 2, label: 'الملف المهني', completed: currentStep > 2 },
-    { number: 3, label: 'التوثيق', completed: false },
+    { number: 1, label: 'البيانات الأساسية', icon: 'person', completed: currentStep > 1 },
+    { number: 2, label: 'الملف المهني', icon: 'work', completed: currentStep > 2 },
+    { number: 3, label: 'التوثيق', icon: 'description', completed: false },
   ];
 
-  const progressWidth = currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%';
-
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: '42rem',
-      marginBottom: '3rem',
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    }}>
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: 0,
-        width: '100%',
-        height: '2px',
-        backgroundColor: '#e1e3e4',
-        zIndex: 0,
-        transform: 'translateY(-50%)',
-      }}></div>
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        right: 0,
-        width: progressWidth,
-        height: '2px',
-        backgroundColor: '#a83900',
-        zIndex: 0,
-        transform: 'translateY(-50%)',
-        transition: 'width 0.5s ease',
-      }}></div>
-
-      {steps.map((step) => (
+    <div className="w-full mb-10">
+      <div className="flex items-center justify-between relative">
+        {/* Background line */}
+        <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200 z-0" />
+        {/* Progress line */}
         <div
-          key={step.number}
+          className="absolute top-5 right-0 h-0.5 bg-[#a83900] z-0 transition-all duration-500"
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '0.5rem',
-            position: 'relative',
-            backgroundColor: '#f8f9fa',
-            padding: '0 0.5rem',
-            zIndex: 1,
+            width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%',
           }}
-        >
-          <div
-            style={{
-              width: '2rem',
-              height: '2rem',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 'bold',
-              fontSize: '0.875rem',
-              transition: 'all 0.3s',
-              backgroundColor: step.completed
-                ? '#a83900'
-                : currentStep === step.number
-                  ? '#ffffff'
-                  : '#ffffff',
-              color: step.completed
-                ? '#ffffff'
-                : currentStep === step.number
-                  ? '#a83900'
-                  : '#594139',
-              border: step.completed
-                ? 'none'
-                : currentStep === step.number
-                  ? '2px solid #a83900'
-                  : '2px solid #e1e3e4',
-            }}
-          >
-            {step.completed ? (
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
-                check
+        />
+
+        {steps.map((step) => {
+          const isActive = currentStep === step.number;
+          const isDone = step.completed;
+          return (
+            <div key={step.number} className="flex flex-col items-center gap-2 z-10 bg-gray-50 px-2">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm
+                  ${isDone
+                    ? 'bg-[#a83900] text-white'
+                    : isActive
+                    ? 'bg-white border-2 border-[#a83900] text-[#a83900]'
+                    : 'bg-white border-2 border-gray-200 text-gray-400'
+                  }`}
+              >
+                {isDone ? (
+                  <span className="material-symbols-outlined text-base">check</span>
+                ) : (
+                  <span className="material-symbols-outlined text-base">{step.icon}</span>
+                )}
+              </div>
+              <span
+                className={`text-xs font-medium transition-colors
+                  ${isActive ? 'text-[#a83900] font-bold' : isDone ? 'text-gray-600' : 'text-gray-400'}`}
+              >
+                {step.label}
               </span>
-            ) : (
-              step.number
-            )}
-          </div>
-          <span
-            style={{
-              fontWeight: '500',
-              fontSize: '0.875rem',
-              color: currentStep === step.number ? '#a83900' : '#191c1d',
-              fontWeight: currentStep === step.number ? 'bold' : '500',
-            }}
-          >
-            {step.label}
-          </span>
-        </div>
-      ))}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
