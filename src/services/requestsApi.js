@@ -86,8 +86,7 @@ export const requestsApi = apiSlice.injectEndpoints({
     }),
     createRequest: builder.mutation({
       query: ({ workerId, orderData }) => ({
-        url: `/requests/${workerId}`, // لاحظي إن المسار هنا لازم يطابق اللي في الروتر
-        method: "POST",
+        url: `/requests/${workerId}`,
         body: orderData,
       }),
     }),
