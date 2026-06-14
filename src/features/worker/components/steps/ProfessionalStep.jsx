@@ -1,17 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfessional } from '../../../../store/slices/onboardingSlice';
-
-const specializations = [
-  { value: 'سباكة',                   icon: '🔧' },
-  { value: 'كهرباء',                  icon: '⚡' },
-  { value: 'نجارة',                   icon: '🪵' },
-  { value: 'تكييف وتبريد',            icon: '❄️' },
-  { value: 'صيانة عامة',              icon: '🛠️' },
-  { value: 'دهان',                    icon: '🎨' },
-  { value: 'تركيب أبواب وشبابيك',    icon: '🚪' },
-  { value: 'تمديدات غاز',            icon: '🔥' },
-];
+import { useGetCategoriesQuery } from '../../../../services/categoryApi';
 
 export default function ProfessionalStep({ onValidationChange }) {
   const dispatch = useDispatch();
@@ -19,6 +9,9 @@ export default function ProfessionalStep({ onValidationChange }) {
   const [errors, setErrors]   = useState({});
   const [touched, setTouched] = useState({});
   const [charCount, setCharCount] = useState(professional.bio.length);
+
+  const { data: categoriesResponse, isLoading: isLoadingCategories } = useGetCategoriesQuery();
+  const categories = categoriesResponse?.data || [];
 
   const isFormValid = () =>
     !!professional.specialization &&
@@ -56,7 +49,9 @@ export default function ProfessionalStep({ onValidationChange }) {
 
   const generateBio = () => {
     if (!professional.specialization || !professional.yearsOfExperience) return;
-    const text = `أنا متخصص في ${professional.specialization} بخبرة تزيد عن ${professional.yearsOfExperience} سنوات. أقدم خدمات احترافية وعالية الجودة مع الالتزام بالمواعيد والأسعار المنافسة.`;
+    const selectedCategory = categories.find((cat) => cat._id === professional.specialization);
+    const categoryName = selectedCategory?.name || professional.specialization;
+    const text = `أنا متخصص في ${categoryName} بخبرة تزيد عن ${professional.yearsOfExperience} سنوات. أقدم خدمات احترافية وعالية الجودة مع الالتزام بالمواعيد والأسعار المنافسة.`;
     dispatch(updateProfessional({ bio: text }));
     setCharCount(text.length);
   };
@@ -82,6 +77,7 @@ export default function ProfessionalStep({ onValidationChange }) {
             value={professional.specialization}
             onChange={handleChange}
             onBlur={handleBlur}
+            disabled={isLoadingCategories}
             className={`w-full appearance-none bg-gray-50 border rounded-xl py-3 px-4 pl-10 text-sm outline-none transition-all cursor-pointer
               ${errors.specialization && touched.specialization
                 ? 'border-red-400 focus:ring-2 focus:ring-red-100'
@@ -89,9 +85,11 @@ export default function ProfessionalStep({ onValidationChange }) {
               }
               ${!professional.specialization ? 'text-gray-400' : 'text-gray-900'}`}
           >
-            <option value="">اختر تخصصك الأساسي</option>
-            {specializations.map(({ value }) => (
-              <option key={value} value={value}>{value}</option>
+            <option value="">
+              {isLoadingCategories ? 'جاري التحميل...' : 'اختر تخصصك الأساسي'}
+            </option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>{cat.name}</option>
             ))}
           </select>
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none">
