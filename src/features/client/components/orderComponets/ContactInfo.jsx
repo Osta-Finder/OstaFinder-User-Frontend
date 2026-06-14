@@ -1,6 +1,6 @@
 import { Phone, Calendar } from "lucide-react";
 
-export default function ContactInfo({ phone, preferredTime, onPhoneChange, onTimeChange }) {
+export default function ContactInfo({ phoneNumber, date, onPhoneNumberChange, onDateChange, minDate }) {
   return (
     <>
       <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -13,8 +13,8 @@ export default function ContactInfo({ phone, preferredTime, onPhoneChange, onTim
             <input
               type="tel"
               placeholder="01XXXXXXXXX"
-              value={phone}
-              onChange={(e) => onPhoneChange(e.target.value)}
+              value={phoneNumber} 
+              onChange={(e) => onPhoneNumberChange(e.target.value)}
               className="w-full p-3 pr-10 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[var(--primary-color)] text-left"
               dir="ltr"
               required
@@ -27,8 +27,9 @@ export default function ContactInfo({ phone, preferredTime, onPhoneChange, onTim
           <div className="relative">
             <input
               type="datetime-local"
-              value={preferredTime}
-              onChange={(e) => onTimeChange(e.target.value)}
+              value={date} 
+              onChange={(e) => onDateChange(e.target.value)}
+              min={minDate}
               className="w-full p-3 pr-10 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[var(--primary-color)] text-right text-gray-600"
               required
             />
