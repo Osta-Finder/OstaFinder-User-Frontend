@@ -69,6 +69,7 @@ export default function WorkerOnboarding() {
     // Professional data
     formData.append('specialization', onboardingData.professional.specialization);
     formData.append('yearsOfExperience', String(onboardingData.professional.yearsOfExperience));
+    formData.append('price', String(onboardingData.professional.dailyRate));
     if (onboardingData.professional.bio) {
       formData.append('bio', onboardingData.professional.bio);
     }
