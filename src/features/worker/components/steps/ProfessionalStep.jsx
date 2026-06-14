@@ -1,55 +1,41 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfessional } from '../../../../store/slices/onboardingSlice';
+import { useGetCategoriesQuery } from '../../../../services/categoryApi';
 
 export default function ProfessionalStep({ onValidationChange }) {
   const dispatch = useDispatch();
   const professional = useSelector((state) => state.onboarding.professional);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors]   = useState({});
   const [touched, setTouched] = useState({});
   const [charCount, setCharCount] = useState(professional.bio.length);
 
-  const specializations = [
-    'سباكة',
-    'كهرباء',
-    'نجارة',
-    'تكييف وتبريد',
-    'صيانة عامة',
-    'دهان',
-    'تركيب أبواب وشبابيك',
-    'تمديدات غاز',
-  ];
+  const { data: categoriesResponse, isLoading: isLoadingCategories } = useGetCategoriesQuery();
+  const categories = categoriesResponse?.data || [];
 
-  const isFormValid = () => {
-    if (!professional.specialization) return false;
-    if (!professional.yearsOfExperience) return false;
-    if (professional.yearsOfExperience < 0) return false;
-    return true;
-  };
+  const isFormValid = () =>
+    !!professional.specialization &&
+    !!professional.yearsOfExperience &&
+    Number(professional.yearsOfExperience) >= 0;
 
   const validateField = (name, value) => {
     if (name === 'specialization') return !value ? 'التخصص مطلوب' : '';
     if (name === 'yearsOfExperience') {
       if (!value && value !== 0) return 'سنوات الخبرة مطلوبة';
-      if (value < 0) return 'يجب أن تكون سنوات الخبرة موجبة';
+      if (Number(value) < 0)        return 'يجب أن تكون سنوات الخبرة موجبة';
     }
     return '';
   };
 
-  // Only update canProceed — never show errors on initial render
-  useEffect(() => {
-    onValidationChange(isFormValid());
-  }, [professional]);
+  useEffect(() => { onValidationChange(isFormValid()); }, [professional]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'bio' && value.length <= 200) {
+    if (name === 'bio') {
+      if (value.length > 200) return;
       setCharCount(value.length);
-      dispatch(updateProfessional({ [name]: value }));
-    } else if (name !== 'bio') {
-      dispatch(updateProfessional({ [name]: value }));
     }
-    // Show error only if field was already touched
+    dispatch(updateProfessional({ [name]: value }));
     if (touched[name]) {
       setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
     }
@@ -62,95 +48,71 @@ export default function ProfessionalStep({ onValidationChange }) {
   };
 
   const generateBio = () => {
-    const bioTemplate = `أنا متخصص في ${professional.specialization} بخبرة تزيد عن ${professional.yearsOfExperience} سنوات. أقدم خدمات احترافية وعالية الجودة مع الالتزام بالمواعيد والأسعار المنافسة.`;
-    dispatch(updateProfessional({ bio: bioTemplate }));
-    setCharCount(bioTemplate.length);
+    if (!professional.specialization || !professional.yearsOfExperience) return;
+    const selectedCategory = categories.find((cat) => cat._id === professional.specialization);
+    const categoryName = selectedCategory?.name || professional.specialization;
+    const text = `أنا متخصص في ${categoryName} بخبرة تزيد عن ${professional.yearsOfExperience} سنوات. أقدم خدمات احترافية وعالية الجودة مع الالتزام بالمواعيد والأسعار المنافسة.`;
+    dispatch(updateProfessional({ bio: text }));
+    setCharCount(text.length);
   };
 
-  const inputStyle = (hasError) => ({
-    width: '100%',
-    backgroundColor: '#f8f9fa',
-    border: `1px solid ${hasError ? '#ba1a1a' : '#e1e3e4'}`,
-    borderRadius: '0.5rem',
-    padding: '0.75rem 1rem',
-    fontSize: '1rem',
-    color: '#191c1d',
-    fontFamily: "'Be Vietnam Pro', sans-serif",
-    transition: 'all 0.3s',
-    outline: 'none',
-  });
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.75rem',
-        borderBottom: '1px solid #e1e3e4',
-        paddingBottom: '1rem',
-      }}>
-        <span className="material-symbols-outlined" style={{
-          color: '#a83900',
-          fontSize: '1.5rem',
-        }}>
-          work
-        </span>
-        <h2 style={{
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
-          color: '#191c1d',
-        }}>
-          التفاصيل المهنية
-        </h2>
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">التفاصيل المهنية</h2>
+          <p className="text-xs text-gray-500">تخصصك وخبرتك في المجال</p>
+        </div>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '1.5rem',
-      }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <label style={{
-            fontWeight: '500',
-            fontSize: '1rem',
-            color: '#191c1d',
-            display: 'flex',
-            gap: '0.25rem',
-          }}>
-            التخصص <span style={{ color: '#a83900' }}>*</span>
-          </label>
+      {/* Specialization dropdown */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-semibold text-gray-700">
+          التخصص <span className="text-[#a83900]">*</span>
+        </label>
+        <div className="relative">
           <select
             name="specialization"
             value={professional.specialization}
             onChange={handleChange}
             onBlur={handleBlur}
-            style={inputStyle(!!errors.specialization)}
-            onFocus={(e) => e.target.style.borderColor = '#a83900'}
+            disabled={isLoadingCategories}
+            className={`w-full appearance-none bg-gray-50 border rounded-xl py-3 px-4 pl-10 text-sm outline-none transition-all cursor-pointer
+              ${errors.specialization && touched.specialization
+                ? 'border-red-400 focus:ring-2 focus:ring-red-100'
+                : 'border-gray-200 focus:border-[#a83900] focus:ring-2 focus:ring-[#a83900]/10'
+              }
+              ${!professional.specialization ? 'text-gray-400' : 'text-gray-900'}`}
           >
-            <option value="">اختر تخصصك الأساسي</option>
-            {specializations.map((spec) => (
-              <option key={spec} value={spec}>
-                {spec}
-              </option>
+            <option value="">
+              {isLoadingCategories ? 'جاري التحميل...' : 'اختر تخصصك الأساسي'}
+            </option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>{cat.name}</option>
             ))}
           </select>
-          {errors.specialization && (
-            <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>
-              {errors.specialization}
-            </span>
-          )}
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none">
+            expand_more
+          </span>
         </div>
+        {errors.specialization && touched.specialization && (
+          <p className="text-xs text-red-500 flex items-center gap-1">
+            <span className="material-symbols-outlined text-sm">error</span>
+            {errors.specialization}
+          </p>
+        )}
+      </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <label style={{
-            fontWeight: '500',
-            fontSize: '1rem',
-            color: '#191c1d',
-            display: 'flex',
-            gap: '0.25rem',
-          }}>
-            سنوات الخبرة <span style={{ color: '#a83900' }}>*</span>
-          </label>
+      {/* Years of experience */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-semibold text-gray-700">
+          سنوات الخبرة <span className="text-[#a83900]">*</span>
+        </label>
+        <div className="relative max-w-xs">
+          <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none">
+            timeline
+          </span>
           <input
             type="number"
             name="yearsOfExperience"
@@ -159,101 +121,51 @@ export default function ProfessionalStep({ onValidationChange }) {
             onBlur={handleBlur}
             placeholder="مثال: 5"
             min="0"
-            style={inputStyle(!!errors.yearsOfExperience)}
-            onFocus={(e) => e.target.style.borderColor = '#a83900'}
+            className={`w-full bg-gray-50 border rounded-xl py-3 pr-10 pl-4 text-sm text-gray-900 outline-none transition-all
+              ${errors.yearsOfExperience && touched.yearsOfExperience
+                ? 'border-red-400 focus:ring-2 focus:ring-red-100'
+                : 'border-gray-200 focus:border-[#a83900] focus:ring-2 focus:ring-[#a83900]/10'
+              }`}
           />
-          {errors.yearsOfExperience && (
-            <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>
-              {errors.yearsOfExperience}
-            </span>
-          )}
         </div>
+        {errors.yearsOfExperience && touched.yearsOfExperience && (
+          <p className="text-xs text-red-500 flex items-center gap-1">
+            <span className="material-symbols-outlined text-sm">error</span>
+            {errors.yearsOfExperience}
+          </p>
+        )}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <label style={{
-            fontWeight: '500',
-            fontSize: '1rem',
-            color: '#191c1d',
-          }}>
+      {/* Bio */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-semibold text-gray-700">
             نبذة عنك{' '}
-            <span style={{ color: '#594139', fontWeight: 'normal' }}>
-              (اختياري ولكن يفضل)
-            </span>
+            <span className="text-gray-400 font-normal">(اختياري)</span>
           </label>
-          <span style={{ fontSize: '0.875rem', color: '#594139' }}>
+          <span className={`text-xs ${charCount > 180 ? 'text-orange-500' : 'text-gray-400'}`}>
             {charCount}/200
           </span>
         </div>
-        <div style={{
-          border: '1px solid #e1e3e4',
-          borderRadius: '0.5rem',
-          overflow: 'hidden',
-          transition: 'all 0.3s',
-        }}>
+
+        <div className={`border rounded-xl overflow-hidden transition-all focus-within:border-[#a83900] focus-within:ring-2 focus-within:ring-[#a83900]/10 ${charCount > 180 ? 'border-orange-300' : 'border-gray-200'}`}>
           <textarea
             name="bio"
             value={professional.bio}
             onChange={handleChange}
-            placeholder="اكتب نبذة مختصرة عن مهاراتك وما يميزك في عملك لجذب العملاء..."
-            rows="4"
-            style={{
-              width: '100%',
-              border: 'none',
-              backgroundColor: '#f8f9fa',
-              padding: '1rem',
-              fontSize: '1rem',
-              color: '#191c1d',
-              fontFamily: "'Be Vietnam Pro', sans-serif",
-              resize: 'none',
-              outline: 'none',
-            }}
-            onFocus={(e) => {
-              e.target.parentElement.style.borderColor = '#a83900';
-              e.target.parentElement.style.boxShadow = '0 0 0 2px rgba(168, 57, 0, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.parentElement.style.borderColor = '#e1e3e4';
-              e.target.parentElement.style.boxShadow = 'none';
-            }}
+            placeholder="اكتب نبذة مختصرة عن مهاراتك وما يميزك لجذب العملاء..."
+            rows={4}
+            className="w-full bg-gray-50 px-4 py-3 text-sm text-gray-900 resize-none outline-none"
           />
-          <div style={{
-            backgroundColor: '#f3f4f5',
-            borderTop: '1px solid #e1e3e4',
-            padding: '0.75rem 1rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <span style={{ fontSize: '0.875rem', color: '#594139' }}>
-              دع الذكاء الاصطناعي يكتب نبذتك بناءً على تخصصك وخبرتك.
-            </span>
+          <div className="bg-gray-50 border-t border-gray-100 px-4 py-2 flex items-center justify-between">
+            <p className="text-xs text-gray-400">دع الذكاء الاصطناعي يكتب نبذتك تلقائياً</p>
             <button
               type="button"
               onClick={generateBio}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                color: '#a83900',
-                fontWeight: '500',
-                fontSize: '1rem',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'color 0.3s',
-              }}
-              onMouseEnter={(e) => e.target.style.color = '#ff6b2c'}
-              onMouseLeave={(e) => e.target.style.color = '#a83900'}
+              disabled={!professional.specialization || !professional.yearsOfExperience}
+              className="flex items-center gap-1 text-xs font-semibold text-[#a83900] hover:text-[#8f2f00] disabled:text-gray-300 disabled:cursor-not-allowed transition-colors"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
-                auto_awesome
-              </span>
+              <span className="material-symbols-outlined text-sm">auto_awesome</span>
               إنشاء تلقائي
             </button>
           </div>

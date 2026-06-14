@@ -47,7 +47,7 @@ export default function CategoriesSlider() {
         {categories.map((category) => (
           <SwiperSlide key={category._id}>
             <Link 
-              to={`/categories?category=${category._id}`} 
+              to={`/categories?category=${category.slug}`} 
               className="flex flex-col items-center justify-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow cursor-pointer group h-full"
             >
               <div className="w-16 h-16 md:w-20 md:h-20 mb-3 rounded-full bg-orange-50 flex items-center justify-center group-hover:bg-orange-100 transition-colors">
