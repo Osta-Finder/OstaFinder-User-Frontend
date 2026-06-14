@@ -22,12 +22,12 @@ import {
 } from "../../../services/requestsApi";
 
 const API_TO_STATUS = {
-  "معلقة": "pending",
-  "مقبولة": "accepted",
+  معلقة: "pending",
+  مقبولة: "accepted",
   "قيد التنفيذ": "in_progress",
-  "مكتملة": "completed",
-  "مرفوضة": "rejected",
-  "ملغية": "cancelled",
+  مكتملة: "completed",
+  مرفوضة: "rejected",
+  ملغية: "cancelled",
 };
 
 const STATUS_STEP = {
@@ -82,6 +82,7 @@ export default function ClientRequests() {
 
   const { data: statsData } = useGetRequestStatsQuery();
   const { data: requestsData, isLoading } = useGetRequestsQuery(filterStatus);
+  console.log("Fetched requests:", requestsData);
   const [cancelRequest] = useCancelRequestMutation();
 
   const orders = useMemo(() => {
@@ -94,165 +95,234 @@ export default function ClientRequests() {
   const handleCancelConfirm = async () => {
     try {
       await cancelRequest(cancelTarget._id).unwrap();
-      setNotification({ title: "تم الإلغاء", message: `تم إلغاء الطلب #${cancelTarget.id}`, type: "success" });
+      setNotification({
+        title: "تم الإلغاء",
+        message: `تم إلغاء الطلب #${cancelTarget.id}`,
+        type: "success",
+      });
     } catch {
-      setNotification({ title: "خطأ", message: "فشل إلغاء الطلب", type: "error" });
+      setNotification({
+        title: "خطأ",
+        message: "فشل إلغاء الطلب",
+        type: "error",
+      });
     }
     setCancelTarget(null);
   };
 
   const renderOrders = (orders) => {
     if (isLoading) {
-      return <TableSkeleton />
+      return <TableSkeleton />;
     }
 
     return (
       <>
-      <div className="block lg:hidden">
-        {orders.length === 0 ? (
-          <div className="flex flex-col items-center py-16 text-center">
-            <AlertCircle className="mb-3 h-10 w-10" style={{ color: "var(--text-secondary)" }} />
-            <p className="font-medium text-gray-900">لا توجد طلبات</p>
-            <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
-              لا توجد طلبات بهذه الحالة
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-100">
-            {orders.map((order) => (
-              <div
-                key={order.id || order._id}
-                onClick={() => setSelectedOrder(order)}
-                className="cursor-pointer p-4 transition-colors hover:bg-gray-50"
+        <div className="block lg:hidden">
+          {orders.length === 0 ? (
+            <div className="flex flex-col items-center py-16 text-center">
+              <AlertCircle
+                className="mb-3 h-10 w-10"
+                style={{ color: "var(--text-secondary)" }}
+              />
+              <p className="font-medium text-gray-900">لا توجد طلبات</p>
+              <p
+                className="mt-1 text-sm"
+                style={{ color: "var(--text-secondary)" }}
               >
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-bold text-gray-900">#{order.id}</span>
-                  <div className="flex items-center gap-2">
-                    {order.status === "pending" && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCancelTarget(order);
-                        }}
-                        className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
-                      >
-                        <XCircle className="h-3.5 w-3.5" />
-                        إلغاء
-                      </button>
-                    )}
-                    <OrderStatusBadge status={order.status} />
-                  </div>
-                </div>
-                <p className="text-sm font-medium text-gray-900">{order.service}</p>
-                <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-                  {order.worker} - {order.date}
-                </p>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-sm font-bold" style={{ color: "var(--primary-color)" }}>
-                    {order.total} ج.م
-                  </span>
-                  {order.rating ? (
-                    <Rating rating={order.rating.stars} size="sm" />
-                  ) : order.status === "completed" ? (
-                    <Link to="/client-ratings" onClick={(e) => e.stopPropagation()}>
-                      <CuButton className="!py-1 !px-3 !text-xs">قيم الخدمة الآن!</CuButton>
-                    </Link>
-                  ) : order.status === "rejected" || order.status === "cancelled" ? null : (
-                    <span className="text-xs text-gray-400">بعد اكتمال الخدمة</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="hidden lg:block">
-        {orders.length === 0 ? (
-          <div className="flex flex-col items-center py-16 text-center">
-            <AlertCircle className="mb-3 h-10 w-10" style={{ color: "var(--text-secondary)" }} />
-            <p className="font-medium text-gray-900">لا توجد طلبات</p>
-            <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
-              {isLoading ? "جاري التحميل..." : "لا توجد طلبات بهذه الحالة"}
-            </p>
-          </div>
-        ) : (
-          <table className="w-full text-right text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="px-6 py-4 font-semibold text-gray-900">رقم الطلب</th>
-                <th className="px-6 py-4 font-semibold text-gray-900">الخدمة</th>
-                <th className="px-6 py-4 font-semibold text-gray-900">الصنايعي</th>
-                <th className="px-6 py-4 font-semibold text-gray-900">التاريخ</th>
-                <th className="px-6 py-4 font-semibold text-gray-900">المبلغ</th>
-                <th className="px-6 py-4 font-semibold text-gray-900">الحالة</th>
-                <th className="px-6 py-4 font-semibold text-gray-900">التقييم</th>
-                <th className="px-6 py-4 font-semibold text-gray-900"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
+                لا توجد طلبات بهذه الحالة
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
               {orders.map((order) => (
-                <tr
+                <div
                   key={order.id || order._id}
                   onClick={() => setSelectedOrder(order)}
-                  className="cursor-pointer transition-colors hover:bg-gray-50/80"
+                  className="cursor-pointer p-4 transition-colors hover:bg-gray-50"
                 >
-                  <td className="px-6 py-4 font-bold text-gray-900">#{order.id}</td>
-                  <td className="px-6 py-4 text-gray-900">{order.service}</td>
-                  <td className="px-6 py-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-sm font-bold text-gray-900">
+                      #{order.id}
+                    </span>
                     <div className="flex items-center gap-2">
-                      <img
-                        src={order.avatar}
-                        alt={order.worker}
-                        className="h-7 w-7 rounded-full bg-gray-100"
-                      />
-                      <span className="text-gray-900">{order.worker}</span>
+                      {order.status === "pending" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCancelTarget(order);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
+                        >
+                          <XCircle className="h-3.5 w-3.5" />
+                          إلغاء
+                        </button>
+                      )}
+                      <OrderStatusBadge status={order.status} />
                     </div>
-                  </td>
-                  <td style={{ color: "var(--text-secondary)" }}>{order.date}</td>
-                  <td className="font-medium text-gray-900">{order.total} ج.م</td>
-                  <td>
-                    <OrderStatusBadge status={order.status} />
-                  </td>
-                  <td>
+                  </div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {order.service}
+                  </p>
+                  <p
+                    className="mt-1 text-xs"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    {order.worker} - {order.date}
+                  </p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span
+                      className="text-sm font-bold"
+                      style={{ color: "var(--primary-color)" }}
+                    >
+                      {order.total} ج.م
+                    </span>
                     {order.rating ? (
                       <Rating rating={order.rating.stars} size="sm" />
                     ) : order.status === "completed" ? (
-                      <Link to="/client-ratings" onClick={(e) => e.stopPropagation()}>
-                        <CuButton className="!py-1 !px-3 !text-xs">قيم الخدمة الآن!</CuButton>
-                      </Link>
-                    ) : order.status === "rejected" || order.status === "cancelled" ? (
-                      <span className="text-xs text-gray-300">—</span>
-                    ) : (
-                      <span className="text-xs text-gray-400">بعد اكتمال الخدمة</span>
-                    )}
-                  </td>
-                  <td>
-                    {order.status === "pending" && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCancelTarget(order);
-                        }}
-                        className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
+                      <Link
+                        to="/client-ratings"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <XCircle className="h-3.5 w-3.5" />
-                        إلغاء
-                      </button>
+                        <CuButton className="!py-1 !px-3 !text-xs">
+                          قيم الخدمة الآن!
+                        </CuButton>
+                      </Link>
+                    ) : order.status === "rejected" ||
+                      order.status === "cancelled" ? null : (
+                      <span className="text-xs text-gray-400">
+                        بعد اكتمال الخدمة
+                      </span>
                     )}
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </>
-  );
+            </div>
+          )}
+        </div>
+
+        <div className="hidden lg:block">
+          {orders.length === 0 ? (
+            <div className="flex flex-col items-center py-16 text-center">
+              <AlertCircle
+                className="mb-3 h-10 w-10"
+                style={{ color: "var(--text-secondary)" }}
+              />
+              <p className="font-medium text-gray-900">لا توجد طلبات</p>
+              <p
+                className="mt-1 text-sm"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                {isLoading ? "جاري التحميل..." : "لا توجد طلبات بهذه الحالة"}
+              </p>
+            </div>
+          ) : (
+            <table className="w-full text-right text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 bg-gray-50/50">
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    رقم الطلب
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    الخدمة
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    الصنايعي
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    التاريخ
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    المبلغ
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    الحالة
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    التقييم
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-900"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {orders.map((order) => (
+                  <tr
+                    key={order.id || order._id}
+                    onClick={() => setSelectedOrder(order)}
+                    className="cursor-pointer transition-colors hover:bg-gray-50/80"
+                  >
+                    <td className="px-6 py-4 font-bold text-gray-900">
+                      #{order.id}
+                    </td>
+                    <td className="px-6 py-4 text-gray-900">{order.service}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={order.avatar}
+                          alt={order.worker}
+                          className="h-7 w-7 rounded-full bg-gray-100"
+                        />
+                        <span className="text-gray-900">{order.worker}</span>
+                      </div>
+                    </td>
+                    <td style={{ color: "var(--text-secondary)" }}>
+                      {order.date}
+                    </td>
+                    <td className="font-medium text-gray-900">
+                      {order.total} ج.م
+                    </td>
+                    <td>
+                      <OrderStatusBadge status={order.status} />
+                    </td>
+                    <td>
+                      {order.rating ? (
+                        <Rating rating={order.rating.stars} size="sm" />
+                      ) : order.status === "completed" ? (
+                        <Link
+                          to="/client-ratings"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <CuButton className="!py-1 !px-3 !text-xs">
+                            قيم الخدمة الآن!
+                          </CuButton>
+                        </Link>
+                      ) : order.status === "rejected" ||
+                        order.status === "cancelled" ? (
+                        <span className="text-xs text-gray-300">—</span>
+                      ) : (
+                        <span className="text-xs text-gray-400">
+                          بعد اكتمال الخدمة
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {order.status === "pending" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCancelTarget(order);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
+                        >
+                          <XCircle className="h-3.5 w-3.5" />
+                          إلغاء
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </>
+    );
   };
 
   return (
-    <div className="min-h-screen pt-24" style={{ background: "var(--bg-color)" }}>
+    <div
+      className="min-h-screen pt-24"
+      style={{ background: "var(--bg-color)" }}
+    >
       <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-extrabold text-gray-900">طلباتي</h1>
 

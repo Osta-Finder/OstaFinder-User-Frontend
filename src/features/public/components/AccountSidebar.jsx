@@ -15,12 +15,7 @@ import { useLogoutMutation } from "../../../services/authApi";
 import { useNavigate } from "react-router-dom";
 import ChangeProfilePicModal from "./ChangeProfilePicModal";
 
-const menuItems = [
-  { label: "ملفي الشخصي", icon: User, active: true },
-  { label: "عناويني", icon: MapPin },
-  { label: "طرق الدفع", icon: CreditCard },
-  { label: "مركز المساعدة", icon: Headphones },
-];
+const menuItems = [{ label: "ملفي الشخصي", icon: User, active: true }];
 
 const roleLabels = {
   client: "عميل",
@@ -38,7 +33,11 @@ export default function AccountSidebar() {
       ? roleLabels[membershipValue.toLowerCase()] || membershipValue
       : membershipValue;
   const avatarSrc =
-    user?.profilePic || user?.avatar || user?.image || user?.profileImage || clientAvatar;
+    user?.profilePic ||
+    user?.avatar ||
+    user?.image ||
+    user?.profileImage ||
+    clientAvatar;
 
   const [logout] = useLogoutMutation();
   const navigate = useNavigate();

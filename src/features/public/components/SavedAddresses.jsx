@@ -27,22 +27,33 @@ export default function SavedAddresses() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const userAddresses = Array.isArray(user?.addresses) ? user.addresses : [];
-  const dynamicAddresses = userAddresses.map((address, index) => ({
-    id: address?._id || address?.id || `address-${index}`,
-    title: address?.title || address?.label || `عنوان ${index + 1}`,
-    description:
-      address?.description ||
-      address?.address ||
-      [address?.street, address?.area, address?.city]
-        .filter(Boolean)
-        .join("، ") ||
-      "",
-    icon: index === 0 ? Home : Building2,
-    iconClass:
-      index === 0
-        ? "bg-[#ffe0ce] text-[#a83900]"
-        : "bg-[#eceff6] text-[#3e4b63]",
-  }));
+  const dynamicAddresses = userAddresses.map((address, index) => {
+    const parts = [];
+    if (address?.apartment) parts.push(`شقة ${address.apartment}`);
+    if (address?.floor) parts.push(`الدور ${address.floor}`);
+    if (address?.buildingNumber) parts.push(`عمارة ${address.buildingNumber}`);
+    if (address?.street) parts.push(address.street);
+    if (address?.area) parts.push(address.area);
+    if (address?.city) parts.push(address.city);
+
+    const baseAddress = parts.filter(Boolean).join("، ");
+    const detailedDesc = address?.address || address?.description || "";
+    const description =
+      baseAddress && detailedDesc
+        ? `${baseAddress} - ${detailedDesc}`
+        : baseAddress || detailedDesc || "";
+
+    return {
+      id: address?._id || address?.id || `address-${index}`,
+      title: address?.title || address?.label || `عنوان ${index + 1}`,
+      description,
+      icon: index === 0 ? Home : Building2,
+      iconClass:
+        index === 0
+          ? "bg-[#ffe0ce] text-[#a83900]"
+          : "bg-[#eceff6] text-[#3e4b63]",
+    };
+  });
   const addresses = isAuthenticated ? dynamicAddresses : fallbackAddresses;
 
   const handleAddClick = () => {
