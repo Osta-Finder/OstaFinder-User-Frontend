@@ -45,7 +45,7 @@ export default function BasicDataStep({ onValidationChange }) {
     setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
   };
 
-  const Field = ({ name, label, type = 'text', placeholder, icon }) => (
+  const Field = ({ name, label, type = 'text', placeholder, icon, disabled }) => (
     <div className="flex flex-col gap-1.5">
       <label className="text-sm font-semibold text-gray-700 flex gap-1">
         {label} <span className="text-[#a83900]">*</span>
@@ -63,12 +63,14 @@ export default function BasicDataStep({ onValidationChange }) {
           onChange={handleChange}
           onBlur={handleBlur}
           placeholder={placeholder}
+          disabled={disabled}
           className={`w-full bg-gray-50 border rounded-xl py-3 text-sm text-gray-900 outline-none transition-all
             ${icon ? 'pr-10 pl-4' : 'px-4'}
             ${errors[name]
               ? 'border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100'
               : 'border-gray-200 focus:border-[#a83900] focus:ring-2 focus:ring-[#a83900]/10'
-            }`}
+            }
+            ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-200' : ''}`}
         />
       </div>
       {errors[name] && (
@@ -97,8 +99,8 @@ export default function BasicDataStep({ onValidationChange }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field name="firstName" label="الاسم الأول"       placeholder="أدخل اسمك الأول"      icon="badge" />
         <Field name="lastName"  label="الاسم الأخير"       placeholder="أدخل اسمك الأخير"     icon="badge" />
-        <Field name="email"     label="البريد الإلكتروني" type="email" placeholder="example@email.com" icon="mail" />
-        <Field name="phone"     label="رقم الهاتف"         type="tel"  placeholder="+966 50 0000000"    icon="call" />
+        <Field name="email"     label="البريد الإلكتروني" type="email" placeholder="example@email.com" icon="mail" disabled={true} />
+        <Field name="phone"     label="رقم الهاتف"         type="tel"  placeholder="+966 50 0000000"    icon="call" disabled={true} />
         <Field name="city"      label="المدينة"             placeholder="أدخل مدينتك"          icon="location_city" />
         <Field name="address"   label="العنوان"             placeholder="العنوان التفصيلي"      icon="home_pin" />
       </div>
