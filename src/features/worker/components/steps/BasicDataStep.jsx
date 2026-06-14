@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateBasicData } from '../../../../store/slices/onboardingSlice';
-import { useGetMeQuery } from '../../../../services/authApi';
 
 export default function BasicDataStep({ onValidationChange }) {
   const dispatch = useDispatch();
@@ -9,63 +8,27 @@ export default function BasicDataStep({ onValidationChange }) {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // Always fetch fresh from backend — skip cache with refetchOnMountOrArgChange
-  const { data: meData, isLoading: isFetchingUser } = useGetMeQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
-
-  // meData IS the user object directly (backend returns flat user, not { user: ... })
-  useEffect(() => {
-    if (!meData) return;
-
-    const nameParts = (meData.name || '').trim().split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
-
-    dispatch(
-      updateBasicData({
-        firstName,
-        lastName,
-        email: meData.email || '',
-        phone: meData.phoneNumber || '',
-        // city and address not in backend — keep existing or empty
-      })
-    );
-  }, [meData]);
-
   const validateField = (name, value) => {
     switch (name) {
-      case 'firstName':
-        return !value.trim() ? 'الاسم الأول مطلوب' : '';
-      case 'lastName':
-        return !value.trim() ? 'الاسم الأخير مطلوب' : '';
+      case 'firstName':  return !value.trim() ? 'الاسم الأول مطلوب' : '';
+      case 'lastName':   return !value.trim() ? 'الاسم الأخير مطلوب' : '';
       case 'email':
         if (!value.trim()) return 'البريد الإلكتروني مطلوب';
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'البريد الإلكتروني غير صحيح';
         return '';
-      case 'phone':
-        return !value.trim() ? 'رقم الهاتف مطلوب' : '';
-      case 'city':
-        return !value.trim() ? 'المدينة مطلوبة' : '';
-      case 'address':
-        return !value.trim() ? 'العنوان مطلوب' : '';
-      default:
-        return '';
+      case 'phone':   return !value.trim() ? 'رقم الهاتف مطلوب' : '';
+      case 'city':    return !value.trim() ? 'المدينة مطلوبة' : '';
+      case 'address': return !value.trim() ? 'العنوان مطلوب' : '';
+      default:        return '';
     }
   };
 
   const validateForm = () => {
-    const newErrors = {};
-    Object.keys(basicData).forEach((key) => {
-      const error = validateField(key, basicData[key]);
-      if (error) newErrors[key] = error;
-    });
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(basicData).every((key) => !validateField(key, basicData[key]));
   };
 
   useEffect(() => {
-    const isValid = validateForm();
-    onValidationChange(isValid);
+    onValidationChange(validateForm());
   }, [basicData]);
 
   const handleChange = (e) => {
@@ -82,98 +45,62 @@ export default function BasicDataStep({ onValidationChange }) {
     setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
   };
 
-  const inputStyle = (hasError) => ({
-    width: '100%',
-    backgroundColor: '#f8f9fa',
-    border: `1px solid ${hasError ? '#ba1a1a' : '#e1e3e4'}`,
-    borderRadius: '0.5rem',
-    padding: '0.75rem 1rem',
-    fontSize: '1rem',
-    color: '#191c1d',
-    fontFamily: "'Be Vietnam Pro', sans-serif",
-    transition: 'all 0.3s',
-    outline: 'none',
-  });
-
-  const renderField = (name, label, type = 'text', placeholder = '') => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-      <label style={{ fontWeight: '500', fontSize: '1rem', color: '#191c1d', display: 'flex', gap: '0.25rem' }}>
-        {label} <span style={{ color: '#a83900' }}>*</span>
+  const Field = ({ name, label, type = 'text', placeholder, icon }) => (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-sm font-semibold text-gray-700 flex gap-1">
+        {label} <span className="text-[#a83900]">*</span>
       </label>
-      <input
-        type={type}
-        name={name}
-        value={basicData[name]}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        placeholder={isFetchingUser ? 'جاري التحميل...' : placeholder}
-        disabled={isFetchingUser}
-        style={{
-          ...inputStyle(!!errors[name]),
-          opacity: isFetchingUser ? 0.6 : 1,
-        }}
-        onFocus={(e) => (e.target.style.borderColor = '#a83900')}
-        onBlurCapture={(e) =>
-          (e.target.style.borderColor = errors[name] ? '#ba1a1a' : '#e1e3e4')
-        }
-      />
+      <div className="relative">
+        {icon && (
+          <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none">
+            {icon}
+          </span>
+        )}
+        <input
+          type={type}
+          name={name}
+          value={basicData[name]}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          className={`w-full bg-gray-50 border rounded-xl py-3 text-sm text-gray-900 outline-none transition-all
+            ${icon ? 'pr-10 pl-4' : 'px-4'}
+            ${errors[name]
+              ? 'border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100'
+              : 'border-gray-200 focus:border-[#a83900] focus:ring-2 focus:ring-[#a83900]/10'
+            }`}
+        />
+      </div>
       {errors[name] && (
-        <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>{errors[name]}</span>
+        <p className="text-xs text-red-500 flex items-center gap-1">
+          <span className="material-symbols-outlined text-sm">error</span>
+          {errors[name]}
+        </p>
       )}
     </div>
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="flex flex-col gap-6">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid #e1e3e4', paddingBottom: '1rem' }}>
-        <span className="material-symbols-outlined" style={{ color: '#a83900', fontSize: '1.5rem' }}>person</span>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#191c1d' }}>البيانات الأساسية</h2>
+      <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+        <div className="w-9 h-9 rounded-full bg-[#a83900]/10 flex items-center justify-center">
+          <span className="material-symbols-outlined text-[#a83900] text-lg">person</span>
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">البيانات الأساسية</h2>
+          <p className="text-xs text-gray-500">معلوماتك الشخصية للتواصل</p>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-        {renderField('firstName', 'الاسم الأول', 'text', 'أدخل اسمك الأول')}
-        {renderField('lastName', 'الاسم الأخير', 'text', 'أدخل اسمك الأخير')}
-        {renderField('email', 'البريد الإلكتروني', 'email', 'example@email.com')}
-        {renderField('phone', 'رقم الهاتف', 'tel', '+966 50 0000000')}
-
-        {/* City — not returned by backend, user fills manually */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <label style={{ fontWeight: '500', fontSize: '1rem', color: '#191c1d', display: 'flex', gap: '0.25rem' }}>
-            المدينة <span style={{ color: '#a83900' }}>*</span>
-          </label>
-          <input
-            type="text"
-            name="city"
-            value={basicData.city}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="أدخل مدينتك"
-            style={inputStyle(!!errors.city)}
-            onFocus={(e) => (e.target.style.borderColor = '#a83900')}
-            onBlurCapture={(e) => (e.target.style.borderColor = errors.city ? '#ba1a1a' : '#e1e3e4')}
-          />
-          {errors.city && <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>{errors.city}</span>}
-        </div>
-
-        {/* Address — not returned by backend, user fills manually */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <label style={{ fontWeight: '500', fontSize: '1rem', color: '#191c1d', display: 'flex', gap: '0.25rem' }}>
-            العنوان <span style={{ color: '#a83900' }}>*</span>
-          </label>
-          <input
-            type="text"
-            name="address"
-            value={basicData.address}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="أدخل عنوانك التفصيلي"
-            style={inputStyle(!!errors.address)}
-            onFocus={(e) => (e.target.style.borderColor = '#a83900')}
-            onBlurCapture={(e) => (e.target.style.borderColor = errors.address ? '#ba1a1a' : '#e1e3e4')}
-          />
-          {errors.address && <span style={{ color: '#ba1a1a', fontSize: '0.875rem' }}>{errors.address}</span>}
-        </div>
+      {/* Fields grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field name="firstName" label="الاسم الأول"       placeholder="أدخل اسمك الأول"      icon="badge" />
+        <Field name="lastName"  label="الاسم الأخير"       placeholder="أدخل اسمك الأخير"     icon="badge" />
+        <Field name="email"     label="البريد الإلكتروني" type="email" placeholder="example@email.com" icon="mail" />
+        <Field name="phone"     label="رقم الهاتف"         type="tel"  placeholder="+966 50 0000000"    icon="call" />
+        <Field name="city"      label="المدينة"             placeholder="أدخل مدينتك"          icon="location_city" />
+        <Field name="address"   label="العنوان"             placeholder="العنوان التفصيلي"      icon="home_pin" />
       </div>
     </div>
   );
