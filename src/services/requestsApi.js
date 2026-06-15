@@ -16,11 +16,12 @@ export const requestsApi = apiSlice.injectEndpoints({
       providesTags: ["RequestStats"],
     }),
     getRequests: builder.query({
-      query: (status) => {
-        const params = status
-          ? `?status=${encodeURIComponent(STATUS_TO_API[status] || status)}`
-          : "";
-        return `/requests${params}`;
+      query: ({ status, page = 1 } = {}) => {
+        const params = new URLSearchParams();
+        if (status) params.set("status", STATUS_TO_API[status] || status);
+        if (page > 1) params.set("page", page);
+        const qs = params.toString();
+        return `/requests${qs ? `?${qs}` : ""}`;
       },
       providesTags: ["Requests"],
     }),

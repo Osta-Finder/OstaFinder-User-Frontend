@@ -28,7 +28,6 @@ export default function LandingPage() {
       <Partner />
       {isGuest && <HowItWorks />}
 
-      {isGuest && <AISearch />}
       {isGuest && <PopularCategories />}
       {isClient && <PopularCategories />}
       {isClient && <AISearch />}

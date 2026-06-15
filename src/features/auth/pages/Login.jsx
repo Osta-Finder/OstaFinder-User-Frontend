@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Button from "../../../components/ui/Button";
@@ -7,15 +7,18 @@ import RoleToggle from "../../../components/ui/RoleToggle";
 import { useLoginMutation } from "../../../services/authApi";
 import InputField from "../components/InputField";
 import { validateLoginForm } from "../schemas/auth.schema";
+import { useDispatch } from "react-redux";
+import { resetOnboarding } from "../../../store/slices/onboardingSlice";
 
 export default function Login() {
   const navigate = useNavigate();
-
+  const [parram, setParram] = useSearchParams();
+  const roleFromQuery = parram.get("role");
   // State for form fields
   const [formData, setFormData] = useState({
     emailorPhone: "", // Can be Email or Phone
     password: "",
-    role: "client",
+    role: roleFromQuery || "client",
   });
 
   // Validation errors
@@ -63,8 +66,9 @@ export default function Login() {
     try {
       const result = await login(formData).unwrap();
       localStorage.setItem("loggedIN", "true");
+      dispatch(resetOnboarding());
       toast.success("تم تسجيل الدخول بنجاح! جاري التوجيه...", {
-        position: "top-left",
+        position: "top-right",
         rtl: true,
         theme: "light",
       });
@@ -92,11 +96,13 @@ export default function Login() {
       console.log(err);
 
       toast.error("فشل تسجيل الدخول", {
-        position: "top-left",
+        position: "top-right",
         rtl: true,
         theme: "light",
       });
-      setErrors({ submit: err?.data?.message || err?.message || 'فشل تسجيل الدخول' });
+      setErrors({
+        submit: err?.data?.message || err?.message || "فشل تسجيل الدخول",
+      });
     }
   };
 
@@ -151,7 +157,7 @@ export default function Login() {
                 onClick={(e) => {
                   e.preventDefault();
                   toast.info("سيتم نقلك لصفحة استعادة كلمة المرور قريباً.", {
-                    position: "top-left",
+                    position: "top-right",
                     rtl: true,
                     theme: "light",
                   });

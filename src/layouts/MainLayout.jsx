@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import Footer from "../components/layout/Footer";
 import Navbar from "../components/layout/Navbar";
+import AIChatWidget from "../features/client/components/AIChatWidget";
 
 export default function MainLayout({ children }) {
   const { pathname } = useLocation();
@@ -12,6 +13,7 @@ export default function MainLayout({ children }) {
       <Navbar />
       <div className={`flex-1 ${!isHome ? "pt-16" : ""} flex flex-col`}>{children}</div>
       {!hideFooter && <Footer />}
+      <AIChatWidget />
     </div>
   );
 }

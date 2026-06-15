@@ -14,7 +14,7 @@
 
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useGetMeQuery } from "../../../services/authApi";
+import { useGetMeQuery } from "../../services/authApi";
 
 export default function WorkerGuard() {
   const location = useLocation();

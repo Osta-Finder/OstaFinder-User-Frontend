@@ -104,10 +104,10 @@ const categoryIconMap = {
   plumbing: Icons.plumbing,
   ac: Icons.ac,
   cleaning: Icons.cleaning,
-  "كهرباء": Icons.electricity,
-  "سباكة": Icons.plumbing,
-  "تكييف": Icons.ac,
-  "تنظيف": Icons.cleaning,
+  كهرباء: Icons.electricity,
+  سباكة: Icons.plumbing,
+  تكييف: Icons.ac,
+  تنظيف: Icons.cleaning,
   "تكييف وتبريد": Icons.ac,
 };
 
@@ -301,74 +301,82 @@ export default function WorkerDashboard() {
                 key={request.id || request._id}
                 className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors"
               >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-gray-50 rounded-2xl shrink-0 mt-0.5">
-                    {getCategoryIcon(request.category)}
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4
-                        className={`font-bold text-base ${request.status === "completed" ? "text-gray-400 line-through" : "text-slate-900"}`}
-                      >
-                        {request.serviceTitle || request.title}
-                      </h4>
-                      {request.urgency === "urgent" && (
-                        <span className="bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded">
-                          عاجل
+                <Link
+                  to={`/request-details/${request.id || request._id}`}
+                  className="flex items-start gap-4 flex-1"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-gray-50 rounded-2xl shrink-0 mt-0.5">
+                      {getCategoryIcon(request.category)}
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4
+                          className={`font-bold text-base ${request.status === "completed" ? "text-gray-400 line-through" : "text-slate-900"}`}
+                        >
+                          {request.serviceTitle || request.title}
+                        </h4>
+                        {request.urgency === "urgent" && (
+                          <span className="bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded">
+                            عاجل
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 font-medium">
+                        <span className="flex items-center gap-1">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-gray-400 animate-pulse"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          {request.location || "—"}
                         </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 font-medium">
-                      <span className="flex items-center gap-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-gray-400 animate-pulse"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                        {request.location || "—"}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-gray-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {formatDate(request.createdAt || request.time)}
-                      </span>
+                        <span className="flex items-center gap-1">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          {formatDate(request.createdAt || request.time)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 pt-3 sm:pt-0">
                   <StatusBadge status={request.status} />
                   <div className="min-w-[80px] text-left">
-                    {request.status === "awaiting_approval" || request.status === "pending" ? (
+                    {request.status === "awaiting_approval" ||
+                    request.status === "pending" ? (
                       <button
-                        onClick={() => handleAcceptRequest(request._id || request.id)}
+                        onClick={() =>
+                          handleAcceptRequest(request._id || request.id)
+                        }
                         className="bg-[#F26B1D] hover:bg-orange-600 text-white font-bold text-sm px-5 py-2 rounded-xl transition-colors shadow-sm cursor-pointer"
                       >
                         قبول

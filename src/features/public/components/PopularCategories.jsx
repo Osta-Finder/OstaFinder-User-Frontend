@@ -40,7 +40,7 @@ export default function PopularCategories() {
           {categories.slice(0, 8).map((c) => (
             <Link
               key={c._id}
-              to={`/categories?category=${c._id}`}
+              to={`/categories?category=${c.slug}`}
               className="relative overflow-hidden flex items-center justify-center p-8 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group min-h-[160px]"
               style={{ backgroundColor: 'var(--primary-color)' }}
             >

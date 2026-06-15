@@ -10,6 +10,7 @@ import TableSkeleton from "../../../components/ui/TableSkeleton";
 import OrderDetailModal from "../components/OrderDetailModal";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import NotificationDialog from "../../../components/ui/NotificationDialog";
+import Pagination from "../components/categoriesComponents/Pagination";
 import {
   STATUS_TABS,
   getCountColor,
@@ -76,13 +77,13 @@ export default function ClientRequests() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [cancelTarget, setCancelTarget] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [page, setPage] = useState(1);
 
   const selectedTab = STATUS_TABS[selectedIndex]?.key || "all";
   const filterStatus = selectedTab === "all" ? undefined : selectedTab;
 
   const { data: statsData } = useGetRequestStatsQuery();
-  const { data: requestsData, isLoading } = useGetRequestsQuery(filterStatus);
-  console.log("Fetched requests:", requestsData);
+  const { data: requestsData, isLoading } = useGetRequestsQuery({ status: filterStatus, page });
   const [cancelRequest] = useCancelRequestMutation();
 
   const orders = useMemo(() => {
@@ -90,7 +91,13 @@ export default function ClientRequests() {
     return requestsData.data.map(transformOrder);
   }, [requestsData]);
 
+  const pagination = requestsData?.pagination;
   const stats = statsData?.data;
+
+  const handleTabChange = (index) => {
+    setSelectedIndex(index);
+    setPage(1);
+  };
 
   const handleCancelConfirm = async () => {
     try {
@@ -326,7 +333,7 @@ export default function ClientRequests() {
       <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-extrabold text-gray-900">طلباتي</h1>
 
-        <TabGroup selectedIndex={selectedIndex} onChange={setSelectedIndex}>
+        <TabGroup selectedIndex={selectedIndex} onChange={handleTabChange}>
           <TabList className="mt-6 flex flex-wrap gap-2" dir="ltr">
             {STATUS_TABS.map(({ key, label, color }) => {
               const count = stats ? stats[STATS_KEY_MAP[key]] || 0 : 0;
@@ -368,7 +375,14 @@ export default function ClientRequests() {
           <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white">
             <TabPanels>
               {STATUS_TABS.map(({ key }) => (
-                <TabPanel key={key}>{renderOrders(orders)}</TabPanel>
+                <TabPanel key={key}>
+                  {renderOrders(orders)}
+                  <Pagination
+                    pagination={pagination || {}}
+                    currentPage={page}
+                    onPageChange={setPage}
+                  />
+                </TabPanel>
               ))}
             </TabPanels>
           </div>
