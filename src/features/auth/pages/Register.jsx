@@ -7,9 +7,12 @@ import RoleToggle from "../../../components/ui/RoleToggle";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InputField from "../components/InputField";
+import { useDispatch } from "react-redux";
+import { resetOnboarding } from "../../../store/slices/onboardingSlice";
 
 export default function Register() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [parram, setParram] = useSearchParams();
   const roleFromQuery = parram.get("role");
   // State for form fields
@@ -79,6 +82,8 @@ export default function Register() {
     try {
       const result = await register(payload).unwrap();
       console.log("result", result);
+      
+      dispatch(resetOnboarding());
 
       toast.success(
         "تم إنشاء الحساب بنجاح! جاري التوجيه لصفحة تسجيل الدخول...",

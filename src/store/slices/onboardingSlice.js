@@ -13,6 +13,7 @@ const initialState = {
   professional: {
     specialization: '',
     yearsOfExperience: '',
+    dailyRate: '',
     bio: '',
   },
   documentation: {

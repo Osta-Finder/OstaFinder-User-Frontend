@@ -16,13 +16,19 @@ export default function ProfessionalStep({ onValidationChange }) {
   const isFormValid = () =>
     !!professional.specialization &&
     !!professional.yearsOfExperience &&
-    Number(professional.yearsOfExperience) >= 0;
+    Number(professional.yearsOfExperience) >= 0 &&
+    !!professional.dailyRate &&
+    Number(professional.dailyRate) > 0;
 
   const validateField = (name, value) => {
     if (name === 'specialization') return !value ? 'التخصص مطلوب' : '';
     if (name === 'yearsOfExperience') {
       if (!value && value !== 0) return 'سنوات الخبرة مطلوبة';
       if (Number(value) < 0)        return 'يجب أن تكون سنوات الخبرة موجبة';
+    }
+    if (name === 'dailyRate') {
+      if (!value) return 'اليومية مطلوبة';
+      if (Number(value) <= 0) return 'يجب أن تكون اليومية أكبر من 0';
     }
     return '';
   };
@@ -66,42 +72,78 @@ export default function ProfessionalStep({ onValidationChange }) {
         </div>
       </div>
 
-      {/* Specialization dropdown */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-semibold text-gray-700">
-          التخصص <span className="text-[#a83900]">*</span>
-        </label>
-        <div className="relative">
-          <select
-            name="specialization"
-            value={professional.specialization}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            disabled={isLoadingCategories}
-            className={`w-full appearance-none bg-gray-50 border rounded-xl py-3 px-4 pl-10 text-sm outline-none transition-all cursor-pointer
-              ${errors.specialization && touched.specialization
-                ? 'border-red-400 focus:ring-2 focus:ring-red-100'
-                : 'border-gray-200 focus:border-[#a83900] focus:ring-2 focus:ring-[#a83900]/10'
-              }
-              ${!professional.specialization ? 'text-gray-400' : 'text-gray-900'}`}
-          >
-            <option value="">
-              {isLoadingCategories ? 'جاري التحميل...' : 'اختر تخصصك الأساسي'}
-            </option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>{cat.name}</option>
-            ))}
-          </select>
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none">
-            expand_more
-          </span>
+      {/* Specialization + Daily Rate — same row */}
+      <div className="flex gap-3">
+        {/* Specialization dropdown */}
+        <div className="flex flex-col gap-1.5 flex-1">
+          <label className="text-sm font-semibold text-gray-700">
+            التخصص <span className="text-[#a83900]">*</span>
+          </label>
+          <div className="relative">
+            <select
+              name="specialization"
+              value={professional.specialization}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              disabled={isLoadingCategories}
+              className={`w-full appearance-none bg-gray-50 border rounded-xl py-3 px-4 pl-10 text-sm outline-none transition-all cursor-pointer
+                ${errors.specialization && touched.specialization
+                  ? 'border-red-400 focus:ring-2 focus:ring-red-100'
+                  : 'border-gray-200 focus:border-[#a83900] focus:ring-2 focus:ring-[#a83900]/10'
+                }
+                ${!professional.specialization ? 'text-gray-400' : 'text-gray-900'}`}
+            >
+              <option value="">
+                {isLoadingCategories ? 'جاري التحميل...' : 'اختر تخصصك'}
+              </option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>{cat.name}</option>
+              ))}
+            </select>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none">
+              expand_more
+            </span>
+          </div>
+          {errors.specialization && touched.specialization && (
+            <p className="text-xs text-red-500 flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">error</span>
+              {errors.specialization}
+            </p>
+          )}
         </div>
-        {errors.specialization && touched.specialization && (
-          <p className="text-xs text-red-500 flex items-center gap-1">
-            <span className="material-symbols-outlined text-sm">error</span>
-            {errors.specialization}
-          </p>
-        )}
+
+        {/* Daily Rate */}
+        <div className="flex flex-col gap-1.5 w-36">
+          <label className="text-sm font-semibold text-gray-700">
+            اليومية <span className="text-[#a83900]">*</span>
+          </label>
+          <div className="relative">
+            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none">
+              payments
+            </span>
+            <input
+              type="number"
+              name="dailyRate"
+              value={professional.dailyRate}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="0"
+              min="1"
+              className={`w-full bg-gray-50 border rounded-xl py-3 pr-10 pl-3 text-sm text-gray-900 outline-none transition-all
+                ${errors.dailyRate && touched.dailyRate
+                  ? 'border-red-400 focus:ring-2 focus:ring-red-100'
+                  : 'border-gray-200 focus:border-[#a83900] focus:ring-2 focus:ring-[#a83900]/10'
+                }`}
+            />
+          </div>
+          <p className="text-xs text-gray-400">بالجنيه المصري</p>
+          {errors.dailyRate && touched.dailyRate && (
+            <p className="text-xs text-red-500 flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">error</span>
+              {errors.dailyRate}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Years of experience */}
