@@ -7,6 +7,8 @@ import RoleToggle from "../../../components/ui/RoleToggle";
 import { useLoginMutation } from "../../../services/authApi";
 import InputField from "../components/InputField";
 import { validateLoginForm } from "../schemas/auth.schema";
+import { useDispatch } from "react-redux";
+import { resetOnboarding } from "../../../store/slices/onboardingSlice";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -64,6 +66,7 @@ export default function Login() {
     try {
       const result = await login(formData).unwrap();
       localStorage.setItem("loggedIN", "true");
+      dispatch(resetOnboarding());
       toast.success("تم تسجيل الدخول بنجاح! جاري التوجيه...", {
         position: "top-right",
         rtl: true,
