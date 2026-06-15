@@ -32,7 +32,7 @@ export default function App() {
             <AppRoutes />
           </MainLayout>
         </BrowserRouter>
-        <ToastContainer autoClose={3000} limit={3} />
+        <ToastContainer autoClose={3000} limit={3} position="top-right" />
       </div>
     </>
   );

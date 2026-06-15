@@ -10,16 +10,6 @@ export const authApi = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          const { user, accessToken } = data;
-          dispatch(setCredentials({ user, accessToken }));
-        } catch (err) {
-          console.log(err);
-          // handle error in component
-        }
-      },
     }),
     login: builder.mutation({
       query: (data) => ({
@@ -90,6 +80,13 @@ export const authApi = apiSlice.injectEndpoints({
         body: formData,
       }),
     }),
+    changePassword: builder.mutation({
+      query: (data) => ({
+        url: '/auth/change-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -101,4 +98,5 @@ export const {
   useGetMeQuery,
   useUpdateMeMutation,
   useUploadImageMutation,
+  useChangePasswordMutation,
 } = authApi;

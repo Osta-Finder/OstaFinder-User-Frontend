@@ -61,15 +61,14 @@ export default function Navbar() {
           : "bg-white/75 text-black backdrop-blur-md shadow-md",
       )}
     >
-      <NavLink to={user?.role === "worker" ? "/worker/dashboard" : "/"} className="flex items-center gap-2">
+      <NavLink
+        to={user?.role === "worker" ? "/worker/dashboard" : "/"}
+        className="flex items-center gap-2"
+      >
         <span className="hidden sm:inline-block text-lg font-semibold">
           Osta Finder
         </span>
-        <img
-          src={logo}
-          alt="logo"
-          className="w-10 h-10 object-contain"
-        />
+        <img src={logo} alt="logo" className="w-10 h-10 object-contain" />
       </NavLink>
       <div />
 

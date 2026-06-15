@@ -64,7 +64,7 @@ export default function Register() {
 
     // Validate form
     const validationErrors = validateRegisterForm(formData);
-    console.log("formData", formData);
+    // console.log("formData", formData);
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -78,12 +78,10 @@ export default function Register() {
 
     try {
       const result = await register(payload).unwrap();
-      console.log("result", result);
-
       toast.success(
         "تم إنشاء الحساب بنجاح! جاري التوجيه لصفحة تسجيل الدخول...",
         {
-          position: "top-left",
+          position: "top-right",
           rtl: true,
           theme: "light",
         },
@@ -91,18 +89,20 @@ export default function Register() {
 
       // Success handled by auth slice via onQueryStarted
       setTimeout(() => {
-        navigate("/login");
+        navigate(`/login?role=${formData.role}`);
       }, 1500);
     } catch (err) {
       // err contains server error
-      console.log(err);
+      // console.log(err);
 
       toast.error("فشل التسجيل", {
-        position: "top-left",
+        position: "top-right",
         rtl: true,
         theme: "light",
       });
-      setErrors({ submit: err?.data?.message || err?.message || 'فشل التسجيل' });
+      setErrors({
+        submit: err?.data?.message || err?.message || "فشل التسجيل",
+      });
     }
   };
 
@@ -234,7 +234,7 @@ export default function Register() {
             className="w-full hover:shadow-sm"
             onClick={() =>
               toast.info("تسجيل الدخول عبر Google قيد التطوير...", {
-                position: "top-left",
+                position: "top-right",
                 rtl: true,
                 theme: "light",
               })
@@ -274,7 +274,7 @@ export default function Register() {
             className="w-full"
             onClick={() =>
               toast.info("تسجيل الدخول عبر Apple قيد التطوير...", {
-                position: "top-left",
+                position: "top-right",
                 rtl: true,
                 theme: "light",
               })

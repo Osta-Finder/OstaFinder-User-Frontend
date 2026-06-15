@@ -44,7 +44,7 @@ export default function RequestSidebar({
       return dateStr;
     }
   };
-
+  console.log("Request Data in Sidebar:", requestData);
   return (
     <aside className="w-full lg:w-90 space-y-6 shrink-0" dir="rtl">
       {/* Client Information Card */}
@@ -58,16 +58,16 @@ export default function RequestSidebar({
           <div className="relative group">
             <div className="absolute inset-0 bg-brand-orange/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <img
-              src={clientAvatar}
+              src={requestData?.user?.profilePic || clientAvatar}
               alt="صورة العميل"
               className="w-14 h-14 rounded-full object-cover border-2 border-gray-100 shadow-sm relative z-10 transition-transform duration-300 group-hover:scale-105"
             />
           </div>
           <div>
             <h4 className="font-bold text-gray-900 text-base">
-              {requestData?.user?.name || "أحمد محمود"}
+              {requestData?.user?.name || "عميل غير معروف"}
             </h4>
-            <div className="flex items-center gap-1 mt-0.5">
+            {/* <div className="flex items-center gap-1 mt-0.5">
               <span className="text-amber-500 font-bold text-sm">
                 ⭐{" "}
                 {requestData?.rating !== null &&
@@ -76,7 +76,7 @@ export default function RequestSidebar({
                   : "4.8"}
               </span>
               <span className="text-gray-400 text-xs">(12 طلب سابق)</span>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -115,7 +115,7 @@ export default function RequestSidebar({
             <span>موقع العميل</span>
           </h3>
           <span className="text-xs font-semibold px-2.5 py-1 bg-brand-orange/10 text-brand-orange rounded-full">
-            يبعد 4.2 كلم
+            غير محدد
           </span>
         </div>
 
@@ -137,7 +137,7 @@ export default function RequestSidebar({
 
           <div className="absolute bottom-3 right-3 left-3 bg-white/95 backdrop-blur-md py-2 px-3 rounded-xl border border-white/20 shadow-sm flex items-center justify-between pointer-events-none">
             <span className="text-[11px] font-bold text-gray-800">
-              {requestData?.address || "حي النرجس، الرياض"}
+              {requestData?.address || "عنوان غير محدد"}
             </span>
             <ChevronLeft className="w-3.5 h-3.5 text-gray-400 rotate-180" />
           </div>
@@ -155,7 +155,7 @@ export default function RequestSidebar({
           <div className="flex justify-between items-center py-1">
             <span className="text-gray-400 text-sm font-medium">الخدمة</span>
             <span className="text-gray-900 text-sm font-bold bg-gray-50 px-3 py-1 rounded-xl">
-              {requestData?.service || "سباكة - تسرب مياه"}
+              {requestData?.service || "غير محددة"}
             </span>
           </div>
 
@@ -177,7 +177,7 @@ export default function RequestSidebar({
             </span>
             <span className="text-gray-900 text-sm font-bold flex items-center gap-1.5 bg-gray-50 px-3 py-1 rounded-xl">
               <CreditCard className="w-3.5 h-3.5 text-brand-orange" />
-              <span>بطاقة ائتمان</span>
+              <span>كاش</span>
             </span>
           </div>
 
