@@ -1,18 +1,39 @@
 import { useState, useCallback } from "react";
+import { useDispatch } from "react-redux";
 import { PureMultimodalInput } from "../../../components/ui/multimodal-ai-chat-input";
+import { openChat, setPendingMessage } from "../../../store/slices/chatSlice";
 
 export default function AISearch() {
-  // Local demo state for the multimodal input; in production these would come from a store or API
+  const dispatch = useDispatch();
   const [attachments, setAttachments] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [messages] = useState([]);
 
-  const handleSendMessage = useCallback(({ input, attachments: atts }) => {
-    // For the demo: log and show generating state briefly
-    console.log("[AISearch] send", { input, attachments: atts });
-    setIsGenerating(true);
-    setTimeout(() => setIsGenerating(false), 1400);
-  }, []);
+  const handleSendMessage = useCallback(async ({ input, attachments }) => {
+    const text = input?.trim() || "";
+    if (!text && (!attachments || attachments.length === 0)) return;
+
+    let imageBase64 = null;
+    if (attachments?.length > 0) {
+      const att = attachments[0];
+      if (att.contentType?.startsWith("image/")) {
+        try {
+          const response = await fetch(att.url);
+          const blob = await response.blob();
+          imageBase64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result.split(",")[1]);
+            reader.readAsDataURL(blob);
+          });
+        } catch (e) {
+          console.error("Image conversion failed", e);
+        }
+      }
+    }
+
+    dispatch(openChat());
+    dispatch(setPendingMessage({ text, image: imageBase64 }));
+  }, [dispatch]);
 
   const handleStopGenerating = useCallback(() => {
     setIsGenerating(false);
@@ -25,11 +46,8 @@ export default function AISearch() {
       dir="rtl"
       aria-labelledby="ai-search-title"
     >
-      
       <div className="max-w-7xl mx-auto py-24 px-4 sm:px-6 lg:px-8 text-white">
         <div className="flex flex-col md:flex-row-reverse items-start gap-8">
-          {/* Left column: AI chat input box (multimodal) */}
-
           <div className="flex-1 flex items-center justify-center">
             <div className="w-full max-w-md p-4 bg-white/5 rounded-xl shadow-lg">
               <PureMultimodalInput
@@ -45,7 +63,6 @@ export default function AISearch() {
               />
             </div>
           </div>
-          {/* Right column: title and chat preview */}
           <div className="flex-1 text-right" dir="rtl">
             <h2
               id="ai-search-title"
