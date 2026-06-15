@@ -8,12 +8,14 @@ import {
   ShieldCheck,
   User,
   Camera,
+  Lock,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import clientAvatar from "../../../assets/images/client_avatar.png";
 import { useLogoutMutation } from "../../../services/authApi";
 import { useNavigate } from "react-router-dom";
 import ChangeProfilePicModal from "./ChangeProfilePicModal";
+import ChangePasswordModal from "./ChangePasswordModal";
 
 const menuItems = [{ label: "ملفي الشخصي", icon: User, active: true }];
 
@@ -25,6 +27,7 @@ const roleLabels = {
 export default function AccountSidebar() {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const displayName = isAuthenticated && user?.name ? user.name : "مستخدم";
   const membershipValue =
     user?.membership || user?.membershipType || user?.role || "عضو بريميوم";
@@ -98,10 +101,18 @@ export default function AccountSidebar() {
         ))}
       </nav>
 
-      <div className="mt-8 border-t border-[#f1ddd4] pt-5">
+      <div className="mt-8 border-t border-[#f1ddd4] pt-5 space-y-3">
         <button
           type="button"
-          className="flex h-12 w-full hover:bg-red-500 hover:text-white rounded-2xl items-center justify-end cursor-pointer gap-3 px-5 text-lg font-medium text-[#dc2626]"
+          className="flex h-12 w-full hover:bg-[#ff7417] hover:text-white rounded-2xl items-center justify-start cursor-pointer gap-3 px-5 text-lg font-medium text-[#4a2a1d] transition-colors"
+          onClick={() => setIsPasswordModalOpen(true)}
+        >
+          تغيير كلمة المرور
+          <Lock size={23} />
+        </button>
+        <button
+          type="button"
+          className="flex h-12 w-full hover:bg-red-500 hover:text-white rounded-2xl items-center justify-start cursor-pointer gap-3 px-5 text-lg font-medium text-[#dc2626]"
           onClick={handleLogout}
         >
           تسجيل الخروج
@@ -112,6 +123,10 @@ export default function AccountSidebar() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         user={user}
+      />
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
       />
     </aside>
   );

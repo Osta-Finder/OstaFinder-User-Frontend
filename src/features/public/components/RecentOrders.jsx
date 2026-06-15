@@ -62,12 +62,7 @@ export default function RecentOrders() {
 
           return {
             service,
-            orderNumber:
-              order?.orderNumber ||
-              order?.code ||
-              order?._id ||
-              order?.id ||
-              "-",
+            orderNumber: order?.orderNumber || "##",
             date:
               order?.date ||
               order?.createdAt ||

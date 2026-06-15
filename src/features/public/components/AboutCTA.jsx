@@ -1,7 +1,21 @@
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function AboutCTA() {
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  console.log("Authenticated user in AboutCTA:", { user, isAuthenticated });
   const navigate = useNavigate();
+  const handleJoinClick = () => {
+    if (user?.role === "client") {
+      toast.info("أنت بالفعل مسجل كعميل. يرجى تسجيل الخروج وإنشاء حساب جديد كفني.", {
+        position: "top-right",
+        rtl: true,
+        theme: "light",
+      });
+    }
+    navigate("/register?role=worker");
+  };
   return (
     <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="mx-auto max-w-7xl">
@@ -38,7 +52,7 @@ export default function AboutCTA() {
             </p>
             <button
               className="px-10 py-4 cursor-pointer bg-white text-brand-brown font-bold text-lg rounded-full shadow-lg hover:bg-orange-50 transition duration-300 transform hover:scale-105 active:scale-100"
-              onClick={() => navigate("/register?role=worker")}
+              onClick={handleJoinClick}
             >
               انضم إلى فريقنا الآن
             </button>

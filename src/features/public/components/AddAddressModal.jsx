@@ -40,7 +40,9 @@ export default function AddAddressModal({ isOpen, onClose, user }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const currentAddresses = Array.isArray(user?.addresses) ? user.addresses : [];
+    const currentAddresses = Array.isArray(user?.addresses)
+      ? user.addresses
+      : [];
     const newAddress = {
       ...formData,
       title: formData.title.trim() || "عنوان جديد",
@@ -78,6 +80,9 @@ export default function AddAddressModal({ isOpen, onClose, user }) {
       <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4">
         <DialogPanel className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
           <div className="mb-6 flex items-center justify-between">
+            <DialogTitle className="text-xl font-bold text-[#2a160f]">
+              إضافة عنوان جديد
+            </DialogTitle>
             <button
               type="button"
               onClick={onClose}
@@ -86,9 +91,6 @@ export default function AddAddressModal({ isOpen, onClose, user }) {
             >
               <X size={22} />
             </button>
-            <DialogTitle className="text-xl font-bold text-[#2a160f]">
-              إضافة عنوان جديد
-            </DialogTitle>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5" dir="rtl">

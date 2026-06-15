@@ -86,7 +86,7 @@ export default function SavedAddresses() {
         {addresses.map(({ id, title, description, icon: Icon, iconClass }) => (
           <article
             key={id}
-            className="flex min-h-24 items-center justify-between rounded-lg border border-[#f1ddd4] px-5 py-4"
+            className="flex min-h-24 items-center gap-4 rounded-lg border border-[#f1ddd4] px-5 py-4"
           >
             <div
               className={`grid h-12 w-12 place-items-center rounded-full ${iconClass}`}

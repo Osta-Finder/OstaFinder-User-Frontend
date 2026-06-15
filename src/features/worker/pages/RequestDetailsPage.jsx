@@ -15,36 +15,31 @@ const getStepFromStatus = (status) => {
   switch (status) {
     case "معلقة":
     case "مقبولة":
-      return 1;
     case "في الطريق":
-      return 2;
+      return 1;
     case "قيد التنفيذ":
-      return 3;
+      return 2;
     case "مكتمل":
     case "مكتملة":
-      return 4;
+      return 3;
     default:
       return 1; // Default starting step
   }
 };
 
 export default function RequestDetailsPage() {
-  const [currentStep, setCurrentStep] = useState(2); // Starts at "في الطريق" (Step 2)
-  const [eta, setEta] = useState("");
+  const [currentStep, setCurrentStep] = useState(1); // Starts at "تم القبول" (Step 1)
 
   const { id } = useParams();
   const { data: request, isLoading, error } = useGetRequestByIdQuery(id);
   const { data: requestData } = request || {};
-  // console.log("Request Data:", requestData);
+  console.log("Request Data:", request);
   const [updateStatus, { isLoading: isUpdating }] =
     useUpdateRequestStatusMutation();
   useEffect(() => {
     if (requestData) {
       if (requestData.status) {
         setCurrentStep(getStepFromStatus(requestData.status));
-      }
-      if (requestData.eta) {
-        setEta(requestData.eta);
       }
     }
   }, [requestData]);
@@ -53,7 +48,7 @@ export default function RequestDetailsPage() {
     toast.info(
       `جاري الاتصال بالعميل ${requestData?.user?.name || "أحمد محمود"} على الرقم ${requestData?.user?.phoneNumber || "+966 50 XXX XXXX"}...`,
       {
-        position: "top-left",
+        position: "top-right",
         rtl: true,
         theme: "light",
       },
@@ -64,7 +59,7 @@ export default function RequestDetailsPage() {
     toast.success(
       `تم فتح نافذة المحادثة المباشرة مع العميل ${requestData?.user?.name || "أحمد محمود"}.`,
       {
-        position: "top-left",
+        position: "top-right",
         rtl: true,
         theme: "light",
       },
@@ -72,10 +67,10 @@ export default function RequestDetailsPage() {
   };
 
   const handleStepChange = (stepNumber) => {
-    const stepLabels = ["تم القبول", "في الطريق", "العمل جاري", "مكتمل"];
+    const stepLabels = ["تم القبول", "العمل جاري", "مكتمل"];
     setCurrentStep(stepNumber);
     toast.info(`تم الانتقال إلى مرحلة: ${stepLabels[stepNumber - 1]}`, {
-      position: "top-left",
+      position: "top-right",
       rtl: true,
       theme: "light",
     });
@@ -85,40 +80,16 @@ export default function RequestDetailsPage() {
     if (action === "completed") {
       try {
         await updateStatus({ id, status: "completed" }).unwrap();
-        setCurrentStep(4);
+        setCurrentStep(3);
         toast.success("تهانينا! تم تحديث حالة الطلب إلى مكتمل بنجاح 🎉", {
-          position: "top-left",
+          position: "top-right",
           rtl: true,
           theme: "light",
         });
       } catch (err) {
         console.error("Failed to update status:", err);
         toast.error("حدث خطأ أثناء تحديث حالة الطلب.", {
-          position: "top-left",
-          rtl: true,
-          theme: "light",
-        });
-      }
-    } else if (action === "on_the_way") {
-      try {
-        await updateStatus({ id, status: "on_the_way", eta }).unwrap();
-        setCurrentStep(2);
-        setEta("");
-
-        let message = "تم تحديث حالة الطلب إلى 'في الطريق' 🚗";
-        if (eta) {
-          message += ` وسيصل الفني خلال ${eta}.`;
-        }
-
-        toast.success(message, {
-          position: "top-left",
-          rtl: true,
-          theme: "light",
-        });
-      } catch (err) {
-        console.error("Failed to update status:", err);
-        toast.error("حدث خطأ أثناء تحديث حالة الطلب.", {
-          position: "top-left",
+          position: "top-right",
           rtl: true,
           theme: "light",
         });
@@ -126,16 +97,16 @@ export default function RequestDetailsPage() {
     } else if (action === "in_progress") {
       try {
         await updateStatus({ id, status: "in_progress" }).unwrap();
-        setCurrentStep(3);
+        setCurrentStep(2);
         toast.success("تم بدء العمل بنجاح 🛠️", {
-          position: "top-left",
+          position: "top-right",
           rtl: true,
           theme: "light",
         });
       } catch (err) {
         console.error("Failed to update status:", err);
         toast.error("حدث خطأ أثناء تحديث حالة الطلب.", {
-          position: "top-left",
+          position: "top-right",
           rtl: true,
           theme: "light",
         });
@@ -145,14 +116,13 @@ export default function RequestDetailsPage() {
         await updateStatus({ id, status: "accepted" }).unwrap();
         setCurrentStep(1);
         toast.success("تم قبول الطلب بنجاح ✅", {
-          position: "top-left",
+          position: "top-right",
           rtl: true,
           theme: "light",
         });
       } catch (err) {
         console.error("Failed to update status:", err);
         toast.error("حدث خطأ أثناء تحديث حالة الطلب.", {
-          position: "top-left",
           rtl: true,
           theme: "light",
         });
@@ -207,8 +177,6 @@ export default function RequestDetailsPage() {
             requestData={requestData}
             currentStep={currentStep}
             onStepChange={handleStepChange}
-            eta={eta}
-            onEtaChange={setEta}
             onStatusUpdate={handleStatusUpdate}
             isUpdating={isUpdating}
           />
