@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ArrowRight, Send, Star } from "lucide-react";
 import { toast } from "react-toastify";
@@ -9,7 +9,11 @@ import Listbox from "../components/orderComponets/Listbox";
 import ServiceDetails from "../components/orderComponets/ServiceDetails";
 import ContactInfo from "../components/orderComponets/ContactInfo";
 import LocationSection from "../components/orderComponets/LocationSection";
-import { useGetMeQuery } from "../../../services/authApi";
+import {
+  useGetMeQuery,
+  useUploadImageMutation,
+} from "../../../services/authApi";
+import ProblemImageUpload from "../components/orderComponets/ProblemImageUpload";
 
 export default function CreateOrderPage() {
   const { workerId } = useParams();
@@ -22,6 +26,10 @@ export default function CreateOrderPage() {
   const { data: categoriesResponse } = useGetCategoriesQuery();
   const categories = categoriesResponse?.data || [];
   const [createOrder, { isLoading: isSubmitting }] = useCreateRequestMutation();
+  const [uploadImage] = useUploadImageMutation();
+  const [imageFile, setImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [selectedAddress, setSelectedAddress] = useState(null);
 
   const workerCategory = worker?.category;
   // const today = new Date().toISOString().split("T")[0];
@@ -36,12 +44,49 @@ export default function CreateOrderPage() {
 
   const [formData, setFormData] = useState({
     category: workerCategory?._id || "",
+    service: "",
     description: "",
-    phoneNumber: userData?.phoneNumber || "",
+    phoneNumber: "",
     date: "",
-    address: userData?.addresses || "",
+    address: "",
+    image: null,
   });
 
+  useEffect(() => {
+    if (!userData) return;
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFormData((prev) => ({
+      ...prev,
+      phoneNumber: userData.phoneNumber || "",
+    }));
+
+    if (userData.addresses?.length > 0) {
+      const defaultAddr =
+        userData.addresses.find((a) => a.isDefault) || userData.addresses[0];
+
+      setSelectedAddress(defaultAddr);
+
+      setFormData((prev) => ({
+        ...prev,
+        address: defaultAddr.address,
+      }));
+    }
+  }, [userData]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setImageFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setPreviewUrl("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,10 +103,28 @@ export default function CreateOrderPage() {
       return toast.error("عذراً، لم يتم العثور على سعر الخدمة للفني.");
     }
     try {
+      let imageUrl = null;
+
+      if (imageFile) {
+        const uploadData = new FormData();
+
+        uploadData.append("file", imageFile);
+        uploadData.append("bucket", "problem-images");
+
+        const uploadRes = await uploadImage(uploadData).unwrap();
+
+        imageUrl = uploadRes?.data?.url;
+      }
       const response = await createOrder({
         workerId,
-        orderData: { ...formData, amount: amount },
+        orderData: {
+          ...formData,
+          image: imageUrl,
+          amount,
+          address: formData.address,
+        },
       }).unwrap();
+      // console.log("request created", response);
 
       toast.success(response.message || "تم إرسال طلبك بنجاح!");
 
@@ -111,10 +174,20 @@ export default function CreateOrderPage() {
               />
 
               <ServiceDetails
-                value={formData.description}
-                onChange={(val) =>
+                service={formData.service}
+                onServiceChange={(val) =>
+                  setFormData({ ...formData, service: val })
+                }
+                description={formData.description}
+                onDescriptionChange={(val) =>
                   setFormData({ ...formData, description: val })
                 }
+              />
+              <ProblemImageUpload
+                imageFile={imageFile}
+                previewUrl={previewUrl}
+                onImageChange={handleImageChange}
+                onRemove={handleRemoveImage}
               />
             </div>
 
@@ -130,15 +203,21 @@ export default function CreateOrderPage() {
               />
 
               <LocationSection
-                address={formData.address}
-                onAddressChange={(val) =>
-                  setFormData({ ...formData, address: val })
-                }
+                selectedAddress={selectedAddress}
+                addresses={userData?.addresses || []}
+                onAddressChange={(val) => {
+                  setSelectedAddress(val);
+
+                  setFormData((prev) => ({
+                    ...prev,
+                    address: val.address,
+                  }));
+                }}
               />
             </div>
 
             {!worker && (
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4 ">
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -159,8 +238,8 @@ export default function CreateOrderPage() {
           </div>
 
           {worker && (
-            <div className="w-full md:w-80 shrink-0 space-y-4">
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-8">
+            <div className="w-full md:w-80 shrink-0 space-y-4 sticky top-8 self-start">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6  top-8">
                 <div className="text-center">
                   <div className="relative w-24 h-24 mx-auto mb-3">
                     <img

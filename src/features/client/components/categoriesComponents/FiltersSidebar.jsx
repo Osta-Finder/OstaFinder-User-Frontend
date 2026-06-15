@@ -5,12 +5,16 @@ export default function FiltersSidebar({
   isLoadingCategories,
   searchParams,
   handleFilterChange,
+  minPriceInput,
+  maxPriceInput,
+  setMinPriceInput,
+  setMaxPriceInput,
+  clearAllFilters,
+  hasFilters,
 }) {
   const currentCategory = searchParams.get("category") || "";
   const currentRating = searchParams.get("rating[gte]") || "";
   const currentStatus = searchParams.get("isOnline") || "";
-  const priceGte = searchParams.get("price[gte]") || "";
-  const priceLte = searchParams.get("price[lte]") || "";
 
   return (
     <div className="space-y-6 text-right">
@@ -58,15 +62,15 @@ export default function FiltersSidebar({
           <input
             type="number"
             placeholder="من"
-            value={priceGte}
-            onChange={(e) => handleFilterChange("price[gte]", e.target.value)}
+            value={minPriceInput}
+            onChange={(e) => setMinPriceInput(e.target.value)}
             className="w-1/2 px-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg text-center"
           />
           <input
             type="number"
             placeholder="إلى"
-            value={priceLte}
-            onChange={(e) => handleFilterChange("price[lte]", e.target.value)}
+            value={maxPriceInput}
+            onChange={(e) => setMaxPriceInput(e.target.value)}
             className="w-1/2 px-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg text-center"
           />
         </div>
@@ -118,6 +122,16 @@ export default function FiltersSidebar({
             المتاحين أونلاين فقط
           </span>
         </label>
+      </div>
+      <div className="border-t pt-4">
+        {hasFilters && (
+          <button
+            onClick={clearAllFilters}
+            className="w-full py-2 text-sm font-bold text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition"
+          >
+            مسح جميع الفلاتر
+          </button>
+        )}
       </div>
     </div>
   );
