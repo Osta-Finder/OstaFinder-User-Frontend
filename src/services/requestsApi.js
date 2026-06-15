@@ -88,6 +88,7 @@ export const requestsApi = apiSlice.injectEndpoints({
     createRequest: builder.mutation({
       query: ({ workerId, orderData }) => ({
         url: `/requests/${workerId}`,
+        method: "POST",
         body: orderData,
       }),
     }),
