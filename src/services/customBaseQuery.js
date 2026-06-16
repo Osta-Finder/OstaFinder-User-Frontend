@@ -9,7 +9,6 @@ export const customBaseQuery = fetchBaseQuery({
   credentials: "include",
 });
 export const baseQueryWithReauth = async (args, api, extraOptions) => {
-  console.log("🔥 REQUEST:", args);
   let result = await customBaseQuery(args, api, extraOptions);
 
   if (result.error?.status === 401) {

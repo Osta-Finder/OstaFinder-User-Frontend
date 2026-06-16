@@ -243,7 +243,7 @@ export default function CreateOrderPage() {
                 <div className="text-center">
                   <div className="relative w-24 h-24 mx-auto mb-3">
                     <img
-                      src={worker.image}
+                      src={worker.profilePic}
                       alt={worker.name}
                       className="w-full h-full rounded-full object-cover border-2 border-gray-50"
                     />

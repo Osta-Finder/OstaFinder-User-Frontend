@@ -79,7 +79,7 @@ export default function WorkersPage() {
     setMaxPriceInput("");
   };
 
-  const paramsString = searchParams.toString();
+  // const paramsString = searchParams.toString();
 
   useEffect(() => {
   setSearchInput(currentKeyword);
@@ -103,7 +103,7 @@ export default function WorkersPage() {
   }, 1000);
 
   return () => clearTimeout(delayDebounce);
-}, [searchInput, paramsString]);
+}, [searchInput, ]);
 
   useEffect(() => {
   const delayDebounce = setTimeout(() => {
@@ -127,7 +127,7 @@ export default function WorkersPage() {
   }, 700);
 
   return () => clearTimeout(delayDebounce);
-}, [minPriceInput, maxPriceInput, paramsString]);
+}, [minPriceInput, maxPriceInput]);
 
   return (
     <div
