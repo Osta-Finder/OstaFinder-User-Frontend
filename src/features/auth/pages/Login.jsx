@@ -66,7 +66,7 @@ export default function Login() {
     try {
       const result = await login(formData).unwrap();
       localStorage.setItem("loggedIN", "true");
-      dispatch(resetOnboarding());
+      // dispatch(resetOnboarding());
       toast.success("تم تسجيل الدخول بنجاح! جاري التوجيه...", {
         position: "top-right",
         rtl: true,
