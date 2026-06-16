@@ -17,10 +17,14 @@ const initialState = {
     bio: '',
   },
   documentation: {
-    nationalId: null,
+    // File objects (for upload on submit)
+    nationalIdFile: null,
     nationalIdPreview: null,
-    certificates: [],
+    certificateFiles: [],
     certificatePreviews: [],
+    // Supabase URLs (set after successful upload)
+    nationalId: null,
+    certificates: [],
   },
   isLoading: false,
   error: null,
@@ -40,17 +44,22 @@ const onboardingSlice = createSlice({
       state.professional = { ...state.professional, ...action.payload };
     },
     setNationalId: (state, action) => {
-      state.documentation.nationalId = action.payload.file;
+      // action.payload: { file: File|null, preview: string|null }
+      state.documentation.nationalIdFile = action.payload.file;
       state.documentation.nationalIdPreview = action.payload.preview;
+      // Clear any previously uploaded URL when file changes
+      state.documentation.nationalId = null;
     },
     addCertificate: (state, action) => {
-      state.documentation.certificates.push(action.payload.file);
+      // action.payload: { file: File, preview: string }
+      state.documentation.certificateFiles.push(action.payload.file);
       state.documentation.certificatePreviews.push(action.payload.preview);
     },
     removeCertificate: (state, action) => {
       const index = action.payload;
-      state.documentation.certificates.splice(index, 1);
+      state.documentation.certificateFiles.splice(index, 1);
       state.documentation.certificatePreviews.splice(index, 1);
+      state.documentation.certificates.splice(index, 1);
     },
     setLoading: (state, action) => {
       state.isLoading = action.payload;

@@ -77,6 +77,8 @@ export default function BasicDataStep({ onValidationChange }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // منع إدخال أرقام في حقل المدينة
+    if (name === 'city' && /\d/.test(value)) return;
     dispatch(updateBasicData({ [name]: value }));
     if (touched[name]) {
       setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
