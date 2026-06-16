@@ -93,10 +93,10 @@ export default function HeroSection({ handleClick }) {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="w-full max-w-2xl bg-white p-2 rounded-full shadow-2xl flex flex-col sm:flex-row items-center gap-2 border border-white/40 focus-within:ring-4 focus-within:ring-amber-500/30 transition-all duration-300"
+            className="w-full max-w-2xl bg-white p-1.5 sm:p-2 rounded-2xl sm:rounded-full shadow-2xl flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 sm:gap-2 border border-white/40 focus-within:ring-4 focus-within:ring-amber-500/30 transition-all duration-300"
           >
               <div className="flex-1 w-full relative flex items-center px-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 ml-2 sm:ml-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <Input
@@ -105,14 +105,14 @@ export default function HeroSection({ handleClick }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-transparent border-none py-3 text-gray-900 placeholder-gray-400 focus:outline-none text-base sm:text-lg outline-none"
+                className="w-full bg-transparent border-none py-2.5 sm:py-3 text-gray-900 placeholder-gray-400 focus:outline-none text-sm sm:text-base lg:text-lg outline-none"
                 placeholder="اكتب ما تحتاجه مثل: صيانة سباكة، كهرباء..."
               />
               </div>
 
             <Button
               onClick={handleSearch}
-              className="w-full sm:w-auto rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 px-8 py-3.5 text-base font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
+              className="w-full sm:w-auto rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 px-5 sm:px-8 py-2.5 sm:py-3.5 text-sm sm:text-base font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
             >
               ابحث عن صنايعي
               <svg

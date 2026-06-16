@@ -16,10 +16,11 @@ export const requestsApi = apiSlice.injectEndpoints({
       providesTags: ["RequestStats"],
     }),
     getRequests: builder.query({
-      query: ({ status, page = 1 } = {}) => {
+      query: ({ status, page = 1, limit } = {}) => {
         const params = new URLSearchParams();
         if (status) params.set("status", STATUS_TO_API[status] || status);
         if (page > 1) params.set("page", page);
+        if (limit) params.set("limit", limit);
         const qs = params.toString();
         return `/requests${qs ? `?${qs}` : ""}`;
       },

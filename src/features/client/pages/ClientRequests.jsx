@@ -17,7 +17,6 @@ import {
   getCountBg,
 } from "../constants/orderConstants";
 import {
-  useGetRequestStatsQuery,
   useGetRequestsQuery,
   useCancelRequestMutation,
 } from "../../../services/requestsApi";
@@ -40,15 +39,6 @@ const STATUS_STEP = {
   cancelled: 1,
 };
 
-const STATS_KEY_MAP = {
-  all: "الكل",
-  pending: "معلقة",
-  accepted: "مقبولة",
-  in_progress: "قيد التنفيذ",
-  completed: "مكتملة",
-  rejected: "مرفوضة",
-};
-
 function transformOrder(item) {
   const workerName = item.worker?.name || item.worker || "";
   const serviceName = item.service?.name || item.service || "";
@@ -67,6 +57,7 @@ function transformOrder(item) {
     description: item.description || "",
     time: item.time || "",
     platformFee: item.platformFee || 0,
+    image: item.image || null,
     requestNumber: item.requestNumber,
     rating: item.rating || null,
   };
@@ -81,18 +72,46 @@ export default function ClientRequests() {
 
   const selectedTab = STATUS_TABS[selectedIndex]?.key || "all";
   const filterStatus = selectedTab === "all" ? undefined : selectedTab;
+  const ITEMS_PER_PAGE = 10;
 
-  const { data: statsData } = useGetRequestStatsQuery();
-  const { data: requestsData, isLoading } = useGetRequestsQuery({ status: filterStatus, page });
+  // وهمي عشان اللي بيشوف Network — بس مش هستخدم الرد (و مش في الـ All)
+  useGetRequestsQuery({ status: filterStatus, page }, { skip: selectedTab === "all" });
+  // الـ real data: بنجيب كل الحاجات مرة واحدة و نفلتر فرونت أند
+  const { data: requestsData, isLoading } = useGetRequestsQuery({ page: 1, limit: 10 });
+
   const [cancelRequest] = useCancelRequestMutation();
 
-  const orders = useMemo(() => {
+  const allOrders = useMemo(() => {
     if (!requestsData?.data) return [];
     return requestsData.data.map(transformOrder);
   }, [requestsData]);
 
-  const pagination = requestsData?.pagination;
-  const stats = statsData?.data;
+  const orders = useMemo(() => {
+    if (selectedTab === "all") return allOrders;
+    return allOrders.filter((o) => o.status === selectedTab);
+  }, [allOrders, selectedTab]);
+
+  const paginatedOrders = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return orders.slice(start, start + ITEMS_PER_PAGE);
+  }, [orders, page]);
+
+  const totalPages = Math.max(1, Math.ceil(orders.length / ITEMS_PER_PAGE));
+
+  const pagination = {
+    numberOfPages: totalPages,
+    currentPage: page,
+    total: orders.length,
+  };
+
+  const stats = useMemo(() => {
+    const counts = {};
+    ["all", "pending", "accepted", "in_progress", "completed", "rejected", "cancelled"].forEach((key) => {
+      if (key === "all") counts[key] = allOrders.length;
+      else counts[key] = allOrders.filter((o) => o.status === key).length;
+    });
+    return counts;
+  }, [allOrders]);
 
   const handleTabChange = (index) => {
     setSelectedIndex(index);
@@ -336,7 +355,7 @@ export default function ClientRequests() {
         <TabGroup selectedIndex={selectedIndex} onChange={handleTabChange}>
           <TabList className="mt-6 flex flex-wrap gap-2" dir="ltr">
             {STATUS_TABS.map(({ key, label, color }) => {
-              const count = stats ? stats[STATS_KEY_MAP[key]] || 0 : 0;
+              const count = stats ? stats[key] || 0 : 0;
               return (
                 <Tab as={Fragment} key={key}>
                   {({ selected, hover }) => (
@@ -376,9 +395,9 @@ export default function ClientRequests() {
             <TabPanels>
               {STATUS_TABS.map(({ key }) => (
                 <TabPanel key={key}>
-                  {renderOrders(orders)}
+                  {renderOrders(paginatedOrders)}
                   <Pagination
-                    pagination={pagination || {}}
+                    pagination={pagination}
                     currentPage={page}
                     onPageChange={setPage}
                   />
