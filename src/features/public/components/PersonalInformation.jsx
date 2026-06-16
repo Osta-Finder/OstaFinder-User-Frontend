@@ -31,7 +31,7 @@ export default function PersonalInformation() {
   ];
 
   return (
-    <section className="rounded-4xl border border-[#f1ddd4] bg-white p-7 shadow-[0_8px_24px_rgba(92,28,0,0.06)]">
+    <section className="rounded-4xl border border-[#f1ddd4] bg-white p-5 md:p-7 shadow-[0_8px_24px_rgba(92,28,0,0.06)]">
       <header className="mb-8 flex items-center justify-between">
         <button
           type="button"
@@ -56,7 +56,7 @@ export default function PersonalInformation() {
             <span className="mb-2 block text-sm font-medium text-[#4a2a1d]">
               {field.label}
             </span>
-            <span className="flex min-h-14 items-center rounded-lg bg-[#eeecef] px-5 text-lg text-[#1f1b1d]">
+            <span className="flex min-h-14 items-center rounded-lg bg-[#eeecef] px-5 text-lg text-[#1f1b1d] break-all">
               {field.value}
             </span>
           </label>

@@ -151,22 +151,22 @@ export default function Login() {
             onChange={handleChange}
             placeholder="أدخل كلمة المرور"
             error={errors.password}
-            headerAction={
-              <Link
-                to="/forgot-password"
-                onClick={(e) => {
-                  e.preventDefault();
-                  toast.info("سيتم نقلك لصفحة استعادة كلمة المرور قريباً.", {
-                    position: "top-right",
-                    rtl: true,
-                    theme: "light",
-                  });
-                }}
-                className="text-xs font-semibold text-brand-orange hover:underline underline-offset-2 transition-colors duration-200"
-              >
-                نسيت كلمة المرور؟
-              </Link>
-            }
+            // headerAction={
+            //   <Link
+            //     to="/forgot-password"
+            //     onClick={(e) => {
+            //       e.preventDefault();
+            //       toast.info("سيتم نقلك لصفحة استعادة كلمة المرور قريباً.", {
+            //         position: "top-right",
+            //         rtl: true,
+            //         theme: "light",
+            //       });
+            //     }}
+            //     className="text-xs font-semibold text-brand-orange hover:underline underline-offset-2 transition-colors duration-200"
+            //   >
+            //     نسيت كلمة المرور؟
+            //   </Link>
+            // }
           />
 
           {/* Submit Button */}

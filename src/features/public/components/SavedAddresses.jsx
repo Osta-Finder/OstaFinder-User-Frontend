@@ -1,30 +1,14 @@
-import { Building2, Home, Map, Plus } from "lucide-react";
+import { Building2, Home, Map, Plus, Pencil } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import AddAddressModal from "./AddAddressModal";
 
-const fallbackAddresses = [
-  {
-    id: "home",
-    title: "المنزل",
-    description: "شارع العليا، حي المروج، الرياض",
-    icon: Home,
-    iconClass: "bg-[#ffe0ce] text-[#a83900]",
-  },
-  {
-    id: "work",
-    title: "العمل",
-    description: "برج المملكة، طريق الملك فهد",
-    icon: Building2,
-    iconClass: "bg-[#eceff6] text-[#3e4b63]",
-  },
-];
-
 const emptyStateText = "لا توجد عناوين محفوظة حتى الآن";
 
 export default function SavedAddresses() {
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [addressToEdit, setAddressToEdit] = useState(null);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const userAddresses = Array.isArray(user?.addresses) ? user.addresses : [];
   const dynamicAddresses = userAddresses.map((address, index) => {
@@ -52,9 +36,10 @@ export default function SavedAddresses() {
         index === 0
           ? "bg-[#ffe0ce] text-[#a83900]"
           : "bg-[#eceff6] text-[#3e4b63]",
+      rawAddress: address,
     };
   });
-  const addresses = isAuthenticated ? dynamicAddresses : fallbackAddresses;
+  const addresses = isAuthenticated ? dynamicAddresses : [];
 
   const handleAddClick = () => {
     if (!isAuthenticated) {
@@ -62,11 +47,22 @@ export default function SavedAddresses() {
       return;
     }
 
+    setAddressToEdit(null);
+    setIsAddOpen(true);
+  };
+
+  const handleEditClick = (address) => {
+    if (!isAuthenticated) {
+      toast.info("يرجى تسجيل الدخول لتعديل العنوان");
+      return;
+    }
+
+    setAddressToEdit(address);
     setIsAddOpen(true);
   };
 
   return (
-    <section className="rounded-4xl border border-[#f1ddd4] bg-white p-7 shadow-[0_8px_24px_rgba(92,28,0,0.06)]">
+    <section className="rounded-4xl border border-[#f1ddd4] bg-white p-5 md:p-7 shadow-[0_8px_24px_rgba(92,28,0,0.06)]">
       <header className="mb-7 flex items-center justify-between">
         <div className="flex items-center gap-3 text-[#a83900]">
           <Map size={26} strokeWidth={2.1} />
@@ -83,20 +79,32 @@ export default function SavedAddresses() {
           </div>
         ) : null}
 
-        {addresses.map(({ id, title, description, icon: Icon, iconClass }) => (
+        {addresses.map(({ id, title, description, icon: Icon, iconClass, rawAddress }) => (
           <article
             key={id}
-            className="flex min-h-24 items-center gap-4 rounded-lg border border-[#f1ddd4] px-5 py-4"
+            className="flex min-h-24 items-center justify-between gap-4 rounded-lg border border-[#f1ddd4] px-4 py-4 sm:px-5"
           >
-            <div
-              className={`grid h-12 w-12 place-items-center rounded-full ${iconClass}`}
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div
+                className={`grid h-12 w-12 place-items-center rounded-full shrink-0 ${iconClass}`}
+              >
+                <Icon size={24} className="shrink-0" />
+              </div>
+              <div className="text-right min-w-0">
+                <h3 className="text-lg font-semibold text-[#2a160f] truncate">{title}</h3>
+                <p className="mt-1 text-sm text-[#4d3328] break-words">{description}</p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleEditClick(rawAddress)}
+              className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#4a2a1d] hover:bg-[#fff3eb] transition-colors"
+              aria-label="تعديل العنوان"
+              title="تعديل العنوان"
             >
-              <Icon size={24} />
-            </div>
-            <div className="text-right">
-              <h3 className="text-lg font-semibold text-[#2a160f]">{title}</h3>
-              <p className="mt-1 text-sm text-[#4d3328]">{description}</p>
-            </div>
+              <Pencil size={20} className="shrink-0" />
+            </button>
           </article>
         ))}
 
@@ -112,8 +120,12 @@ export default function SavedAddresses() {
 
       <AddAddressModal
         isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
+        onClose={() => {
+          setIsAddOpen(false);
+          setAddressToEdit(null);
+        }}
         user={user}
+        addressToEdit={addressToEdit}
       />
     </section>
   );

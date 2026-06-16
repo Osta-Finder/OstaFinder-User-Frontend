@@ -87,6 +87,21 @@ export const authApi = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    updateAddress: builder.mutation({
+      query: ({ addressId, data }) => ({
+        url: `/auth/addresses/${addressId}`,
+        method: 'PUT',
+        body: data,
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setCredentials({ user: data.user || data }));
+        } catch (err) {
+          console.log(err);
+        }
+      },
+    }),
   }),
   overrideExisting: false,
 });
@@ -99,4 +114,5 @@ export const {
   useUpdateMeMutation,
   useUploadImageMutation,
   useChangePasswordMutation,
+  useUpdateAddressMutation,
 } = authApi;

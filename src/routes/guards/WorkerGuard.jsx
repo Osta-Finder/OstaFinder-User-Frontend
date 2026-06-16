@@ -35,7 +35,11 @@ export default function WorkerGuard() {
       >
         <span
           className="material-symbols-outlined"
-          style={{ fontSize: "2rem", color: "#a83900", animation: "spin 1s linear infinite" }}
+          style={{
+            fontSize: "2rem",
+            color: "#a83900",
+            animation: "spin 1s linear infinite",
+          }}
         >
           autorenew
         </span>

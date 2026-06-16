@@ -50,7 +50,7 @@ export default function AccountSidebar() {
   };
 
   return (
-    <aside className="w-full rounded-4xl border border-[#f1ddd4] bg-white p-6 shadow-[0_8px_24px_rgba(92,28,0,0.06)] lg:max-w-71.25">
+    <aside className="w-full rounded-4xl border border-[#f1ddd4] bg-white p-5 md:p-6 shadow-[0_8px_24px_rgba(92,28,0,0.06)] lg:max-w-71.25">
       <div className="flex flex-col items-center">
         <div className="relative">
           <button
@@ -93,10 +93,10 @@ export default function AccountSidebar() {
             }`}
           >
             <span className="flex items-center gap-3">
-              <Icon size={24} strokeWidth={2.1} />
+              <Icon size={24} strokeWidth={2.1} className="shrink-0" />
               {label}
             </span>
-            {active && <ChevronLeft size={20} />}
+            {active && <ChevronLeft size={20} className="shrink-0" />}
           </button>
         ))}
       </nav>
@@ -107,16 +107,16 @@ export default function AccountSidebar() {
           className="flex h-12 w-full hover:bg-[#ff7417] hover:text-white rounded-2xl items-center justify-start cursor-pointer gap-3 px-5 text-lg font-medium text-[#4a2a1d] transition-colors"
           onClick={() => setIsPasswordModalOpen(true)}
         >
-          تغيير كلمة المرور
-          <Lock size={23} />
+          <Lock size={23} className="shrink-0" />
+          <span>تغيير كلمة المرور</span>
         </button>
         <button
           type="button"
           className="flex h-12 w-full hover:bg-red-500 hover:text-white rounded-2xl items-center justify-start cursor-pointer gap-3 px-5 text-lg font-medium text-[#dc2626]"
           onClick={handleLogout}
         >
-          تسجيل الخروج
-          <LogOut size={23} />
+          <LogOut size={23} className="shrink-0" />
+          <span>تسجيل الخروج</span>
         </button>
       </div>
       <ChangeProfilePicModal

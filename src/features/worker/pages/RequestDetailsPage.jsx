@@ -14,14 +14,20 @@ const { useUpdateRequestStatusMutation } = requestsApi;
 const getStepFromStatus = (status) => {
   switch (status) {
     case "معلقة":
-    case "مقبولة":
-    case "في الطريق":
+    case "pending":
       return 1;
-    case "قيد التنفيذ":
+    case "مقبولة":
+    case "accepted":
+    case "في الطريق":
+    case "on_the_way":
       return 2;
+    case "قيد التنفيذ":
+    case "in_progress":
+      return 3;
     case "مكتمل":
     case "مكتملة":
-      return 3;
+    case "completed":
+      return 4;
     default:
       return 1; // Default starting step
   }
@@ -80,7 +86,7 @@ export default function RequestDetailsPage() {
     if (action === "completed") {
       try {
         await updateStatus({ id, status: "completed" }).unwrap();
-        setCurrentStep(3);
+        setCurrentStep(4);
         toast.success("تهانينا! تم تحديث حالة الطلب إلى مكتمل بنجاح 🎉", {
           position: "top-right",
           rtl: true,
@@ -97,7 +103,7 @@ export default function RequestDetailsPage() {
     } else if (action === "in_progress") {
       try {
         await updateStatus({ id, status: "in_progress" }).unwrap();
-        setCurrentStep(2);
+        setCurrentStep(3);
         toast.success("تم بدء العمل بنجاح 🛠️", {
           position: "top-right",
           rtl: true,
@@ -114,8 +120,24 @@ export default function RequestDetailsPage() {
     } else if (action === "accepted") {
       try {
         await updateStatus({ id, status: "accepted" }).unwrap();
-        setCurrentStep(1);
+        setCurrentStep(2);
         toast.success("تم قبول الطلب بنجاح ✅", {
+          position: "top-right",
+          rtl: true,
+          theme: "light",
+        });
+      } catch (err) {
+        console.error("Failed to update status:", err);
+        toast.error("حدث خطأ أثناء تحديث حالة الطلب.", {
+          rtl: true,
+          theme: "light",
+        });
+      }
+    } else if (action === "pending") {
+      try {
+        await updateStatus({ id, status: "pending" }).unwrap();
+        setCurrentStep(1);
+        toast.success("تم إرجاع الطلب إلى الحالة المعلقة ✅", {
           position: "top-right",
           rtl: true,
           theme: "light",
