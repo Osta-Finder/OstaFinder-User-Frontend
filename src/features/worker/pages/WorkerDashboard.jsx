@@ -200,14 +200,14 @@ export default function WorkerDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-100">
         <div>
           <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            مرحباً بك، {worker?.name || worker?.fullName || "الأسطى"} 👋
+            مرحباً بك، {worker?.data?.name || worker?.name || worker?.data?.fullName || worker?.fullName || "الأسطى"} 👋
           </h2>
           <p className="text-gray-500 text-sm mt-1">
             نظرة عامة على أداء أعمالك اليوم.
           </p>
           <p className="text-xs text-gray-400 mt-1">
             التصنيف:{" "}
-            {workerLoading ? "جاري التحميل..." : worker?.category || "غير محدد"}
+            {workerLoading ? "جاري التحميل..." : (worker?.data?.category?.name || worker?.data?.category || worker?.category?.name || worker?.category || "غير محدد")}
           </p>
         </div>
         <Link

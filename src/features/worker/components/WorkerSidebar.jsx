@@ -8,6 +8,8 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useGetWorkerProfileQuery } from "../../../services/workerApi";
+import clientAvatar from "../../../assets/images/client_avatar.png";
 import { WorkerRoutes, WorkerNavItems } from "../constants/routes.config";
 
 const SidebarIcons = {
@@ -60,10 +62,6 @@ const SidebarIcons = {
   ),
 };
 
-/**
- * Check if a path matches the current location using startsWith
- * This supports nested routes (e.g. /worker/services/1 matches /worker/services)
- */
 const isActivePath = (currentPath, targetPath) => {
   return currentPath === targetPath || currentPath.startsWith(targetPath + "/");
 };
@@ -71,6 +69,12 @@ const isActivePath = (currentPath, targetPath) => {
 export default function WorkerSidebar() {
   const location = useLocation();
   const { user } = useSelector((state) => state.auth);
+  
+  const { data: profileResponse } = useGetWorkerProfileQuery(undefined, {
+    skip: !user || user.role !== "worker",
+  });
+  
+  const workerData = profileResponse?.data || user;
 
   const getLinkClass = (path) => {
     const baseClass = "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm";
@@ -80,9 +84,25 @@ export default function WorkerSidebar() {
     return baseClass + " text-gray-500 hover:bg-gray-50 hover:text-slate-900";
   };
 
-  const workerName = user?.name || "الأسطى محمد";
-  const workerCategory = user?.category?.name || user?.category || "فني معتمد";
-  const avatarUrl = user?.profilePicture || user?.image || "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=200";
+  const workerName = workerData?.name || "الأسطى محمد";
+  
+  let workerCategory = "فني معتمد";
+  if (profileResponse?.data?.category?.name) {
+    workerCategory = profileResponse.data.category.name;
+  } else if (user?.category && typeof user.category === "object" && user.category.name) {
+    workerCategory = user.category.name;
+  } else if (user?.category && typeof user.category === "string" && user.category.length !== 24) {
+    workerCategory = user.category;
+  }
+
+  const avatarUrl =
+    user?.profilePic ||
+    user?.profilePicture ||
+    user?.image ||
+    profileResponse?.data?.profilePic ||
+    profileResponse?.data?.profilePicture ||
+    profileResponse?.data?.image ||
+    clientAvatar;
 
   return (
     <aside className="w-full lg:w-64 bg-white border-e border-gray-100 flex flex-col justify-between p-4 shrink-0">

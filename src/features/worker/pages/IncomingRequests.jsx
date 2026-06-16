@@ -4,11 +4,36 @@ import PageContainer from "../components/PageContainer";
 import EmptyState from "../components/EmptyState";
 import { formatPrice } from "../data/mockData"; // Import formatPrice for price formatting
 
+const formatTimeAgo = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "الآن";
+  if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
+  if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+  return `منذ ${diffDays} يوم`;
+};
+
 export default function IncomingRequests() {
   const { data: response, isLoading } = useGetIncomingRequestsQuery();
   const [updateStatus] = useUpdateRequestStatusMutation();
+  const [sortBy, setSortBy] = useState("latest"); // "latest" or "closest"
 
   const requests = response?.data || [];
+
+  const sortedRequests = [...requests].sort((a, b) => {
+    if (sortBy === "closest") {
+      const distA = parseFloat(a.distance) || Infinity;
+      const distB = parseFloat(b.distance) || Infinity;
+      return distA - distB;
+    }
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 
   const handleAccept = async (id) => {
     try {
@@ -46,19 +71,33 @@ export default function IncomingRequests() {
       description={`لديك ${requests.length} طلبات جديدة بانتظار المراجعة.`}
     >
       <div className="flex gap-3 mb-6">
-        <button className="px-5 py-2 rounded-full border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors bg-white">
+        <button
+          onClick={() => setSortBy("latest")}
+          className={`px-5 py-2 rounded-full font-medium transition-colors ${
+            sortBy === "latest"
+              ? "bg-[#b45309] text-white shadow-sm"
+              : "border border-gray-300 text-gray-700 hover:bg-gray-100 bg-white"
+          }`}
+        >
           الأحدث
         </button>
-        <button className="px-5 py-2 rounded-full bg-gray-200 text-gray-800 font-medium hover:bg-gray-300 transition-colors">
+        <button
+          onClick={() => setSortBy("closest")}
+          className={`px-5 py-2 rounded-full font-medium transition-colors ${
+            sortBy === "closest"
+              ? "bg-[#b45309] text-white shadow-sm"
+              : "border border-gray-300 text-gray-700 hover:bg-gray-100 bg-white"
+          }`}
+        >
           الأقرب
         </button>
       </div>
 
-      {requests.length === 0 ? (
+      {sortedRequests.length === 0 ? (
         <EmptyState message="لا توجد طلبات واردة حالياً." icon="📩" />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {requests.map((req) => (
+          {sortedRequests.map((req) => (
             <div
               key={req._id || req.id}
               className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow"
@@ -71,28 +110,37 @@ export default function IncomingRequests() {
               {/* Header */}
               <div className="flex justify-between items-start mb-4 pr-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-700 shrink-0">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
+                  {req.user?.profilePic ? (
+                    <img
+                      src={req.user.profilePic}
+                      alt={req.user.name}
+                      className="w-12 h-12 rounded-full object-cover shrink-0"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-700 shrink-0">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                    </div>
+                  )}
                   <div>
                     <h3 className="font-bold text-base line-clamp-1">
-                      {req.clientName}
+                      {req.user?.name || "عميل المنصة"}
                     </h3>
                     <p className="text-sm text-gray-500 line-clamp-1">
-                      {req.serviceTitle}
+                      {req.service}
                     </p>
                   </div>
                 </div>
@@ -128,7 +176,7 @@ export default function IncomingRequests() {
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    {req.timeAgo}
+                    {formatTimeAgo(req.createdAt)}
                   </span>
                 )}
               </div>
@@ -157,11 +205,11 @@ export default function IncomingRequests() {
                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                    {req.location}
+                    {req.address}
                   </span>
                   <span className="text-gray-300">|</span>
                   <span className="font-medium whitespace-nowrap pl-2">
-                    على بعد {req.distance}
+                    على بعد {req.distance || "غير محدد"}
                   </span>
                 </div>
                 <div className="flex items-center text-sm font-bold text-gray-800 pr-2">
@@ -179,7 +227,7 @@ export default function IncomingRequests() {
                       d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  السعر المقترح: {formatPrice(req.price)}
+                  السعر المقترح: {formatPrice(req.amount)}
                 </div>
               </div>
 
