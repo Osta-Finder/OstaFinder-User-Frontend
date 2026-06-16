@@ -26,9 +26,6 @@ export default function AboutUs() {
       {/* 4. Values Section */}
       <AboutValues />
 
-      {/* 5. Leadership Team Section */}
-      <AboutTeam />
-
       {/* 6. Call to Action (CTA) Section */}
       {user?.role !== "worker" && <AboutCTA />}
     </div>

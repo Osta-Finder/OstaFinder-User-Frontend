@@ -35,7 +35,11 @@ export default function PersonalInformationModal({ isOpen, onClose, user }) {
       onClose();
     } catch (err) {
       console.log(err);
-      toast.error("فشل في تحديث المعلومات الشخصية");
+      toast.error(
+        err?.data?.message.startsWith("E11000 duplicate key error collection")
+          ? "هناك مستخدم آخر يستخدم نفس البريد الإلكتروني أو رقم الهاتف"
+          : "فشل في تحديث المعلومات الشخصية",
+      );
     }
   };
 
