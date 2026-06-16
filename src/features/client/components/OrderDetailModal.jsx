@@ -1,6 +1,7 @@
+import { useState, useEffect } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { motion } from "motion/react";
-import { X, MapPin, Calendar, Check } from "lucide-react";
+import { X, MapPin, Calendar, Check, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import OrderStatusBadge from "./OrderStatusBadge";
 import Rating from "../../../components/ui/Rating";
@@ -8,6 +9,13 @@ import CuButton from "../../../components/ui/Button";
 import { STEPS } from "../constants/orderConstants";
 
 export default function OrderDetailModal({ order, onClose }) {
+  const [imgLoading, setImgLoading] = useState(true);
+  const orderId = order?._id || order?.id;
+
+  useEffect(() => {
+    setImgLoading(true);
+  }, [orderId]);
+
   if (!order) return null;
   return (
     <Dialog open={!!order} onClose={onClose} className="relative z-50">
@@ -47,6 +55,22 @@ export default function OrderDetailModal({ order, onClose }) {
             <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
               {order.description}
             </p>
+            {order.image && (
+              <div className="mt-3 relative">
+                {imgLoading && (
+                  <div className="flex items-center justify-center h-48 bg-gray-100 rounded-lg border border-gray-200">
+                    <Loader2 size={24} className="animate-spin text-gray-400" />
+                  </div>
+                )}
+                <img
+                  src={order.image}
+                  alt="صورة المشكلة"
+                  onLoad={() => setImgLoading(false)}
+                  onError={() => setImgLoading(false)}
+                  className={`w-full max-h-48 object-cover rounded-lg border border-gray-200 transition-opacity ${imgLoading ? "absolute inset-0 opacity-0" : "opacity-100"}`}
+                />
+              </div>
+            )}
           </div>
 
           <hr className="border-gray-100" />
