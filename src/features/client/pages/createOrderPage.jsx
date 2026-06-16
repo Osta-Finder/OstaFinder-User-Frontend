@@ -20,6 +20,7 @@ export default function CreateOrderPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const worker = location.state?.worker;
+  const prefilled = location.state?.prefilled;
 
   const { data: userData } = useGetMeQuery();
 
@@ -44,33 +45,46 @@ export default function CreateOrderPage() {
 
   const [formData, setFormData] = useState({
     category: workerCategory?._id || "",
-    service: "",
-    description: "",
-    phoneNumber: "",
+    service: prefilled?.serviceName || "",
+    description: prefilled
+      ? [
+          prefilled.urgency === "urgent" ? "⚠️ طلب عاجل وطارئ" : "حجز عادي (غير مستعجل)",
+          prefilled.notes || "",
+        ]
+          .filter(Boolean)
+          .join(" | ")
+      : "",
+    phoneNumber: prefilled?.phoneNumber || "",
     date: "",
-    address: "",
+    address: prefilled?.address || "",
     image: null,
   });
 
   useEffect(() => {
     if (!userData) return;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData((prev) => ({
       ...prev,
-      phoneNumber: userData.phoneNumber || "",
+      phoneNumber: prev.phoneNumber || userData.phoneNumber || "",
     }));
 
     if (userData.addresses?.length > 0) {
       const defaultAddr =
         userData.addresses.find((a) => a.isDefault) || userData.addresses[0];
 
-      setSelectedAddress(defaultAddr);
-
-      setFormData((prev) => ({
-        ...prev,
-        address: defaultAddr.address,
-      }));
+      // If prefilled address exists, create a temp address object
+      if (prefilled?.address) {
+        const prefilledAddrObj = { _id: "prefilled", address: prefilled.address };
+        setSelectedAddress(prefilledAddrObj);
+        setFormData((prev) => ({ ...prev, address: prefilled.address }));
+      } else {
+        setSelectedAddress(defaultAddr);
+        setFormData((prev) => ({ ...prev, address: defaultAddr.address }));
+      }
+    } else if (prefilled?.address) {
+      const prefilledAddrObj = { _id: "prefilled", address: prefilled.address };
+      setSelectedAddress(prefilledAddrObj);
+      setFormData((prev) => ({ ...prev, address: prefilled.address }));
     }
   }, [userData]);
 
@@ -98,8 +112,8 @@ export default function CreateOrderPage() {
     if (!formData.category) {
       return toast.warn("يرجى اختيار فئة الخدمة أولاً");
     }
-    const amount = worker?.price;
-    if (amount === undefined) {
+    const amount = worker?.price ?? prefilled?.servicePrice ?? 0;
+    if (amount === undefined || amount === null) {
       return toast.error("عذراً، لم يتم العثور على سعر الخدمة للفني.");
     }
     try {
@@ -204,14 +218,16 @@ export default function CreateOrderPage() {
 
               <LocationSection
                 selectedAddress={selectedAddress}
-                addresses={userData?.addresses || []}
+                addresses={
+                  prefilled?.address && !userData?.addresses?.length
+                    ? [{ _id: "prefilled", address: prefilled.address }]
+                    : prefilled?.address
+                    ? [{ _id: "prefilled", address: prefilled.address }, ...(userData?.addresses || [])]
+                    : userData?.addresses || []
+                }
                 onAddressChange={(val) => {
                   setSelectedAddress(val);
-
-                  setFormData((prev) => ({
-                    ...prev,
-                    address: val.address,
-                  }));
+                  setFormData((prev) => ({ ...prev, address: val.address }));
                 }}
               />
             </div>
