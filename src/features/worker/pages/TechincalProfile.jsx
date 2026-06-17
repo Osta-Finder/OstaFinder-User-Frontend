@@ -319,16 +319,24 @@ export default function TechnicianProfile() {
     setBookingErrors({});
 
     const selectedSvcObject = servicesList.find((s) => (s._id || s.id) === selectedService);
-    const serviceTitle = `${selectedSvcObject?.title || "خدمة عامة"}. هاتف: ${clientPhone}. ملاحظات: ${notes || "لا توجد"}`;
+    const rawServiceTitle = selectedSvcObject?.title || "خدمة عامة";
+    // Ensure service title is between 5 and 50 characters for backend validation
+    const serviceTitle = (rawServiceTitle.length >= 5 ? rawServiceTitle : `${rawServiceTitle} - صيانة`).substring(0, 50);
     const amountVal = selectedSvcObject?.price || 0;
+    // Ensure description is between 20 and 500 characters for backend validation
+    const descriptionText = `طلب خدمة مباشر من الصفحة الشخصية للفني. تفاصيل إضافية: ${notes.trim() || "لا توجد"}`;
 
     try {
       await createRequest({
-        service: serviceTitle,
-        worker: id,
-        date: new Date().toISOString(),
-        address: address,
-        amount: amountVal,
+        workerId: id,
+        orderData: {
+          service: serviceTitle,
+          date: new Date().toISOString(),
+          address: address.trim(),
+          amount: amountVal,
+          phoneNumber: clientPhone.trim(),
+          description: descriptionText.substring(0, 500),
+        }
       }).unwrap();
 
       setBookingSuccess(true);

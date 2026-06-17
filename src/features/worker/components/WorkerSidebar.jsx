@@ -66,7 +66,7 @@ const isActivePath = (currentPath, targetPath) => {
   return currentPath === targetPath || currentPath.startsWith(targetPath + "/");
 };
 
-export default function WorkerSidebar() {
+export default function WorkerSidebar({ onNavItemClick }) {
   const location = useLocation();
   const { user } = useSelector((state) => state.auth);
   
@@ -108,7 +108,11 @@ export default function WorkerSidebar() {
     <aside className="w-full lg:w-64 bg-white border-e border-gray-100 flex flex-col justify-between p-4 shrink-0">
       {/* Profile Section */}
       <div>
-        <Link to={user?._id ? `/worker-profile/${user._id}` : "#"} className="group flex flex-col items-center text-center pb-6 border-b border-gray-100 mb-6 mt-4 block hover:no-underline">
+        <Link
+          to={user?._id ? `/worker-profile/${user._id}` : "#"}
+          onClick={onNavItemClick}
+          className="group flex flex-col items-center text-center pb-6 border-b border-gray-100 mb-6 mt-4 block hover:no-underline"
+        >
           <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border border-gray-100 shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
             <img
               src={avatarUrl}
@@ -125,7 +129,12 @@ export default function WorkerSidebar() {
           {WorkerNavItems.map((item) => {
             const IconComponent = SidebarIcons[item.icon];
             return (
-              <Link key={item.path} to={item.path} className={getLinkClass(item.path)}>
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={onNavItemClick}
+                className={getLinkClass(item.path)}
+              >
                 {IconComponent && <IconComponent />}
                 <span>{item.label}</span>
               </Link>
@@ -138,12 +147,16 @@ export default function WorkerSidebar() {
       <div className="space-y-2 mb-4">
         <Link
           to={WorkerRoutes.SERVICE_ADD}
+          onClick={onNavItemClick}
           className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-slate-700 rounded-xl font-medium transition-colors text-xs"
         >
           <SidebarIcons.Plus />
           <span>إضافة خدمة جديدة</span>
         </Link>
-        <button className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-colors text-xs">
+        <button
+          onClick={onNavItemClick}
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-colors text-xs cursor-pointer"
+        >
           <SidebarIcons.LogOut />
           <span>تسجيل الخروج</span>
         </button>

@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 export default function PortfolioPagination({ pagination, currentPage, onPageChange }) {
   const totalPages = pagination.numberOfPages;
 
-  if (totalPages <= 1) return null;
+  if (totalPages <= 0) return null;
 
   const generatePages = () => {
     const pages = [];
@@ -34,7 +34,7 @@ export default function PortfolioPagination({ pagination, currentPage, onPageCha
   const pages = generatePages();
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-10 border-t border-gray-100 pt-6" dir="rtl">
+    <div className="flex flex-col items-center justify-center gap-4 mt-10 border-t border-gray-100 pt-6" dir="rtl">
       {/* Page Info */}
       <div className="text-sm text-gray-500 font-medium">
         عرض الصفحة <span className="font-bold text-gray-900">{currentPage}</span> من <span className="font-bold text-gray-900">{totalPages}</span> صفحات

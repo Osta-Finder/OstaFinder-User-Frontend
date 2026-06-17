@@ -29,7 +29,7 @@ export default function PreviousWorks() {
   const [activeTab, setActiveTab] = useState("platform"); // "platform" or "outside"
   const [platformPage, setPlatformPage] = useState(1);
   const [outsidePage, setOutsidePage] = useState(1);
-  const ITEMS_PER_PAGE = 6;
+  const ITEMS_PER_PAGE = 3;
 
   const [workToDelete, setWorkToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -131,6 +131,23 @@ export default function PreviousWorks() {
               >
                 {JOB_SOURCE_LABELS[work.source] || work.source}
               </span>
+              {work.source === "outside" && (
+                <span
+                  className={`px-2 py-1 text-xs font-medium rounded-lg ${
+                    work.approvalStatus === "approved"
+                      ? "bg-green-50 text-green-700 border border-green-100"
+                      : work.approvalStatus === "rejected"
+                      ? "bg-red-50 text-red-700 border border-red-100"
+                      : "bg-yellow-50 text-yellow-700 border border-yellow-100"
+                  }`}
+                >
+                  {work.approvalStatus === "approved"
+                    ? "مقبول"
+                    : work.approvalStatus === "rejected"
+                    ? "مرفوض"
+                    : "قيد المراجعة"}
+                </span>
+              )}
             </div>
           </div>
 
