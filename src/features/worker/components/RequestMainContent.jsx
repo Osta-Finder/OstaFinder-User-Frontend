@@ -2,20 +2,18 @@ import { AlertCircle, Check, ChevronRight, MapPin, User } from "lucide-react";
 import { toast } from "react-toastify";
 import plumbingLeak from "../../../assets/images/No_Image_Available.jpg";
 import { useNavigate } from "react-router-dom";
-import { image } from "motion/react-client";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 export default function RequestMainContent({
   requestData,
   currentStep,
-  onStepChange = () => {},
   onStatusUpdate = () => {},
   isUpdating = false,
 }) {
   const steps = [
-    { number: 1, label: "معلقة", status: "pending" },
+    { number: 1, label: "تم الطلب", status: "pending" },
     { number: 2, label: "تم القبول", status: "accepted" },
-    { number: 3, label: "العمل جاري", status: "in_progress" },
+    { number: 3, label: "قيد التنفيذ", status: "in_progress" },
     { number: 4, label: "مكتمل", status: "completed" },
   ];
 
@@ -32,23 +30,31 @@ export default function RequestMainContent({
     )
       return 2;
     // on_the_way / في الطريق treated as accepted (step 2)
-    if (["في الطريق", "on_the_way", "on the way"].includes(raw) || lower.includes("on_the_way") || lower.includes("on the way") || lower.includes("on_the_way")) return 2;
-    if (["قيد التنفيذ", "in_progress"].includes(raw) || lower === "in_progress" || lower.includes("in progress") || lower.includes("in_progress")) return 3;
-    if (["مكتمل", "مكتملة", "completed"].includes(raw) || lower === "completed") return 4;
+    if (
+      ["في الطريق", "on_the_way", "on the way"].includes(raw) ||
+      lower.includes("on_the_way") ||
+      lower.includes("on the way") ||
+      lower.includes("on_the_way")
+    )
+      return 2;
+    if (
+      ["قيد التنفيذ", "in_progress"].includes(raw) ||
+      lower === "in_progress" ||
+      lower.includes("in progress") ||
+      lower.includes("in_progress")
+    )
+      return 3;
+    if (["مكتمل", "مكتملة", "completed"].includes(raw) || lower === "completed")
+      return 4;
 
     return null;
   };
 
   const effectiveStep = useMemo(() => {
     const mapped = statusToStep(requestData?.status);
-    return mapped || currentStep || 1;
+    return currentStep || mapped || 1;
   }, [requestData?.status, currentStep]);
 
-  useEffect(() => {
-    if (typeof onStepChange === "function" && effectiveStep !== currentStep) {
-      onStepChange(effectiveStep);
-    }
-  }, [effectiveStep, currentStep, onStepChange]);
   const navigate = useNavigate();
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -60,22 +66,16 @@ export default function RequestMainContent({
         month: "long",
         day: "numeric",
       });
-    } catch (e) {
+    } catch {
       return dateStr;
     }
   };
 
   const getButtonConfig = () => {
-    const status = requestData?.status;
-    if (
-      effectiveStep >= 4 ||
-      status === "مكتمل" ||
-      status === "مكتملة" ||
-      status === "completed"
-    ) {
+    if (effectiveStep >= 4) {
       return null;
     }
-    if (status === "معلقة" || status === "pending") {
+    if (effectiveStep === 1) {
       return {
         text: "قبول الطلب",
         status: "accepted",
@@ -84,12 +84,7 @@ export default function RequestMainContent({
         icon: <Check className="w-4 h-4 stroke-[3]" />,
       };
     }
-    if (
-      status === "مقبولة" ||
-      status === "accepted" ||
-      status === "في الطريق" ||
-      status === "on_the_way"
-    ) {
+    if (effectiveStep === 2) {
       return {
         text: "بدء العمل",
         status: "in_progress",
@@ -102,7 +97,7 @@ export default function RequestMainContent({
         ),
       };
     }
-    if (status === "قيد التنفيذ" || status === "in_progress") {
+    if (effectiveStep === 3) {
       return {
         text: "إتمام الخدمة",
         status: "completed",
@@ -153,9 +148,7 @@ export default function RequestMainContent({
             </h1>
             <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-orange/10 text-brand-orange">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-pulse"></span>
-              <span>
-{steps[effectiveStep - 1]?.label || "قيد التنفيذ"}
-              </span>
+              <span>{steps[effectiveStep - 1]?.label || "قيد التنفيذ"}</span>
             </span>
           </div>
           <span className="text-xs text-gray-400 font-medium">
@@ -200,8 +193,9 @@ export default function RequestMainContent({
           ></div>
 
           {steps.map((step) => {
-                      const isCompleted = step.number < effectiveStep;
-                      const isActive = step.number === effectiveStep;
+            const isCompleted = step.number < effectiveStep;
+            const isActive = step.number === effectiveStep;
+            const isChecked = isCompleted || (isActive && step.number === steps.length);
             return (
               <button
                 key={step.number}
@@ -216,7 +210,7 @@ export default function RequestMainContent({
                         : "bg-white border-2 border-gray-200 text-gray-400 hover:border-gray-300 ring-4 ring-white"
                   }`}
                 >
-                  {isCompleted ? (
+                  {isChecked ? (
                     <Check className="w-4.5 h-4.5 stroke-3" />
                   ) : (
                     <span>{step.number}</span>
@@ -228,15 +222,15 @@ export default function RequestMainContent({
         </div>
         <div className="relative flex justify-between items-center max-w-2xl mx-auto py-3">
           {steps.map((step) => {
-                      const isCompleted = step.number < effectiveStep;
-                      const isActive = step.number === effectiveStep;
+            const isCompleted = step.number < effectiveStep;
+            const isActive = step.number === effectiveStep;
             return (
               <span
                 key={step.number}
                 className={`mt-3 text-xs font-bold transition-colors duration-300 ${
                   isActive
                     ? "text-brand-orange font-extrabold"
-                              : isCompleted || step.number <= effectiveStep
+                    : isCompleted || step.number <= effectiveStep
                       ? "text-gray-800"
                       : "text-gray-400 font-medium"
                 }`}

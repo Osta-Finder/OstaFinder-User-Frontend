@@ -34,7 +34,7 @@ const getStepFromStatus = (status) => {
 };
 
 export default function RequestDetailsPage() {
-  const [currentStep, setCurrentStep] = useState(1); // Starts at "تم القبول" (Step 1)
+  const [currentStep, setCurrentStep] = useState(1); // Starts at "تم الطلب" (Step 1)
 
   const { id } = useParams();
   const { data: request, isLoading, error } = useGetRequestByIdQuery(id);
@@ -70,16 +70,6 @@ export default function RequestDetailsPage() {
         theme: "light",
       },
     );
-  };
-
-  const handleStepChange = (stepNumber) => {
-    const stepLabels = ["تم القبول", "العمل جاري", "مكتمل"];
-    setCurrentStep(stepNumber);
-    toast.info(`تم الانتقال إلى مرحلة: ${stepLabels[stepNumber - 1]}`, {
-      position: "top-right",
-      rtl: true,
-      theme: "light",
-    });
   };
 
   const handleStatusUpdate = async (action) => {
@@ -198,7 +188,6 @@ export default function RequestDetailsPage() {
           <RequestMainContent
             requestData={requestData}
             currentStep={currentStep}
-            onStepChange={handleStepChange}
             onStatusUpdate={handleStatusUpdate}
             isUpdating={isUpdating}
           />
