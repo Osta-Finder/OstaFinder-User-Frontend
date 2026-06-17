@@ -8,6 +8,8 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useGetWorkerProfileQuery } from "../../../services/workerApi";
+import clientAvatar from "../../../assets/images/client_avatar.png";
 import { WorkerRoutes, WorkerNavItems } from "../constants/routes.config";
 
 const SidebarIcons = {
@@ -60,17 +62,19 @@ const SidebarIcons = {
   ),
 };
 
-/**
- * Check if a path matches the current location using startsWith
- * This supports nested routes (e.g. /worker/services/1 matches /worker/services)
- */
 const isActivePath = (currentPath, targetPath) => {
   return currentPath === targetPath || currentPath.startsWith(targetPath + "/");
 };
 
-export default function WorkerSidebar() {
+export default function WorkerSidebar({ onNavItemClick }) {
   const location = useLocation();
   const { user } = useSelector((state) => state.auth);
+  
+  const { data: profileResponse } = useGetWorkerProfileQuery(undefined, {
+    skip: !user || user.role !== "worker",
+  });
+  
+  const workerData = profileResponse?.data || user;
 
   const getLinkClass = (path) => {
     const baseClass = "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm";
@@ -80,15 +84,35 @@ export default function WorkerSidebar() {
     return baseClass + " text-gray-500 hover:bg-gray-50 hover:text-slate-900";
   };
 
-  const workerName = user?.name || "الأسطى محمد";
-  const workerCategory = user?.category?.name || user?.category || "فني معتمد";
-  const avatarUrl = user?.profilePicture || user?.image || "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=200";
+  const workerName = workerData?.name || "الأسطى محمد";
+  
+  let workerCategory = "فني معتمد";
+  if (profileResponse?.data?.category?.name) {
+    workerCategory = profileResponse.data.category.name;
+  } else if (user?.category && typeof user.category === "object" && user.category.name) {
+    workerCategory = user.category.name;
+  } else if (user?.category && typeof user.category === "string" && user.category.length !== 24) {
+    workerCategory = user.category;
+  }
+
+  const avatarUrl =
+    user?.profilePic ||
+    user?.profilePicture ||
+    user?.image ||
+    profileResponse?.data?.profilePic ||
+    profileResponse?.data?.profilePicture ||
+    profileResponse?.data?.image ||
+    clientAvatar;
 
   return (
     <aside className="w-full lg:w-64 bg-white border-e border-gray-100 flex flex-col justify-between p-4 shrink-0">
       {/* Profile Section */}
       <div>
-        <Link to={user?._id ? `/worker-profile/${user._id}` : "#"} className="group flex flex-col items-center text-center pb-6 border-b border-gray-100 mb-6 mt-4 block hover:no-underline">
+        <Link
+          to={user?._id ? `/worker-profile/${user._id}` : "#"}
+          onClick={onNavItemClick}
+          className="group flex flex-col items-center text-center pb-6 border-b border-gray-100 mb-6 mt-4 block hover:no-underline"
+        >
           <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border border-gray-100 shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
             <img
               src={avatarUrl}
@@ -105,7 +129,12 @@ export default function WorkerSidebar() {
           {WorkerNavItems.map((item) => {
             const IconComponent = SidebarIcons[item.icon];
             return (
-              <Link key={item.path} to={item.path} className={getLinkClass(item.path)}>
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={onNavItemClick}
+                className={getLinkClass(item.path)}
+              >
                 {IconComponent && <IconComponent />}
                 <span>{item.label}</span>
               </Link>
@@ -118,12 +147,16 @@ export default function WorkerSidebar() {
       <div className="space-y-2 mb-4">
         <Link
           to={WorkerRoutes.SERVICE_ADD}
+          onClick={onNavItemClick}
           className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-slate-700 rounded-xl font-medium transition-colors text-xs"
         >
           <SidebarIcons.Plus />
           <span>إضافة خدمة جديدة</span>
         </Link>
-        <button className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-colors text-xs">
+        <button
+          onClick={onNavItemClick}
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-colors text-xs cursor-pointer"
+        >
           <SidebarIcons.LogOut />
           <span>تسجيل الخروج</span>
         </button>

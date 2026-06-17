@@ -195,19 +195,19 @@ export default function WorkerDashboard() {
   const hasError = workerError || statsError || requestsError;
 
   return (
-    <div className="p-8 space-y-6 flex-1 max-w-7xl w-full mx-auto">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 flex-1 max-w-7xl w-full mx-auto">
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-100">
         <div>
           <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            مرحباً بك، {worker?.name || worker?.fullName || "الأسطى"} 👋
+            مرحباً بك، {worker?.data?.name || worker?.name || worker?.data?.fullName || worker?.fullName || "الأسطى"} 👋
           </h2>
           <p className="text-gray-500 text-sm mt-1">
             نظرة عامة على أداء أعمالك اليوم.
           </p>
           <p className="text-xs text-gray-400 mt-1">
             التصنيف:{" "}
-            {workerLoading ? "جاري التحميل..." : worker?.category || "غير محدد"}
+            {workerLoading ? "جاري التحميل..." : (worker?.data?.category?.name || worker?.data?.category || worker?.category?.name || worker?.category || "غير محدد")}
           </p>
         </div>
         <Link
@@ -314,7 +314,7 @@ export default function WorkerDashboard() {
                         <h4
                           className={`font-bold text-base ${request.status === "completed" ? "text-gray-400 line-through" : "text-slate-900"}`}
                         >
-                          {request.serviceTitle || request.title}
+                          {request.serviceTitle || request.title || request.service}
                         </h4>
                         {request.urgency === "urgent" && (
                           <span className="bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded">
@@ -344,7 +344,7 @@ export default function WorkerDashboard() {
                               d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                             />
                           </svg>
-                          {request.location || "—"}
+                          {request.address || request.location || "—"}
                         </span>
                         <span className="flex items-center gap-1">
                           <svg
@@ -385,7 +385,7 @@ export default function WorkerDashboard() {
                       <span
                         className={`font-bold text-base ${request.status === "completed" ? "text-gray-400" : "text-slate-800"}`}
                       >
-                        {formatPrice(request.price)}
+                        {formatPrice(request.amount || request.price)}
                       </span>
                     )}
                   </div>

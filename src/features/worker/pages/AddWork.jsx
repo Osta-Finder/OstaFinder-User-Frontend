@@ -64,16 +64,77 @@ export default function AddWork() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.title.trim()) newErrors.title = "عنوان العمل مطلوب";
-    if (!formData.location.trim())
-      newErrors.location = "المدينة/المنطقة مطلوبة";
-    if (!formData.description.trim())
-      newErrors.description = "تفاصيل العمل مطلوبة";
-    if (!formData.clientName.trim()) newErrors.clientName = "اسم العميل مطلوب";
-    if (!formData.date) newErrors.date = "تاريخ العمل مطلوب";
-    if (!formData.price || Number(formData.price) <= 0) {
-      newErrors.price = "يرجى إدخال سعر صحيح";
+    const textOnlyRegex = /^[a-zA-Z\u0600-\u06FF\s]+$/;
+    const titleRegex = /^[a-zA-Z\u0600-\u06FF0-9\s,\.\-\(\)\/]+$/;
+    const letterRegex = /[a-zA-Z\u0600-\u06FF]/;
+
+    // Title
+    if (!formData.title.trim()) {
+      newErrors.title = "عنوان العمل مطلوب";
+    } else if (formData.title.trim().length < 5) {
+      newErrors.title = "عنوان العمل يجب أن يكون 5 أحرف على الأقل";
+    } else if (formData.title.trim().length > 100) {
+      newErrors.title = "عنوان العمل لا يجب أن يتجاوز 100 حرف";
+    } else if (!letterRegex.test(formData.title)) {
+      newErrors.title = "عنوان العمل يجب أن يحتوي على حروف";
+    } else if (!titleRegex.test(formData.title)) {
+      newErrors.title = "عنوان العمل يحتوي على رموز غير صالحة";
     }
+
+    // Location
+    if (!formData.location.trim()) {
+      newErrors.location = "المدينة/المنطقة مطلوبة";
+    } else if (formData.location.trim().length < 3) {
+      newErrors.location = "المدينة/المنطقة يجب أن تكون 3 أحرف على الأقل";
+    } else if (formData.location.trim().length > 100) {
+      newErrors.location = "المدينة/المنطقة لا يجب أن تتجاوز 100 حرف";
+    } else if (!letterRegex.test(formData.location)) {
+      newErrors.location = "المدينة/المنطقة يجب أن تحتوي على حروف";
+    } else if (!titleRegex.test(formData.location)) {
+      newErrors.location = "المدينة/المنطقة تحتوي على رموز غير صالحة";
+    }
+
+    // Client Name
+    if (!formData.clientName.trim()) {
+      newErrors.clientName = "اسم العميل مطلوب";
+    } else if (formData.clientName.trim().length < 3) {
+      newErrors.clientName = "اسم العميل يجب أن يكون 3 أحرف على الأقل";
+    } else if (formData.clientName.trim().length > 100) {
+      newErrors.clientName = "اسم العميل لا يجب أن يتجاوز 100 حرف";
+    } else if (!textOnlyRegex.test(formData.clientName)) {
+      newErrors.clientName = "اسم العميل يجب أن يحتوي على حروف ومسافات فقط";
+    }
+
+    // Date
+    if (!formData.date) {
+      newErrors.date = "تاريخ العمل مطلوب";
+    } else {
+      const selectedDate = new Date(formData.date);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      if (selectedDate > today) {
+        newErrors.date = "تاريخ العمل لا يمكن أن يكون في المستقبل";
+      }
+    }
+
+    // Price
+    if (!formData.price) {
+      newErrors.price = "التكلفة مطلوبة";
+    } else if (Number(formData.price) < 10) {
+      newErrors.price = "السعر يجب أن يكون 10 ج.م على الأقل";
+    }
+
+    // Description
+    if (!formData.description.trim()) {
+      newErrors.description = "تفاصيل العمل مطلوبة";
+    } else if (formData.description.trim().length < 15) {
+      newErrors.description = "تفاصيل العمل يجب أن تكون 15 حرفاً على الأقل";
+    } else if (formData.description.trim().length > 1000) {
+      newErrors.description = "تفاصيل العمل لا يجب أن تتجاوز 1000 حرف";
+    } else if (!letterRegex.test(formData.description)) {
+      newErrors.description = "تفاصيل العمل يجب أن تحتوي على حروف مفيدة";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

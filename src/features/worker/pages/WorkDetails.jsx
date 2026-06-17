@@ -137,6 +137,25 @@ export default function WorkDetails() {
                 >
                   {JOB_SOURCE_LABELS[work.source] || work.source}
                 </span>
+                {work.source === "outside" && (
+                  <span
+                    className={`px-4 py-2 text-sm font-semibold rounded-lg ${
+                      work.approvalStatus === "approved"
+                        ? "bg-green-50 text-green-700 border border-green-100"
+                        : work.approvalStatus === "rejected"
+                        ? "bg-red-50 text-red-700 border border-red-100"
+                        : "bg-yellow-50 text-yellow-700 border border-yellow-100"
+                    }`}
+                  >
+                    حالة الموافقة: {
+                      work.approvalStatus === "approved"
+                        ? "مقبول"
+                        : work.approvalStatus === "rejected"
+                        ? "مرفوض"
+                        : "قيد المراجعة"
+                    }
+                  </span>
+                )}
                 <span
                   className={`px-4 py-2 text-sm font-semibold rounded-lg ${statusConfig.badge}`}
                 >
