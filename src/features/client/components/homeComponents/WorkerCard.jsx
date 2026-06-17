@@ -19,7 +19,7 @@ export default function WorkerCard({worker}) {
   
         <div className="relative w-20 h-20 mb-3">
           <img 
-            src={worker.image} 
+            src={worker.profilePic} 
             alt={worker.name} 
             className="w-full h-full rounded-full object-cover border-2 border-gray-50"
           />

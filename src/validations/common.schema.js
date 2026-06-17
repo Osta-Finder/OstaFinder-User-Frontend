@@ -83,3 +83,45 @@ export const validateLoginPassword = (password) => {
   }
   return "";
 };
+export const validateField = (name, value) => {
+  switch (name) {
+    case "title":
+      if (!value || !value.trim()) {
+        return " العنوان مطلوب";
+      }
+      if (value && value.trim().length > 50) {
+        return " العنوان لا يجب أن يتجاوز 50 حرفاً";
+      }
+      return "";
+    case "city":
+      if (!value || !value.trim()) return "المدينة مطلوبة";
+      if (value.trim().length > 50) return "اسم المدينة لا يجب أن يتجاوز 50 حرفاً";
+      return "";
+    case "area":
+      if (!value || !value.trim()) return "المنطقة مطلوبة";
+      if (value.trim().length > 50) return "اسم المنطقة لا يجب أن يتجاوز 50 حرفاً";
+      return "";
+    case "street":
+      if (!value || !value.trim()) return "الشارع مطلوب";
+      if (value.trim().length > 100) return "اسم الشارع لا يجب أن يتجاوز 100 حرف";
+      return "";
+    case "buildingNumber":
+      if (!value || !value.trim()) return "رقم المبنى مطلوب";
+      if (typeof value === "string" && !/^\d+$/.test(value.trim())) return "رقم المبنى يجب أن يكون رقماً";
+      if (value.trim().length > 10) return "رقم المبنى لا يجب أن يتجاوز 10 أحرف";
+      return "";
+    case "floor":
+      if (typeof value === "string" && !/^\d+$/.test(value.trim())) return "الدور يجب أن يكون رقماً";
+      if (value && value.trim().length > 10) return "الدور لا يجب أن يتجاوز 10 أحرف";
+      return "";
+    case "apartment":
+      if (value && value.trim().length > 10) return "الشقة لا يجب أن تتجاوز 10 أحرف";
+      return "";
+    case "address":
+      if (!value || !value.trim()) return "العنوان التفصيلي مطلوب";
+      if (value.trim().length > 250) return "العنوان التفصيلي لا يجب أن يتجاوز 250 حرفاً";
+      return "";
+    default:
+      return "";
+  }
+};

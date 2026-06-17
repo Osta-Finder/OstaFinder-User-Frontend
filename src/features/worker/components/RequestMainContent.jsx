@@ -1,20 +1,54 @@
 import { AlertCircle, Check, ChevronRight, MapPin, User } from "lucide-react";
 import { toast } from "react-toastify";
-import plumbingLeak from "../../../assets/images/plumbing_leak_problem.png";
+import plumbingLeak from "../../../assets/images/No_Image_Available.jpg";
 import { useNavigate } from "react-router-dom";
+import { image } from "motion/react-client";
+import { useEffect, useMemo } from "react";
 
 export default function RequestMainContent({
   requestData,
-  currentStep = 1,
+  currentStep,
   onStepChange = () => {},
   onStatusUpdate = () => {},
   isUpdating = false,
 }) {
   const steps = [
-    { number: 1, label: "تم القبول", status: "accepted" },
-    { number: 2, label: "العمل جاري", status: "in_progress" },
-    { number: 3, label: "مكتمل", status: "completed" },
+    { number: 1, label: "معلقة", status: "pending" },
+    { number: 2, label: "تم القبول", status: "accepted" },
+    { number: 3, label: "العمل جاري", status: "in_progress" },
+    { number: 4, label: "مكتمل", status: "completed" },
   ];
+
+  const statusToStep = (status) => {
+    if (!status && status !== 0) return null;
+    const raw = String(status);
+    const lower = raw.toLowerCase();
+
+    // Arabic and English mappings
+    if (["معلقة", "pending"].includes(raw) || lower === "pending") return 1;
+    if (
+      ["تم القبول", "مقبولة", "accepted"].includes(raw) ||
+      ["accepted"].includes(lower)
+    )
+      return 2;
+    // on_the_way / في الطريق treated as accepted (step 2)
+    if (["في الطريق", "on_the_way", "on the way"].includes(raw) || lower.includes("on_the_way") || lower.includes("on the way") || lower.includes("on_the_way")) return 2;
+    if (["قيد التنفيذ", "in_progress"].includes(raw) || lower === "in_progress" || lower.includes("in progress") || lower.includes("in_progress")) return 3;
+    if (["مكتمل", "مكتملة", "completed"].includes(raw) || lower === "completed") return 4;
+
+    return null;
+  };
+
+  const effectiveStep = useMemo(() => {
+    const mapped = statusToStep(requestData?.status);
+    return mapped || currentStep || 1;
+  }, [requestData?.status, currentStep]);
+
+  useEffect(() => {
+    if (typeof onStepChange === "function" && effectiveStep !== currentStep) {
+      onStepChange(effectiveStep);
+    }
+  }, [effectiveStep, currentStep, onStepChange]);
   const navigate = useNavigate();
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -30,6 +64,61 @@ export default function RequestMainContent({
       return dateStr;
     }
   };
+
+  const getButtonConfig = () => {
+    const status = requestData?.status;
+    if (
+      effectiveStep >= 4 ||
+      status === "مكتمل" ||
+      status === "مكتملة" ||
+      status === "completed"
+    ) {
+      return null;
+    }
+    if (status === "معلقة" || status === "pending") {
+      return {
+        text: "قبول الطلب",
+        status: "accepted",
+        className:
+          "bg-brand-orange hover:bg-[#d96525] text-white shadow-brand-orange/10 hover:shadow-brand-orange/20",
+        icon: <Check className="w-4 h-4 stroke-[3]" />,
+      };
+    }
+    if (
+      status === "مقبولة" ||
+      status === "accepted" ||
+      status === "في الطريق" ||
+      status === "on_the_way"
+    ) {
+      return {
+        text: "بدء العمل",
+        status: "in_progress",
+        className:
+          "bg-brand-brown hover:bg-[#833304] text-white shadow-brand-brown/10 hover:shadow-brand-brown/20",
+        icon: (
+          <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+            <Check className="w-3.5 h-3.5 stroke-[3.5] text-white" />
+          </div>
+        ),
+      };
+    }
+    if (status === "قيد التنفيذ" || status === "in_progress") {
+      return {
+        text: "إتمام الخدمة",
+        status: "completed",
+        className:
+          "bg-brand-brown hover:bg-[#833304] text-white shadow-brand-brown/10 hover:shadow-brand-brown/20",
+        icon: (
+          <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+            <Check className="w-3.5 h-3.5 stroke-[3.5] text-white" />
+          </div>
+        ),
+      };
+    }
+    return null;
+  };
+
+  const btnConfig = getButtonConfig();
 
   return (
     <div className="flex-1 space-y-6" dir="rtl">
@@ -50,7 +139,7 @@ export default function RequestMainContent({
           <span>العودة للطلبات</span>
           <span className="mx-1">/</span>
           <span className="text-gray-900 font-semibold">
-            طلب #{requestData?.requestNumber || 49281}
+            طلب #{requestData?.requestNumber || "###"}
           </span>
         </button>
       </div>
@@ -65,9 +154,7 @@ export default function RequestMainContent({
             <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-orange/10 text-brand-orange">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-pulse"></span>
               <span>
-                {currentStep === 1 && requestData?.status === "معلقة"
-                  ? "معلقة"
-                  : steps[currentStep - 1]?.label || "قيد التنفيذ"}
+{steps[effectiveStep - 1]?.label || "قيد التنفيذ"}
               </span>
             </span>
           </div>
@@ -108,18 +195,16 @@ export default function RequestMainContent({
           <div
             className="absolute top-1/2 right-0 h-0.75 bg-brand-brown -translate-y-1/2 z-0 rounded-full transition-all duration-500 ease-out"
             style={{
-              width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
+              width: `${((effectiveStep - 1) / (steps.length - 1)) * 100}%`,
             }}
           ></div>
 
           {steps.map((step) => {
-            const isCompleted = step.number < currentStep;
-            const isActive = step.number === currentStep;
+                      const isCompleted = step.number < effectiveStep;
+                      const isActive = step.number === effectiveStep;
             return (
               <button
                 key={step.number}
-                // onClick={() => onStepChange(step.number)}
-                // onClick={() => onStatusUpdate(step.status)}
                 className="relative z-10 flex flex-col items-center group focus:outline-none"
               >
                 <div
@@ -132,7 +217,7 @@ export default function RequestMainContent({
                   }`}
                 >
                   {isCompleted ? (
-                    <Check className="w-4.5 h-4.5 stroke-[3]" />
+                    <Check className="w-4.5 h-4.5 stroke-3" />
                   ) : (
                     <span>{step.number}</span>
                   )}
@@ -143,15 +228,15 @@ export default function RequestMainContent({
         </div>
         <div className="relative flex justify-between items-center max-w-2xl mx-auto py-3">
           {steps.map((step) => {
-            const isCompleted = step.number < currentStep;
-            const isActive = step.number === currentStep;
+                      const isCompleted = step.number < effectiveStep;
+                      const isActive = step.number === effectiveStep;
             return (
               <span
                 key={step.number}
                 className={`mt-3 text-xs font-bold transition-colors duration-300 ${
                   isActive
                     ? "text-brand-orange font-extrabold"
-                    : isCompleted || step.number <= currentStep
+                              : isCompleted || step.number <= effectiveStep
                       ? "text-gray-800"
                       : "text-gray-400 font-medium"
                 }`}
@@ -171,7 +256,7 @@ export default function RequestMainContent({
 
         <div className="relative rounded-2xl overflow-hidden border border-gray-100 aspect-video max-h-96 group shadow-inner">
           <img
-            src={plumbingLeak}
+            src={requestData?.image || plumbingLeak}
             alt="صورة المشكلة المرفقة"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102"
           />
@@ -194,41 +279,26 @@ export default function RequestMainContent({
       </div>
 
       {/* Update Request Status (تحديث حالة الطلب) */}
-      {currentStep < 3 && (
+      {btnConfig && (
         <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
           <h3 className="text-lg font-bold text-gray-900 mb-5">
             تحديث حالة الطلب
           </h3>
 
           <div className="space-y-5">
-            <div className="pt-4 border-t border-gray-50 flex flex-col sm:flex-row gap-3">
+            <div className="pt-4 border-t border-gray-50 flex gap-3">
               <button
-                onClick={() => onStatusUpdate("completed")}
+                onClick={() => onStatusUpdate(btnConfig.status)}
                 disabled={isUpdating}
-                className="flex-1 flex items-center justify-center gap-2 bg-brand-brown hover:bg-[#833304] active:scale-[0.98] text-white font-extrabold text-sm py-4 px-6 rounded-2xl shadow-md hover:shadow-lg shadow-brand-brown/10 hover:shadow-brand-brown/20 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`flex-1 flex items-center justify-center gap-2 active:scale-[0.98] font-extrabold text-sm py-4 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${btnConfig.className}`}
               >
                 {isUpdating ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                    <Check className="w-3.5 h-3.5 stroke-[3.5] text-white" />
-                  </div>
+                  btnConfig.icon
                 )}
-                <span>إتمام الخدمة</span>
+                <span>{btnConfig.text}</span>
               </button>
-
-              {currentStep === 1 && (
-                <button
-                  onClick={() => onStatusUpdate("in_progress")}
-                  disabled={isUpdating}
-                  className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 border-2 border-gray-100 hover:border-gray-200 active:scale-[0.98] text-gray-700 font-extrabold text-sm py-4 px-6 rounded-2xl transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isUpdating ? (
-                    <div className="w-5 h-5 border-2 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
-                  ) : null}
-                  <span>بدء العمل</span>
-                </button>
-              )}
             </div>
           </div>
         </div>

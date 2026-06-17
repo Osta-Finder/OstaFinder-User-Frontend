@@ -107,12 +107,12 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-300">
               {categories.map((cat) => (
                 <li key={cat._id}>
-                  <Link
-                    to={`/categories?category=${cat._id}&page=1`}
-                    className="hover:text-white"
-                  >
-                    {cat.name}
-                  </Link>
+                    <Link
+                      to={`/categories?category=${cat.slug}&page=1`}
+                      className="hover:text-white"
+                    >
+                      {cat.name}
+                    </Link>
                 </li>
               ))}
             </ul>

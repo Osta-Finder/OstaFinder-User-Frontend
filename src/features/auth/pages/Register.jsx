@@ -82,7 +82,7 @@ export default function Register() {
     try {
       const result = await register(payload).unwrap();
       console.log("result", result);
-      
+
       dispatch(resetOnboarding());
 
       toast.success(
@@ -102,14 +102,16 @@ export default function Register() {
       // err contains server error
       // console.log(err);
 
-      toast.error("فشل التسجيل", {
-        position: "top-right",
-        rtl: true,
-        theme: "light",
-      });
-      setErrors({
-        submit: err?.data?.message || err?.message || "فشل التسجيل",
-      });
+      toast.error(
+        err?.data?.message.startsWith("E11000 duplicate key error collection")
+          ? "البريد الإلكتروني أو رقم الهاتف مستخدم بالفعل"
+          : "فشل التسجيل",
+        {
+          position: "top-right",
+          rtl: true,
+          theme: "light",
+        },
+      );
     }
   };
 
@@ -229,13 +231,12 @@ export default function Register() {
         </form>
 
         {/* Separator OR (أو) */}
-        <div className="flex items-center my-6 before:content-[''] before:flex-1 before:border-t before:border-gray-200 after:content-[''] after:flex-1 after:border-t after:border-gray-200 text-gray-400 text-sm gap-4 font-bold select-none">
+        {/* <div className="flex items-center my-6 before:content-[''] before:flex-1 before:border-t before:border-gray-200 after:content-[''] after:flex-1 after:border-t after:border-gray-200 text-gray-400 text-sm gap-4 font-bold select-none">
           أو
-        </div>
+        </div> */}
 
         {/* Social Sign-In Options */}
-        <div className="space-y-3">
-          {/* Google Login */}
+        {/* <div className="space-y-3">
           <Button
             variant="outline"
             className="w-full hover:shadow-sm"
@@ -275,7 +276,6 @@ export default function Register() {
             المتابعة باستخدام Google
           </Button>
 
-          {/* Apple Login */}
           <Button
             variant="social-dark"
             className="w-full"
@@ -299,7 +299,7 @@ export default function Register() {
           >
             المتابعة باستخدام Apple
           </Button>
-        </div>
+        </div> */}
 
         {/* Footer Link */}
         <div className="mt-8 text-center text-sm font-semibold text-gray-500">

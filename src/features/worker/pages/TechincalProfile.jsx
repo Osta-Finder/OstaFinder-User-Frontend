@@ -10,7 +10,7 @@
  */
 
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import PageContainer from "../components/PageContainer";
 import EmptyState from "../components/EmptyState";
@@ -56,6 +56,7 @@ function StarRating({ rating, size = "sm" }) {
 
 export default function TechnicianProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState(ALL_FILTER);
 
   // User state
@@ -110,7 +111,13 @@ export default function TechnicianProfile() {
   const [editWorkEnd, setEditWorkEnd] = useState("22:00");
   const [editAllDay, setEditAllDay] = useState(false);
 
-  // Fetch worker public data
+  // Toast notification state
+  const [toast, setToast] = useState(null); // { message, type: 'success' | 'error' }
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
   const { data: profileResponse, isLoading: isLoadingProfile, error: profileError } = useGetWorkerPublicProfileQuery(id);
   const { data: servicesResponse } = useGetWorkerPublicServicesQuery(id);
   const { data: worksResponse } = useGetWorkerPublicWorksQuery(id);
@@ -189,30 +196,44 @@ export default function TechnicianProfile() {
 
   const validateEditProfile = () => {
     const errors = {};
-    const phoneRegex = /^(01)[0-2,5]{1}[0-9]{8}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^01[0-2,5][0-9]{8}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|eg|co\.eg|gmail\.com|yahoo\.com|hotmail\.com|outlook\.com)$/i;
 
+    // الاسم
     if (!editName.trim()) {
       errors.name = "الاسم مطلوب";
     } else if (editName.trim().length < 3) {
       errors.name = "الاسم يجب أن يكون 3 أحرف على الأقل";
     }
+
+    // النبذة
     if (editBio.trim().length > 400) {
       errors.bio = `النبذة تجاوزت الحد المسموح (${editBio.trim().length}/400 حرف)`;
     }
-    if (editExperience !== "" && (Number(editExperience) < 0 || Number(editExperience) > 50)) {
-      errors.experience = "سنوات الخبرة يجب أن تكون بين 0 و 50";
+
+    // سنوات الخبرة
+    const expVal = String(editExperience).trim();
+    const expNum = Number(expVal);
+    if (!expVal || isNaN(expNum) || expNum < 1 || expNum > 50) {
+      errors.experience = "خبرة ما بين 1 إلى 50 سنة فقط";
     }
+
+    // رقم الهاتف
     if (!editPhone.trim()) {
-      errors.phone = "رقم الهاتف مطلوب";
+      errors.phone = "رقم الهاتف غير صحيح";
     } else if (!phoneRegex.test(editPhone.trim())) {
-      errors.phone = "رقم الهاتف غير صحيح، مثال: 01012345678";
+      errors.phone = "رقم الهاتف غير صحيح";
     }
+
+    // البريد الإلكتروني
     if (!editEmail.trim()) {
       errors.email = "البريد الإلكتروني مطلوب";
+    } else if (!editEmail.includes("@")) {
+      errors.email = "نسيت @ في البريد الإلكتروني";
     } else if (!emailRegex.test(editEmail.trim())) {
       errors.email = "البريد الإلكتروني غير صحيح";
     }
+
     return errors;
   };
 
@@ -319,41 +340,29 @@ export default function TechnicianProfile() {
     setBookingErrors({});
 
     const selectedSvcObject = servicesList.find((s) => (s._id || s.id) === selectedService);
-    const rawServiceTitle = selectedSvcObject?.title || "خدمة عامة";
-    // Ensure service title is between 5 and 50 characters for backend validation
-    const serviceTitle = (rawServiceTitle.length >= 5 ? rawServiceTitle : `${rawServiceTitle} - صيانة`).substring(0, 50);
-    const amountVal = selectedSvcObject?.price || 0;
-    // Ensure description is between 20 and 500 characters for backend validation
-    const descriptionText = `طلب خدمة مباشر من الصفحة الشخصية للفني. تفاصيل إضافية: ${notes.trim() || "لا توجد"}`;
 
-    try {
-      await createRequest({
-        workerId: id,
-        orderData: {
-          service: serviceTitle,
-          date: new Date().toISOString(),
-          address: address.trim(),
-          amount: amountVal,
-          phoneNumber: clientPhone.trim(),
-          description: descriptionText.substring(0, 500),
-        }
-      }).unwrap();
-
-      setBookingSuccess(true);
-      setTimeout(() => {
-        setIsBookingOpen(false);
-        setBookingSuccess(false);
-        setSelectedService("");
-        setAddress("");
-        setNotes("");
-        setUrgency("normal");
-        setClientPhone("");
-        setBookingErrors({});
-      }, 3000);
-    } catch (err) {
-      console.error("Failed to create request:", err);
-      alert(err?.data?.message || "عذراً، حدث خطأ ما أثناء إرسال طلب الحجز");
-    }
+    // Navigate to createOrderPage with prefilled data via location.state
+    navigate(`/create-order/${id}`, {
+      state: {
+        worker: {
+          _id: id,
+          name: profile.name,
+          image: avatarUrl,
+          rating: profile.rating,
+          price: selectedSvcObject?.price || profile.price || 0,
+          isOnline: profile.isOnline,
+          category: profile.category,
+        },
+        prefilled: {
+          serviceName: selectedSvcObject?.title || "",
+          servicePrice: selectedSvcObject?.price || 0,
+          urgency: urgency,
+          phoneNumber: clientPhone,
+          address: address,
+          notes: notes,
+        },
+      },
+    });
   };
 
   if (isLoadingProfile) {
@@ -404,32 +413,6 @@ export default function TechnicianProfile() {
   return (
     <div className="pt-20" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl ${theme.primaryBg} flex items-center justify-center shrink-0`}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">ملف الفني</h1>
-              <p className="text-xs text-gray-400 mt-0.5">تفاصيل الفني وخدماته المتاحة</p>
-            </div>
-          </div>
-          {isOwnProfile ? (
-            <button
-              onClick={openEditModal}
-              className={`flex items-center gap-2 ${theme.primaryBg} ${theme.primaryHoverBg} text-white px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 text-sm`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              تعديل ملفي الشخصي
-            </button>
-          ) : null}
-        </div>
-
         {/* Main 2-column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
@@ -438,7 +421,7 @@ export default function TechnicianProfile() {
 
             {/* Profile card */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className={`h-20 bg-gradient-to-l ${theme.gradientFromTo} relative overflow-hidden`}>
+              <div className="h-20 bg-[#eb6a2d] relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
               </div>
 
@@ -578,11 +561,11 @@ export default function TechnicianProfile() {
                               <button
                                 type="button"
                                 onClick={async () => {
-                                  if (!window.confirm("هل أنت متأكد من حذف هذا العمل؟")) return;
                                   try {
                                     await deleteWork(work._id || work.id).unwrap();
+                                    showToast("تم حذف العمل بنجاح");
                                   } catch {
-                                    alert("فشل الحذف، يرجى المحاولة مرة أخرى.");
+                                    showToast("فشل الحذف، يرجى المحاولة مرة أخرى", "error");
                                   }
                                 }}
                                 className="text-[10px] bg-red-50 text-red-500 px-2.5 py-1 rounded-lg font-bold hover:bg-red-100 transition-colors"
@@ -1012,7 +995,7 @@ export default function TechnicianProfile() {
                         disabled={isCreatingRequest}
                         className={`w-full py-3 ${theme.primaryBg} ${theme.primaryHoverBg} text-white rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-lg text-sm disabled:opacity-50`}
                       >
-                        {isCreatingRequest ? "جاري إرسال الطلب..." : "إرسال الطلب للفني"}
+                        {isCreatingRequest ? "جاري التحقق..." : "متابعة ←"}
                       </button>
                     </div>
                   </form>
@@ -1055,7 +1038,7 @@ export default function TechnicianProfile() {
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleEditSubmit} className="space-y-4">
+                  <form onSubmit={handleEditSubmit} className="space-y-4" noValidate>
                     {/* Profile Picture Upload */}
                     <div className="flex items-center gap-4 pb-2 border-b border-gray-100">
                       <div className="relative group w-16 h-16 shrink-0">
@@ -1104,7 +1087,7 @@ export default function TechnicianProfile() {
                     <div className="space-y-1.5">
                       <label className="block text-xs font-bold text-gray-700">الاسم بالكامل *</label>
                       <input
-                        type="text" required
+                        type="text"
                         value={editName}
                         onChange={(e) => { setEditName(e.target.value); setEditErrors((p) => ({ ...p, name: "" })); }}
                         className={`w-full px-3.5 py-2.5 bg-gray-50 border rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:bg-white transition-colors ${editErrors.name ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-[#eb6a2d]"}`}
@@ -1133,17 +1116,18 @@ export default function TechnicianProfile() {
                       <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-gray-700">سنوات الخبرة *</label>
                         <input
-                          type="number" required min="0"
+                          type="number" min="1" max="50"
                           value={editExperience}
-                          onChange={(e) => setEditExperience(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:border-[#eb6a2d] focus:bg-white transition-colors"
+                          onChange={(e) => { setEditExperience(e.target.value); setEditErrors((p) => ({ ...p, experience: "" })); }}
+                          className={`w-full px-3.5 py-2.5 bg-gray-50 border rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:bg-white transition-colors ${editErrors.experience ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-[#eb6a2d]"}`}
                         />
+                        {editErrors.experience && <p className="text-[11px] text-red-500 mt-1 font-medium">{editErrors.experience}</p>}
                       </div>
 
                       <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-gray-700">سعر يبدأ من (ج.م) *</label>
                         <input
-                          type="number" required min="0"
+                          type="number" min="0"
                           value={editPrice}
                           onChange={(e) => setEditPrice(e.target.value)}
                           className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:border-[#eb6a2d] focus:bg-white transition-colors"
@@ -1155,7 +1139,7 @@ export default function TechnicianProfile() {
                       <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-gray-700">رقم الهاتف للتواصل *</label>
                         <input
-                          type="tel" required
+                          type="tel"
                           value={editPhone}
                           onChange={(e) => { setEditPhone(e.target.value); setEditErrors((p) => ({ ...p, phone: "" })); }}
                           className={`w-full px-3.5 py-2.5 bg-gray-50 border rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:bg-white transition-colors ${editErrors.phone ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-[#eb6a2d]"}`}
@@ -1167,7 +1151,7 @@ export default function TechnicianProfile() {
                       <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-gray-700">البريد الإلكتروني *</label>
                         <input
-                          type="email" required
+                          type="text"
                           value={editEmail}
                           onChange={(e) => { setEditEmail(e.target.value); setEditErrors((p) => ({ ...p, email: "" })); }}
                           className={`w-full px-3.5 py-2.5 bg-gray-50 border rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:bg-white transition-colors ${editErrors.email ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-[#eb6a2d]"}`}
@@ -1180,7 +1164,7 @@ export default function TechnicianProfile() {
                     <div className="space-y-1.5">
                       <label className="block text-xs font-bold text-gray-700">منطقة الخدمة / العنوان *</label>
                       <input
-                        type="text" required
+                        type="text"
                         value={editAddress}
                         onChange={(e) => setEditAddress(e.target.value)}
                         className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:border-[#eb6a2d] focus:bg-white transition-colors"
@@ -1494,11 +1478,11 @@ export default function TechnicianProfile() {
                             <button
                               type="button"
                               onClick={async () => {
-                                if (!window.confirm("هل أنت متأكد من حذف هذا العمل؟")) return;
                                 try {
                                   await deleteWork(work._id || work.id).unwrap();
+                                  showToast("تم حذف العمل بنجاح");
                                 } catch {
-                                  alert("فشل الحذف، يرجى المحاولة مرة أخرى.");
+                                  showToast("فشل الحذف، يرجى المحاولة مرة أخرى", "error");
                                 }
                               }}
                               className="flex-1 py-2 px-3 bg-red-50 hover:bg-red-100 text-red-500 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1"
@@ -1519,6 +1503,58 @@ export default function TechnicianProfile() {
           </div>
         )}
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          dir="rtl"
+          className={`fixed top-6 right-6 z-[9999] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border min-w-[280px] max-w-sm
+            ${toast.type === "error"
+              ? "bg-white border-red-100"
+              : "bg-white border-green-100"
+            } animate-fade-in-up`}
+          style={{ animation: "slideUp 0.3s ease" }}
+        >
+          {/* Icon */}
+          <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-base
+            ${toast.type === "error" ? "bg-red-500" : "bg-emerald-500"}`}>
+            {toast.type === "error" ? "✕" : "✓"}
+          </div>
+
+          {/* Message */}
+          <p className={`text-sm font-semibold flex-1
+            ${toast.type === "error" ? "text-red-700" : "text-gray-800"}`}>
+            {toast.message}
+          </p>
+
+          {/* Close */}
+          <button
+            onClick={() => setToast(null)}
+            className="text-gray-300 hover:text-gray-500 transition-colors text-lg leading-none"
+          >
+            ×
+          </button>
+
+          {/* Progress bar */}
+          <div className="absolute bottom-0 left-0 right-0 h-1 rounded-b-2xl overflow-hidden">
+            <div
+              className={`h-full ${toast.type === "error" ? "bg-red-400" : "bg-emerald-400"}`}
+              style={{ animation: "shrink 3s linear forwards" }}
+            />
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(-20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shrink {
+          from { width: 100%; }
+          to   { width: 0%; }
+        }
+      `}</style>
     </div>
   );
 }

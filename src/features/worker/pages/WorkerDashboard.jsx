@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   useGetDashboardStatsQuery,
   useGetDashboardRequestsQuery,
@@ -9,6 +9,7 @@ import {
 import { WorkerRoutes } from "../constants/routes.config";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
+import { toast } from "react-toastify";
 
 const Icons = {
   electricity: (
@@ -148,7 +149,6 @@ const getCategoryIcon = (category) =>
 
 const getSafeStats = (statsData) => {
   const stats = statsData?.data ?? statsData ?? {};
-
   return {
     totalOrders: stats.totalOrders ?? { value: 0, change: 0, period: "" },
     employmentRate: stats.employmentRate ?? { value: 0, change: 0, period: "" },

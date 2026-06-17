@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setCurrentStep } from '../../../store/slices/onboardingSlice';
 import { setCredentials } from '../../../store/slices/authSlice';
-import { useSubmitOnboardingMutation } from '../../../services/workerApi';
+import { useSubmitOnboardingMutation, useUploadImageMutation } from '../../../services/workerApi';
 import { useGetMeQuery } from '../../../services/authApi';
 import { updateBasicData } from '../../../store/slices/onboardingSlice';
 import Navbar from '../../../components/layout/Navbar';
@@ -21,6 +21,7 @@ export default function WorkerOnboarding() {
   const [submitError, setSubmitError] = useState(null);
 
   const [submitOnboarding, { isLoading: isSubmitting }] = useSubmitOnboardingMutation();
+  const [uploadImage] = useUploadImageMutation();
 
   // Fetch user data and pre-fill basic data fields on every page load
   const { data: meData } = useGetMeQuery(undefined, {
@@ -55,7 +56,6 @@ export default function WorkerOnboarding() {
   const handleSubmit = async () => {
     setSubmitError(null);
 
-    // Backend uses multer upload.none() — accepts text fields only (no file uploads)
     const formData = new FormData();
 
     // Basic data
@@ -74,22 +74,31 @@ export default function WorkerOnboarding() {
       formData.append('bio', onboardingData.professional.bio);
     }
 
-    // Documentation — send Supabase URLs (strings) stored in Redux after upload
-    // nationalId is the Supabase public URL set by DocumentationStep after upload
-    if (onboardingData.documentation.nationalId) {
-      formData.append('nationalId', onboardingData.documentation.nationalId);
-    }
-    // certificates is an array of Supabase public URLs
-    onboardingData.documentation.certificates.forEach((url) => {
-      formData.append('certificates', url);
-    });
-
     try {
+      // ── Upload National ID (only now, on submit) ──
+      const nationalIdFile = onboardingData.documentation.nationalIdFile;
+      if (nationalIdFile instanceof File) {
+        const fd = new FormData();
+        fd.append('file', nationalIdFile);
+        fd.append('bucket', 'official-docs');
+        const res = await uploadImage(fd).unwrap();
+        formData.append('nationalId', res.data.url);
+      }
+
+      // ── Upload Certificates (only now, on submit) ──
+      const certFiles = onboardingData.documentation.certificateFiles;
+      for (const file of certFiles) {
+        if (file instanceof File) {
+          const fd = new FormData();
+          fd.append('file', file);
+          fd.append('bucket', 'official-docs');
+          const res = await uploadImage(fd).unwrap();
+          formData.append('certificates', res.data.url);
+        }
+      }
+
       const result = await submitOnboarding(formData).unwrap();
 
-      // Backend returns { success, message, data: updatedWorker }
-      // workerApi.onQueryStarted already dispatches setCredentials with result.data
-      // but we also update here as a safety net
       if (result?.data) {
         dispatch(setCredentials({ user: result.data }));
       }

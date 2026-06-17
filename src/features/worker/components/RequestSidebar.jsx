@@ -53,7 +53,6 @@ export default function RequestSidebar({
           <span>بيانات العميل</span>
           <span className="w-1.5 h-1.5 rounded-full bg-brand-orange"></span>
         </h3>
-
         <div className="flex items-center gap-4 mb-6">
           <div className="relative group">
             <div className="absolute inset-0 bg-brand-orange/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -67,44 +66,16 @@ export default function RequestSidebar({
             <h4 className="font-bold text-gray-900 text-base">
               {requestData?.user?.name || "عميل غير معروف"}
             </h4>
-            {/* <div className="flex items-center gap-1 mt-0.5">
-              <span className="text-amber-500 font-bold text-sm">
-                ⭐{" "}
-                {requestData?.rating !== null &&
-                requestData?.rating !== undefined
-                  ? requestData.rating
-                  : "4.8"}
-              </span>
-              <span className="text-gray-400 text-xs">(12 طلب سابق)</span>
-            </div> */}
           </div>
         </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={handleCall}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-semibold text-sm transition-all duration-300 cursor-pointer ${
-              calling
-                ? "bg-emerald-50 text-emerald-600 scale-[0.98]"
-                : "bg-gray-50 hover:bg-gray-100/80 text-gray-800 hover:text-brand-orange border border-transparent hover:border-brand-orange/10"
-            }`}
-          >
-            <Phone className={`w-4 h-4 ${calling ? "animate-bounce" : ""}`} />
-            <span>{calling ? "جاري الاتصال..." : "الاتصال بالعميل"}</span>
-          </button>
-
-          <button
-            onClick={handleChat}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-semibold text-sm transition-all duration-300 cursor-pointer ${
-              chatting
-                ? "bg-brand-orange/10 text-brand-orange scale-[0.98]"
-                : "bg-gray-50 hover:bg-gray-100/80 text-gray-800 hover:text-brand-orange border border-transparent hover:border-brand-orange/10"
-            }`}
-          >
-            <MessageSquare className="w-4 h-4" />
-            <span>{chatting ? "جاري فتح المحادثة..." : "محادثة"}</span>
-          </button>
-        </div>
+        <div className="flex justify-between items-center py-1">
+          <span className="text-gray-400 text-sm font-medium">
+            رقم تليفون العميل
+          </span>
+          <span className="text-gray-900 text-sm font-bold bg-gray-50 px-3 py-1 rounded-xl">
+            {requestData?.user?.phoneNumber || "لا يوجد"}
+          </span>
+        </div>{" "}
       </div>
 
       {/* Map Card */}
