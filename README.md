@@ -1,4 +1,4 @@
-# 🛠️ El Osta Fen (الأسطى فين) — User & Worker Application
+# 🛠️ OstaFinder — User & Worker Application
 
 > **Egyptian Home Services Marketplace** — An elegant, high-performance web platform that bridges the trust gap between homeowners ("Clients") and verified skilled technicians ("Ostas" / "Sana'eyah") for home maintenance, repair, and installations.
 
@@ -62,7 +62,7 @@ The User Frontend is built with a **Desktop-First (Web)** approach, catering to 
 
 ## 🎨 Design System & Aesthetics
 
-El Osta Fen's UI is designed with a premium, tactile, and professional aesthetic based on **Trust Architecture**.
+OstaFinder's UI is designed with a premium, tactile, and professional aesthetic based on **Trust Architecture**.
 
 ### Color Tokens
 *   **Primary (Electric Blue):** `#2563EB` — Power, authority, trust, and branding.
